@@ -1,6 +1,6 @@
 
 // helper functions
-export default sortHand = (playerHand, by = 'name') => {
+const sortHand = (playerHand, by = 'name') => {
   let sortedPlayerHand = [...playerHand];
   if(by=='name'){
     sortedPlayerHand.sort((firstCard,nextCard)=> {
@@ -13,3 +13,5 @@ export default sortHand = (playerHand, by = 'name') => {
   }
   return sortedPlayerHand;
 }
+
+export default sortHand

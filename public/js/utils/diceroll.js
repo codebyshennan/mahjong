@@ -1,4 +1,4 @@
-export default diceRoll = (dices) => {
+const diceRoll = (dices) => {
   
   if(dices === 2) {
     const firstDice = Math.ceil(Math.random() * 6)
@@ -25,3 +25,5 @@ export default diceRoll = (dices) => {
   }
 
 }
+
+export default diceRoll

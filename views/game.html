@@ -5,35 +5,67 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Game</title>
-    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
-    <script type="module" src="game.js" defer></script>
-    <script type="module" src="interactivity.js" defer></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"
-      defer
-    ></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script type="module" src="interactivity.js" defer></script> -->
 
-    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="../public/js/game.js" defer></script>
+    <link rel="stylesheet" type="text/css" href="../public/css/styles.css" />
     <!-- <link rel="stylesheet" href="experimental.css" /> -->
   </head>
   <body>
-    <div class="container">
-      <div class="board">
-        <div class="nonplayer">
-          <div class="left" id="leftPlayerHand"></div>
-          <div class="leftChecked" id="leftPlayerChecked">hello</div>
-          <div class="middle">
-            <div class="top" id="topPlayerHand">top</div>
-            <div class="topChecked" id="topPlayerChecked">top</div>
-            <div class="playingfield dropzone" id="dropzone">dropzone</div>
-            <div class="gamelog" id="gamelog">description</div>
-            <div class="actionbuttons" id="actionbuttons">action buttons</div>
-          </div>
-          <div class="rightChecked" id="rightPlayerChecked">hello</div>
-          <div class="right" id="rightPlayerHand">right</div>
+    <div class="board">
+      <div class="game">
+        <div class="leftplayer">
+          <div class="leftHand" id="leftPlayerHand"></div>
+          <div class="leftChecked" id="leftPlayerChecked"></div>
         </div>
-        <div class="playerChecked" id="playerChecked">player</div>
-        <div class="player" id="playerHand">player</div>
+        <div class="rightplayer">
+          <div class="rightChecked" id="rightPlayerChecked"></div>
+
+          <div class="rightHand" id="rightPlayerHand"></div>
+        </div>
+        <div class="mainplayer">
+          <div class="playerChecked" id="playerChecked"></div>
+          <div class="playerHand" id="playerHand"></div>
+        </div>
+        <div class="topplayer">
+          <div class="topHand" id="topPlayerHand"></div>
+          <div class="topChecked" id="topPlayerChecked"></div>
+        </div>
+        <div class="topdiscard" id="topPlayerDiscard"></div>
+        <div class="rightdiscard" id="rightPlayerDiscard"></div>
+        <div class="leftdiscard" id="leftPlayerDiscard"></div>
+        <div class="maindiscard" id="playerDiscardPile"></div>
+        <div class="controls">
+          <div class="square" id="playerControls">
+            <div class="topcontrols">
+              <div class="content"></div>
+            </div>
+            <div class="leftcontrols">
+              <div class="content"></div>
+            </div>
+            <div class="rightcontrols">
+              <div class="content"></div>
+            </div>
+            <div class="bottomcontrols">
+              <div class="content"></div>
+            </div>
+          </div>
+          <div class="circle">
+            <div id="timer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="messenger">
+        <div class="video">
+          <div class="leftvideo">video</div>
+          <div class="rightvideo">video</div>
+          <div class="topvideo">video</div>
+          <div class="mainvideo">video</div>
+        </div>
+        <div class="message">
+          <div id="gamelog"></div>
+        </div>
       </div>
     </div>
   </body>

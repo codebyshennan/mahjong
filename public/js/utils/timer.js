@@ -1,4 +1,5 @@
-let timer = {
+
+export let timer = {
   intervals: new Set(),
 
   start(...args) {
@@ -19,11 +20,11 @@ let timer = {
   }
 }
 
-export default startTimer = (time, callback)=>{
+export const startTimer = (time, display, callback)=>{
   let elapsedTime = time
 
   timer.start(()=> {
-    timerDisplay.innerText = elapsedTime
+    display.innerText = elapsedTime
     elapsedTime--
     if(elapsedTime < 0) {
       timer.clearAll()
@@ -32,3 +33,5 @@ export default startTimer = (time, callback)=>{
   }, 1000)
 
 }
+
+startTimer

@@ -1,5 +1,8 @@
-import { sortHand, buildTiles, diceRoll, shuffleTiles } from './makeDeck.js'
-import {NUMBERED_TILES, SUIT_LIST, DRAGON_TILES, WIND_TILES,WIND_TILES, ANIMAL_TILES,FLOWER_TILES} from './makeDeck.js'
+import buildDeck from './makeDeck.js'
+import sortHand from './utils/sorthand.js'
+import {timer, startTimer} from './utils/timer.js'
+import diceRoll from './utils/diceroll.js'
+import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from './tileset.js'
 
 
 const gamelog = document.getElementById('gamelog')
@@ -20,7 +23,6 @@ let gameState = {
 
 let deckInPlay
 const timerDisplay = document.getElementById('timer')
-
 
 const tallyByName = (playerHand) => {
   const sortedHand = sortHand(playerHand, 'name')
@@ -228,7 +230,7 @@ const updateGameState = (type, playerNumber = 0) => {
       gameState.currentPlayer = playerNumber // TODO: need to change this to reflect the player who clicked
       gameState.currentTurnNo++
       updateGameLog()
-      startTimer(10, PLAYERS[gameState.currentPlayer].skipTurn)
+      startTimer(10, timerDisplay, PLAYERS[gameState.currentPlayer].skipTurn)
       break;
   
     default:
@@ -240,7 +242,7 @@ const updateGameState = (type, playerNumber = 0) => {
 // newGame(12,'east')
 const newGame = (diceRolled, house) => {
 
-  deckInPlay = (shuffleTiles(buildTiles()))
+  deckInPlay = buildDeck()
 
   // TODO: query for player name, wind, seatPosition
   // let player1 = new Player('player1', 'east', 1)
@@ -273,7 +275,7 @@ const startRound = () => {
   const currentPlayer = PLAYERS[gameState.currentPlayer]
   currentPlayer.drawTile()
   updateGameState('drawtiles')
-  startTimer(10, currentPlayer.skipTurn)
+  startTimer(10, timerDisplay, currentPlayer.skipTurn)
 }
 
 newGame()
@@ -457,7 +459,7 @@ const renderBoard = ()=> {
   // reset merge combinations
   possibleMergeCombinations = []
 
-  const playerControls = document.getElementById('playerControls').getElementsByClassName('content')[0]
+  const playerControls = document.getElementById('playerControls').getElementsByClassName('content')[3]
 
     // activate when discard pile is not empty and not player's own discard
   if(currentDiscarded.length > 0 && gameState.currentPlayer != 1  ) {
