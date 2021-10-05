@@ -11,7 +11,7 @@ const buildTiles = () => {
         for (let count = 0; count < 9; count++) {
           let tile = {
             name: `${NUMBERED_TILES[tiletype].substr(0,1)}${count+1}`,
-            url : `/assets/svgtiles/${NUMBERED_TILES[tiletype].substr(0,1)}${count+1}.svg`,
+            url : `assets/svgtiles/${NUMBERED_TILES[tiletype].substr(0,1)}${count+1}.svg`,
             suit : SUIT_LIST[tiletype][count],
             copy : copy + 1, // indicate which copy it is, so can group by name then count pong
             count : count + 1, 
@@ -29,7 +29,7 @@ const buildTiles = () => {
       for(let copy = 0; copy < 4; copy++){
         let tile = {
           name:  `${WIND_TILES[tiletype]}`,
-          url : `/assets/svgtiles/${WIND_TILES[tiletype]}.svg`,
+          url : `assets/svgtiles/${WIND_TILES[tiletype]}.svg`,
           suit : WIND_SUITS[tiletype],
           copy : copy + 1,
           count : tiletype + 1, // ESWN
@@ -46,7 +46,7 @@ const buildTiles = () => {
       for(let copy = 0; copy < 4; copy++) {
         let tile = {}
         tile.name = `${DRAGON_TILES[tiletype]}dragon`;
-        tile.url = `/assets/svgtiles/dragon_${DRAGON_TILES[tiletype]}.svg`
+        tile.url = `assets/svgtiles/dragon_${DRAGON_TILES[tiletype]}.svg`
         tile.copy = copy + 1;
         tile.suit = DRAGON_SUITS[tiletype]
         tile.index = 124 + (copy + 1) * (tiletype + 1)
@@ -60,7 +60,7 @@ const buildTiles = () => {
     for(let tiletype = 0; tiletype < FLOWER_TILES.length; tiletype ++) {
       let tile = {}
       tile.name = `${FLOWER_TILES[tiletype]}`;
-      tile.url = `/assets/svgtiles/${FLOWER_TILES[tiletype]}.svg`
+      tile.url = `assets/svgtiles/${FLOWER_TILES[tiletype]}.svg`
       tile.suit = FLOWER_SUITS[tiletype]
       tile.count = (tiletype % 4) + 1;
       tile.index = 136 + (tiletype + 1)
@@ -73,7 +73,7 @@ const buildTiles = () => {
     for(let tiletype = 0; tiletype < ANIMAL_TILES.length; tiletype ++) {
       let tile = {}
       tile.name = `${ANIMAL_TILES[tiletype]}`;
-      tile.url = `/assets/svgtiles/${ANIMAL_TILES[tiletype]}.svg`
+      tile.url = `assets/svgtiles/${ANIMAL_TILES[tiletype]}.svg`
       tile.suit = ANIMAL_SUITS[tiletype];
       tile.index = 144 + (tiletype + 1)
       tiles.push(tile);

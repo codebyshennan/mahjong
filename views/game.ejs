@@ -8,8 +8,17 @@
     <!-- <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <script type="module" src="interactivity.js" defer></script> -->
 
-    <script type="module" src="../public/js/game.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="../public/css/styles.css" />
+    <script type="module" src="js/game.js" defer></script>
+    <script
+      src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"
+      defer
+    ></script>
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script src="js/rooms/manageroom.js" defer></script>
+    <script>
+      const ROOM_ID = "<%= roomId %>";
+    </script>
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
     <!-- <link rel="stylesheet" href="experimental.css" /> -->
   </head>
   <body>
@@ -21,7 +30,6 @@
         </div>
         <div class="rightplayer">
           <div class="rightChecked" id="rightPlayerChecked"></div>
-
           <div class="rightHand" id="rightPlayerHand"></div>
         </div>
         <div class="mainplayer">
@@ -57,11 +65,11 @@
         </div>
       </div>
       <div class="messenger">
-        <div class="video">
-          <div class="leftvideo">video</div>
-          <div class="rightvideo">video</div>
-          <div class="topvideo">video</div>
-          <div class="mainvideo">video</div>
+        <div class="video" id="videogrid">
+          <div class="insetvideo" id="letvideo"></div>
+          <div class="insetvideo" id="rightvideo"></div>
+          <div class="insetvideo" id="topvideo"></div>
+          <div class="insetvideo" id="mainvideo"></div>
         </div>
         <div class="message">
           <div id="gamelog"></div>

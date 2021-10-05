@@ -460,6 +460,7 @@ const renderBoard = ()=> {
   possibleMergeCombinations = []
 
   const playerControls = document.getElementById('playerControls').getElementsByClassName('content')[3]
+  
 
     // activate when discard pile is not empty and not player's own discard
   if(currentDiscarded.length > 0 && gameState.currentPlayer != 1  ) {
