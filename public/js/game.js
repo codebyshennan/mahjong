@@ -485,10 +485,12 @@ const renderBoard = ()=> {
     console.log('CHECKING EAT POSSIBILITY')
     const lastDiscardedTile = justDiscarded[justDiscarded.length-1]
     if(PLAYERS[0].checkIfCanBeEaten(lastDiscardedTile)) {
-      console.log("Combinations: ", possibleMergeCombinations)
+      
+      let set = new Set(possibleMergeCombinations.map(JSON.stringify))
+      let possibleUniqueCombinations = Array.from(set).map(JSON.parse)
 
       // give the player options which one to eat
-      possibleMergeCombinations.forEach(combo => {
+      possibleUniqueCombinations.forEach(combo => {
         const eatDiscardedTile = document.createElement('button')
         for(const tileName of combo) {
           eatDiscardedTile.textContent += refDeck()[tileName]
