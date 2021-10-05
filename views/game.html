@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script type="module" src="game.js" defer></script>
+    <script type="module" src="interactivity.js" defer></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"
+      defer
+    ></script>
+
+    <link rel="stylesheet" href="styles.css" />
+    <!-- <link rel="stylesheet" href="experimental.css" /> -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="board">
+        <div class="nonplayer">
+          <div class="left" id="leftPlayerHand"></div>
+          <div class="leftChecked" id="leftPlayerChecked">hello</div>
+          <div class="middle">
+            <div class="top" id="topPlayerHand">top</div>
+            <div class="topChecked" id="topPlayerChecked">top</div>
+            <div class="playingfield dropzone" id="dropzone">dropzone</div>
+            <div class="gamelog" id="gamelog">description</div>
+            <div class="actionbuttons" id="actionbuttons">action buttons</div>
+          </div>
+          <div class="rightChecked" id="rightPlayerChecked">hello</div>
+          <div class="right" id="rightPlayerHand">right</div>
+        </div>
+        <div class="playerChecked" id="playerChecked">player</div>
+        <div class="player" id="playerHand">player</div>
+      </div>
+    </div>
+  </body>
+</html>

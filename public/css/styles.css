@@ -1,0 +1,314 @@
+body {
+  overflow-y: hidden;
+}
+
+.board {
+  display: grid;
+  height: 95vh;
+  grid-auto-flow: row dense;
+  grid-template-columns: 3fr 1fr;
+  grid-template-rows: 1fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas: ". .";
+}
+
+.game {
+  border-radius: 20px;
+  padding: 5px;
+  background-color: darkolivegreen;
+  display: grid;
+  border: 4px solid black;
+  height: 95vh;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "topplayer topplayer topplayer topplayer topplayer settings"
+    "leftplayer topdiscard topdiscard topdiscard rightdiscard rightplayer"
+    "leftplayer leftdiscard controls controls rightdiscard rightplayer"
+    "leftplayer leftdiscard controls controls rightdiscard rightplayer"
+    "leftplayer leftdiscard maindiscard maindiscard maindiscard rightplayer"
+    "mainplayer mainplayer mainplayer mainplayer mainplayer mainplayer";
+}
+
+.settings {
+  grid-area: settings;
+}
+
+.leftplayer {
+  display: flex;
+  grid-area: leftplayer;
+  justify-content: center;
+  align-items: center;
+}
+
+.rightplayer {
+  display: flex;
+  grid-area: rightplayer;
+  justify-content: center;
+  align-items: center;
+}
+
+.mainplayer {
+  display: flex;
+  flex-direction: column;
+  grid-area: mainplayer;
+  justify-content: space-evenly;
+}
+
+.topplayer {
+  grid-area: topplayer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.settings {
+  grid-area: settings;
+}
+
+.topdiscard {
+  border: 4px dotted black;
+  border-right: none;
+  grid-area: topdiscard;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.rightdiscard {
+  border: 4px dotted black;
+  border-bottom: none;
+  grid-area: rightdiscard;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.leftdiscard {
+  border: 4px dotted black;
+  border-top: none;
+  grid-area: leftdiscard;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.maindiscard {
+  border: 4px dotted black;
+  border-left: none;
+  grid-area: maindiscard;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.controls {
+  grid-area: controls;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.messenger {
+  display: grid;
+  border-radius: 20px;
+  margin-left: 10px;
+  border: 4px solid black;
+  padding: 10px;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 2fr;
+  gap: 0px 0px;
+  grid-template-areas:
+    "video"
+    "message";
+}
+.video {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 0px 0px;
+  grid-template-areas:
+    "leftvideo rightvideo"
+    "topvideo mainvideo";
+  grid-area: video;
+}
+.leftvideo {
+  grid-area: leftvideo;
+}
+.rightvideo {
+  grid-area: rightvideo;
+}
+.topvideo {
+  grid-area: topvideo;
+}
+.mainvideo {
+  grid-area: mainvideo;
+}
+.message {
+  grid-area: message;
+}
+
+.topHand,
+.topChecked {
+  display: flex;
+  height: 3em;
+  padding: 5px;
+}
+
+.tile > * {
+  background-color: white;
+}
+
+.topHand .tile > *,
+.topChecked .tile > * {
+  /* W1:H1.26 */
+  width: 2.2em;
+  height: calc(2.2em * 1.4);
+  border: 1px solid black;
+  border-radius: 8px;
+}
+
+.topChecked .tile {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.playerHand,
+.playerChecked {
+  height: 62.5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+}
+
+.leftHand,
+.rightHand,
+.leftChecked,
+.rightChecked {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  width: 2em;
+  justify-content: center;
+  align-items: center;
+}
+
+.tile > *,
+#playerChecked .tile > *,
+#playerHand .tile > * {
+  width: 50px;
+  height: 62.5px;
+  border: 1px solid black;
+  border-radius: 8px;
+}
+
+#playerChecked .tile > *,
+#playerHand .tile > *:hover {
+  border: 3px solid gold;
+  border-radius: 8px;
+}
+
+.leftHand .tile > *,
+.rightHand .tile > * {
+  width: calc(2.2em * 1.4);
+  margin-bottom: -4px;
+  justify-content: center;
+  align-items: center;
+  height: 2.2em;
+  border: 1px solid black;
+  border-radius: 8px;
+}
+
+.leftChecked .tile > * {
+  width: 2.2em;
+  height: calc(2.2em * 1.4);
+  border: 1px solid black;
+  border-radius: 8px;
+  transform: rotate(90deg);
+}
+
+.rightChecked .tile > * {
+  width: 2.2em;
+  height: calc(2.2em * 1.4);
+  border: 1px solid black;
+  border-radius: 8px;
+  transform: rotate(-90deg);
+}
+
+.rightdiscard .tile > * {
+  transform: rotate(-90deg);
+}
+
+.leftdiscard .tile > * {
+  transform: rotate(90deg);
+}
+
+.topdiscard .tile,
+.maindiscard .tile {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.square {
+  position: relative;
+  /* height: 300px; */
+  height: 30vh;
+  width: 30vh;
+  /* width: 300px; */
+  /* border: 2px solid crimson; */
+  overflow: hidden;
+  transition: all 1s;
+}
+
+.circle {
+  position: absolute;
+  background-color: white;
+  border-radius: 50%;
+  border: 1px solid black;
+  z-index: 99;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.topcontrols,
+.leftcontrols,
+.rightcontrols,
+.bottomcontrols {
+  position: absolute;
+  height: calc(100% / 1.414);
+  width: calc(100% / 1.414);
+  top: 50%;
+  left: 50%;
+  border: 1px solid black;
+  transform-origin: 0% 0%;
+}
+.rightcontrols {
+  transform: rotate(-45deg);
+}
+.bottomcontrols {
+  transform: rotate(45deg);
+}
+.topcontrols {
+  transform: rotate(-135deg);
+}
+.leftcontrols {
+  transform: rotate(135deg);
+}
+
+.square > div:hover {
+  background: tomato;
+}
+
+.content {
+  transform: rotate(-45deg);
+}

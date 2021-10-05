@@ -1,0 +1,121 @@
+.nonplayer > *,
+.nonplayer > * > *,
+.player {
+  /* border: 1px solid black; */
+  text-align: center;
+}
+
+.nonplayer,
+.player {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  -webkit-perspective: 500px;
+  perspective: 1000px;
+}
+
+.board {
+  width: 80vw;
+  height: 80vh;
+  background: darkolivegreen;
+  position: absolute;
+  top: -10px;
+  left: 10%;
+  -webkit-transform: rotateZ(0deg);
+  transform: rotateX(10deg) rotateY(0deg) rotateZ(0deg);
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+.nonplayer {
+  -webkit-perspective: 500px;
+  perspective: 1000px;
+}
+
+.top {
+  display: flex;
+}
+
+.left,
+.right {
+  display: flex;
+  position: relative;
+  top: -100px;
+  margin-right: 10px;
+  -webkit-transform: rotateZ(0deg);
+  transform: rotateX(2deg) rotateY(0deg) rotateZ(270deg);
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+.left {
+  transform: rotateX(2deg) rotateY(0deg) rotateZ(90deg);
+}
+
+.middle {
+  flex: 8;
+  height: 80vh;
+}
+
+.dropzone {
+  height: 200px;
+}
+
+.tile > * {
+  /* W1:H1.26 */
+  position: relative;
+  width: 50px;
+  height: 80px;
+  /* border: 1px solid black; */
+  border-radius: 8px;
+}
+
+#playerHand .tile > * {
+  width: 100px;
+  height: 125px;
+}
+
+#playerHand .tile > *:hover {
+  border: 3px solid gold;
+  border-radius: 8px;
+}
+
+.left .tile > * {
+  border: 1px solid black;
+  position: relative;
+}
+
+.left .tile::before,
+.left .tile::after {
+  border: 1px solid black;
+  position: absolute;
+  content: "";
+}
+
+.left .tile {
+  transform: translate(-0.5rem, -0.5rem);
+}
+
+.left .tile::before {
+  border-radius: 8px;
+  height: 1rem;
+  top: 100%;
+  left: -1px;
+  right: -1px;
+  transform-origin: top left;
+  transform: skewX(45deg) scaleY(1);
+}
+
+.left .tile::after {
+  border-radius: 8px;
+  width: 1.5rem;
+  left: 100%;
+  top: -1px;
+  bottom: 0;
+  border-bottom: none;
+  transform-origin: bottom left;
+  transform: skewY(-10deg) scaleX(1);
+}
