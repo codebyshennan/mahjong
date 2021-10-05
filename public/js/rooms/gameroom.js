@@ -5,20 +5,29 @@ const videoGrid = document.getElementById('videogrid').getElementsByClassName('i
 // id must start and end with alphanumeric character
 // dashes and underscores are allowed
 const peer = new Peer(undefined, {
-  host: '/',
-  port: '3001' //client
+  host: 'localhost',
+  port: '3001', //client
   //server and client exists on different ports
   // pingInterval: 5000
-  // path: '/'
+  path: '/videostream',
   // secure: true if SSL
   // config
-  // debug: 0 => prints no logs (3 prints all logs)
+  debug: 3 
+  // => prints no logs (3 prints all logs)
 })
 
 const peers = {}
 const myVideo = document.createElement('video')
 // mutes your own microphone output to yourself
 myVideo.muted = true;
+
+const audio = document.getElementById('audio')
+for(let i = 0; i < 10; i++) {
+  const pid = document.createElement('div')
+  pid.classList.add('pid')
+  audio.appendChild(pid)
+}
+
 
 // navigator.getUserMedia(constraints, successCallback, errorCallback);
 navigator.mediaDevices.getUserMedia({
@@ -28,6 +37,7 @@ navigator.mediaDevices.getUserMedia({
 
   // audio analyser
   const colorPids = (vol)=> {
+    
     let all_pids = [...document.querySelectorAll('.pid')];
     let amount_of_pids = Math.round(vol/10);
     let elem_range = all_pids.slice(0, amount_of_pids)
@@ -92,7 +102,7 @@ socket.on('user-disconnected', userId=> {
 
 // Emitted when a connection to the PeerServer is established. You may use the peer before this is emitted, but messages to the server will be queued. id is the brokering ID of the peer (which was either provided in the constructor or assigned by the server).
 peer.on('open', userId => {
-  socket.emit('join-room', ROOM_userId, id)
+  socket.emit('join-room', userId)
 })
 
 const addVideoStream = (video,stream)=> {
@@ -100,7 +110,7 @@ const addVideoStream = (video,stream)=> {
   video.addEventListener('loadedmetadata', ()=> {
     video.play();
   })
-  videoGrid[0].append(video)
+  videoGrid[0].appendChild(video)
 }
 
 const connectToNewUser = (userId, stream) => {

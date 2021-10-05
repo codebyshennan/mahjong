@@ -106,8 +106,14 @@ const shuffleTiles = (deck) => {
   return shuffledDeck;
 }
 
-const buildDeck = () => {
-  return shuffleTiles(buildTiles())
+export const refDeck = () => {
+  let refObj = {}
+  buildTiles().forEach(tile=> {
+    refObj[tile.name] = tile.suit
+  })
+  return refObj
 }
 
-export default buildDeck
+export const buildDeck = () => {
+  return shuffleTiles(buildTiles())
+}

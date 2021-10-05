@@ -14,7 +14,7 @@
       defer
     ></script>
     <script src="/socket.io/socket.io.js" defer></script>
-    <script src="js/rooms/manageroom.js" defer></script>
+    <script src="js/rooms/gameroom.js" defer></script>
     <script>
       const ROOM_ID = "<%= roomId %>";
     </script>
@@ -24,6 +24,7 @@
   <body>
     <div class="board">
       <div class="game">
+        <div class="settings"></div>
         <div class="leftplayer">
           <div class="leftHand" id="leftPlayerHand"></div>
           <div class="leftChecked" id="leftPlayerChecked"></div>
@@ -66,7 +67,9 @@
       </div>
       <div class="messenger">
         <div class="video" id="videogrid">
-          <div class="insetvideo" id="letvideo"></div>
+          <div class="insetvideo" id="leftvideo">
+            <div id="audio"></div>
+          </div>
           <div class="insetvideo" id="rightvideo"></div>
           <div class="insetvideo" id="topvideo"></div>
           <div class="insetvideo" id="mainvideo"></div>

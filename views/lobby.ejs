@@ -12,6 +12,12 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
     />
 
+    <style>
+      .room:hover {
+        background-color: aqua;
+      }
+    </style>
+
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   </head>
@@ -20,41 +26,40 @@
 
     <div class="container">
       <h2 class="header">Rooms</h2>
-      <div class="row">
-        <div class="col s12 m7 l4">
-          <div class="card horizontal">
-            <div class="card-image">
-              <img src="https://lorempixel.com/100/190/nature/6" />
+      <div class="col s12 m7 l4 room">
+        <div class="card horizontal">
+          <div
+            class="card-image"
+            style="
+              background-image: url(https://static.vecteezy.com/system/resources/thumbnails/000/124/091/small/mahjong-hand-drawn-vector.jpg);
+              background-repeat: no-repeat;
+              min-width: 300px;
+            "
+          ></div>
+          <div class="card-stacked">
+            <div class="card-content">
+              <ul></ul>
             </div>
-            <div class="card-stacked">
-              <div class="card-content">
-                <p>ROOM ID: DSA213eD12e</p>
-                <p>PLAYERS: 3/4</p>
-              </div>
-              <div class="card-action">
-                <a href="#">JOIN ROOM</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col s12 m7 l4">
-          <div class="card horizontal">
-            <div class="card-image">
-              <img src="https://lorempixel.com/100/190/nature/6" />
-            </div>
-            <div class="card-stacked">
-              <div class="card-content">
-                <p>ROOM ID: DSA213eD12e</p>
-                <p>PLAYERS: 3/4</p>
-              </div>
-              <div class="card-action">
-                <a href="#">JOIN ROOM</a>
-              </div>
-            </div>
-          </div>
+            <div class="card-action">JOIN ROOM</div>
           </div>
         </div>
       </div>
     </div>
   </body>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCZxHXBsKxpepn-CHCKGdgnDNcjonCo8ec",
+      authDomain: "mahjong-7d9ae.firebaseapp.com",
+      databaseURL:
+        "https://mahjong-7d9ae-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "mahjong-7d9ae",
+      storageBucket: "mahjong-7d9ae.appspot.com",
+      messagingSenderId: "786831681379",
+      appId: "1:786831681379:web:f4b3f6beaa559156209556",
+      measurementId: "G-4JDXRRGDV0",
+    };
+    const firebase = initializeApp(firebaseConfig);
+    const db = getFirestore(firebase);
+  </script>
+  <script type="module" src="js/rooms/lobby.js" defer></script>
 </html>

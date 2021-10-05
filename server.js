@@ -4,28 +4,18 @@ import cors from 'cors'
 import { Server } from 'socket.io'
 import { initializeApp } from 'firebase/app'
 // import { getAnalytics } from "firebase/analytics";
-import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore/lite'
+import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, arrayUnion, arrayRemove, query, where } from 'firebase/firestore/lite'
+import firebaseConfig from './environment.js'
 import { 
   getAuth,
+  signOut,
   onAuthStateChanged, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signInWithPopup,
-  GoogleAuthProvider } from 'firebase/auth'
+  GoogleAuthProvider,
+  FacebookAuthProvider } from 'firebase/auth'
 import { v4 as uuidv4 } from 'uuid'
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyCZxHXBsKxpepn-CHCKGdgnDNcjonCo8ec",
-  authDomain: "mahjong-7d9ae.firebaseapp.com",
-  databaseURL: "https://mahjong-7d9ae-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "mahjong-7d9ae",
-  storageBucket: "mahjong-7d9ae.appspot.com",
-  messagingSenderId: "786831681379",
-  appId: "1:786831681379:web:f4b3f6beaa559156209556",
-  measurementId: "G-4JDXRRGDV0"
-};
 
 const firebase = initializeApp(firebaseConfig)
 const db = getFirestore(firebase)
@@ -37,7 +27,7 @@ const server = http.createServer(app)
 
 const io = new Server(server,{
   cors: {
-      origins: ['http://localhost:5500','https://admin.socket.io'],
+      origins: ['http://localhost:3000','https://admin.socket.io'],
       methods: ['GET','POST']
     }
 })
@@ -60,22 +50,59 @@ app.use(express.urlencoded({
 app.use(cors())
 
 
+app.get('/signout',(req,res)=> {
+  const auth = getAuth()
+  signOut(auth).then(()=>{
+    // sign out successful
+    console.log('Signed out')
+  }).catch((error)=> {
+    console.error(error)
+  })
+})
+
+app.get('/register', (req,res)=>{
+  res.render('register')
+})
+.post('/register', (req,res)=>{
+  const { firstname, lastname, email, password} = req.body
+  console.log(firstname, lastname, email, password)
+  // create new users
+  const auth = getAuth();
+  console.log('getting credentials')
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential)=> {
+      return userCredential.user.updateProfile({
+        displayName: `${firstname} ${lastname}`
+      }).then((result)=> {
+        console.log(result)
+      })
+
+      // TODO: save it in localstorage for persistence 
+    }).catch((error)=> {
+      const errorCode = error.code
+      const errorMessage = error.message;
+      // TODO: toastr this shit
+    })
+    // res.redirect('/login')
+})
+
+
 // authorisation middleware
-// app.use((req,res,next)=>{
-//   const auth = getAuth()
-//   onAuthStateChanged(auth, (user)=> {
-//     if(user) {
-//       // https://firebase.google.com/docs/reference/js/firebase.User
-//       console.log(user.displayName)
-//       console.log(user.uid)
-//       console.log('User is signed in.')
-//       next()
-//     } else {
-//       console.log('User is signed out.')
-//       res.redirect('/')
-//     }
-//   })
-// })
+const authRoute = (req,res,next)=>{
+  const auth = getAuth()
+  onAuthStateChanged(auth, (user)=> {
+    if(user) {
+      // https://firebase.google.com/docs/reference/js/firebase.User
+      console.log(user.displayName)
+      console.log(user.uid)
+      console.log('User is signed in.')
+      next()
+    } else {
+      console.log('User is signed out.')
+      res.redirect('/login')
+    }
+  })
+}
 
 app.get('/',(req,res)=> {
   res.redirect(`/${uuidv4()}`)
@@ -85,13 +112,19 @@ app.get('/:room', (req,res)=> {
   res.render('game', {roomId: req.params.room})
 })
 
-io.on('connection', socket => {
+app.get('/lobby', async (req,res)=> {
+  res.render('lobby')
+})
 
-  console.log('a user connected');
-  console.log(socket.client.conn.id)
 
+app.get('/interstitial/:room', (req,res)=>{
 
-  socket.on('create-room', async ()=> {
+})
+
+// app.post('/lobby/create')
+
+io.of('/lobby').on('connection', socket=> {
+  socket.on('create-and-join-room', async (callback)=> {
     const roomid = uuidv4()
     console.log(`room ${roomid} was created`)
     await setDoc(doc(db,'rooms', roomid), {
@@ -100,9 +133,19 @@ io.on('connection', socket => {
       gameState: 'Not Ready',
       players: [`${socket.client.conn.id}`],
       dateCreated: new Date()
+    }).then(result=> {
+      console.log(result)
+      callback(roomid)
     })
   })
+})
 
+
+
+io.of('/game').on('connection', socket => {
+
+  console.log('a user connected');
+  console.log(socket.client.conn.id)
 
   socket.on('my message', (msg) => {
     io.emit('my broadcast', `server: ${msg}`);
@@ -129,26 +172,6 @@ io.on('connection', socket => {
 })
 
 
-app.post('/register', (req,res)=>{
-  const { email, password} = req.body
-  // create new users
-  const auth = getAuth();
-  createUserWithEmailAndPassword(auth,email, password)
-    .then((userCredential)=> {
-      const user = userCredential.user;
-      // TODO: save it in localstorage for persistence 
-    }).catch((error)=> {
-      const errorCode = error.code
-      const errorMessage = error.message;
-      // TODO: toastr this shit
-    })
-})
-
-
-app.get('/main', (req, res) => {  
-  res.send(getData(db));
-});
-
 app.post('/login/form', (req,res)=> {
   const auth = getAuth()
   signInWithEmailAndPassword(auth, email, password)
@@ -163,9 +186,7 @@ app.post('/login/form', (req,res)=> {
     })
 })
 
-app.get('/login', (req,res)=>{
-  res.render('login')
-})
+
 
 app.post('/login/google', (req,res)=>{
   const auth = getAuth()

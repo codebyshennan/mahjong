@@ -14,6 +14,7 @@
 
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script src="/socket.io/socket.io.js" defer></script>
   </head>
   <body>
     <div class="container">
@@ -161,4 +162,20 @@
       </div>
     </div>
   </body>
+    <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCZxHXBsKxpepn-CHCKGdgnDNcjonCo8ec",
+      authDomain: "mahjong-7d9ae.firebaseapp.com",
+      databaseURL:
+        "https://mahjong-7d9ae-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "mahjong-7d9ae",
+      storageBucket: "mahjong-7d9ae.appspot.com",
+      messagingSenderId: "786831681379",
+      appId: "1:786831681379:web:f4b3f6beaa559156209556",
+      measurementId: "G-4JDXRRGDV0",
+    };
+    const firebase = initializeApp(firebaseConfig);
+    const db = getFirestore(firebase);
+  </script>
+  <script type="module" src="js/rooms/interstitial.js" defer></script>
 </html>

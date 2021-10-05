@@ -1,4 +1,4 @@
-import buildDeck from './makeDeck.js'
+import {refDeck, buildDeck} from './makeDeck.js'
 import sortHand from './utils/sorthand.js'
 import {timer, startTimer} from './utils/timer.js'
 import diceRoll from './utils/diceroll.js'
@@ -232,7 +232,15 @@ const updateGameState = (type, playerNumber = 0) => {
       updateGameLog()
       startTimer(10, timerDisplay, PLAYERS[gameState.currentPlayer].skipTurn)
       break;
-  
+
+    case 'wingame':
+      break;
+
+    case 'gameover':
+      timer.clearAll()
+      updateGameLog()
+      break;
+
     default:
       updateGameLog()
       break;
@@ -353,9 +361,16 @@ const combinationsOfGroupings = (playerTiles) => {
 
 
 const renderBoard = ()=> {
+
+  // check game state
+  if(gameState.tilesToPlay == 15) {
+    updateGameState('gameover')
+    return
+  }
+
   const currentHand = PLAYERS[0].playerTiles.playerHand
   const currentChecked = PLAYERS[0].playerTiles.playerChecked.flat(2)
-  const currentDiscarded = PLAYERS[0].playerTiles.playerDiscarded
+  const playerDiscarded = PLAYERS[0].playerTiles.playerDiscarded
   const playerHand = document.getElementById('playerHand');
   const playerChecked = document.getElementById('playerChecked');
   const playerDiscardPile = document.getElementById('playerDiscardPile') 
@@ -393,7 +408,7 @@ const renderBoard = ()=> {
       playerChecked.appendChild(tileContainer)
     })
 
-    currentDiscarded.forEach(playerTile => {
+    playerDiscarded.forEach(playerTile => {
       const tileContainer = document.createElement('div')
       tileContainer.id = playerTile.index
       tileContainer.classList.add('tile')
@@ -458,21 +473,27 @@ const renderBoard = ()=> {
   
   // reset merge combinations
   possibleMergeCombinations = []
+  console.log(refDeck())
 
   const playerControls = document.getElementById('playerControls').getElementsByClassName('content')[3]
-  
 
+  // [0,2,3] -> [3,1,2]
+  const justDiscarded = PLAYERS[(gameState.currentPlayer+7) % 4].playerTiles.playerDiscarded
     // activate when discard pile is not empty and not player's own discard
-  if(currentDiscarded.length > 0 && gameState.currentPlayer != 1  ) {
+  
+  if(justDiscarded.length > 0 && gameState.currentPlayer != 1  ) {
     console.log('CHECKING EAT POSSIBILITY')
-    const lastDiscardedTile = currentDiscarded[currentDiscarded.length-1]
+    const lastDiscardedTile = justDiscarded[justDiscarded.length-1]
     if(PLAYERS[0].checkIfCanBeEaten(lastDiscardedTile)) {
       console.log("Combinations: ", possibleMergeCombinations)
 
       // give the player options which one to eat
       possibleMergeCombinations.forEach(combo => {
         const eatDiscardedTile = document.createElement('button')
-        eatDiscardedTile.textContent = `${combo}`
+        for(const tileName of combo) {
+          eatDiscardedTile.textContent += refDeck()[tileName]
+        }
+
         eatDiscardedTile.addEventListener('click', (ev)=> {
           // TODO: eat the tiles based on the combinations
           const tileCombiToCheck = ev.target.textContent.split(',')
