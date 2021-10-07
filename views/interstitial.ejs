@@ -14,168 +14,99 @@
 
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-        <script src="/socket.io/socket.io.js" defer></script>
+    <script src="/socket.io/socket.io.js" defer></script>
+
+    <script>
+      const roomId = "<%=roomKey%>";
+    </script>
+    <script src="/js/rooms/interstitial/init.js"> <script>
+    <script type="module" src="/js/rooms/interstitial/chat.js" defer></script>
+    <script type="module" src="/js/rooms/interstitial/room.js" defer></script>
   </head>
   <body>
-    <div class="container">
-      <div class="row">
-      <div class="col">
-      <div class="row">
-        <div class="col">
-          <div class="card">
-            <div class="card-image waves-effect waves-block waves-light">
-              <img class="activator" src="images/office.jpg" />
-            </div>
-            <div class="card-content">
-              <span class="card-title activator grey-text text-darken-4"
-                >Card Title<i class="material-icons right">more_vert</i></span
-              >
-              <p><a href="#">This is a link</a></p>
-            </div>
-            <div class="card-reveal">
-              <span class="card-title grey-text text-darken-4"
-                >Card Title<i class="material-icons right">close</i></span
-              >
-              <p>
-                Here is some more information about this product that is only
-                revealed once clicked on.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col">
-          <div class="card">
-            <div class="card-image waves-effect waves-block waves-light">
-              <img class="activator" src="images/office.jpg" />
-            </div>
-            <div class="card-content">
-              <span class="card-title activator grey-text text-darken-4"
-                >Card Title<i class="material-icons right">more_vert</i></span
-              >
-              <p><a href="#">This is a link</a></p>
-            </div>
-            <div class="card-reveal">
-              <span class="card-title grey-text text-darken-4"
-                >Card Title<i class="material-icons right">close</i></span
-              >
-              <p>
-                Here is some more information about this product that is only
-                revealed once clicked on.
-              </p>
-            </div>
-          </div>
-        </div>
-        </div>
-
-
+    <!-- <div class="container"> -->
+    <div class="row">
+      <div class="col s8">
         <div class="row">
-        <div class="col">
-          <div class="card">
-            <div class="card-image waves-effect waves-block waves-light">
-              <img class="activator" src="images/office.jpg" />
+          <div class="col s3">
+            <div class="card blue-grey darken-1">
+              <div class="card-content white-text">
+                <span class="card-title">Card Title</span>
+                <p>
+                  I am a very simple card. I am good at containing small bits of
+                  information. I am convenient because I require little markup
+                  to use effectively.
+                </p>
+              </div>
+              <div class="card-action">
+                <a href="#">This is a link</a>
+                <a href="#">This is a link</a>
+              </div>
             </div>
-            <div class="card-content">
-              <span class="card-title activator grey-text text-darken-4"
-                >Card Title<i class="material-icons right">more_vert</i></span
-              >
-              <p><a href="#">This is a link</a></p>
+          </div>
+          <div class="col s3">
+            <div class="card blue-grey darken-1">
+              <div class="card-content white-text">
+                <span class="card-title">Card Title</span>
+                <p>
+                  I am a very simple card. I am good at containing small bits of
+                  information. I am convenient because I require little markup
+                  to use effectively.
+                </p>
+              </div>
+              <div class="card-action">
+                <a href="#">This is a link</a>
+                <a href="#">This is a link</a>
+              </div>
             </div>
-            <div class="card-reveal">
-              <span class="card-title grey-text text-darken-4"
-                >Card Title<i class="material-icons right">close</i></span
-              >
-              <p>
-                Here is some more information about this product that is only
-                revealed once clicked on.
-              </p>
+          </div>
+          <div class="col s3">
+            <div class="card blue-grey darken-1">
+              <div class="card-content white-text">
+                <span class="card-title">Card Title</span>
+                <p>
+                  I am a very simple card. I am good at containing small bits of
+                  information. I am convenient because I require little markup
+                  to use effectively.
+                </p>
+              </div>
+              <div class="card-action">
+                <a href="#">This is a link</a>
+                <a href="#">This is a link</a>
+              </div>
+            </div>
+          </div>
+          <div class="col s3">
+            <div class="card blue-grey darken-1">
+              <div class="card-content white-text">
+                <span class="card-title">Card Title</span>
+                <p>
+                  I am a very simple card. I am good at containing small bits of
+                  information. I am convenient because I require little markup
+                  to use effectively.
+                </p>
+              </div>
+              <div class="card-action">
+                <a href="#">This is a link</a>
+                <a href="#">This is a link</a>
+              </div>
             </div>
           </div>
         </div>
-
-        <div class="col">
-          <div class="card">
-            <div class="card-image waves-effect waves-block waves-light">
-              <img class="activator" src="images/office.jpg" />
-            </div>
-            <div class="card-content">
-              <span class="card-title activator grey-text text-darken-4"
-                >Card Title<i class="material-icons right">more_vert</i></span
-              >
-              <p><a href="#">This is a link</a></p>
-            </div>
-            <div class="card-reveal">
-              <span class="card-title grey-text text-darken-4"
-                >Card Title<i class="material-icons right">close</i></span
-              >
-              <p>
-                Here is some more information about this product that is only
-                revealed once clicked on.
-              </p>
-            </div>
-          </div>
-        </div>
-        </div>
       </div>
 
-      <div class="col">
-         <ul class="collection">
-    <li class="collection-item avatar">
-      <img src="images/yuna.jpg" alt="" class="circle">
-      <span class="title">Title</span>
-      <p>First Line <br>
-         Second Line
-      </p>
-      <a href="#!" class="secondary-content"><i class="material-icons">grade</i></a>
-    </li>
-    <li class="collection-item avatar">
-      <i class="material-icons circle">folder</i>
-      <span class="title">Title</span>
-      <p>First Line <br>
-         Second Line
-      </p>
-      <a href="#!" class="secondary-content"><i class="material-icons">grade</i></a>
-    </li>
-    <li class="collection-item avatar">
-      <i class="material-icons circle green">insert_chart</i>
-      <span class="title">Title</span>
-      <p>First Line <br>
-         Second Line
-      </p>
-      <a href="#!" class="secondary-content"><i class="material-icons">grade</i></a>
-    </li>
-    <li class="collection-item avatar">
-      <i class="material-icons circle red">play_arrow</i>
-      <span class="title">Title</span>
-      <p>First Line <br>
-         Second Line
-      </p>
-      <a href="#!" class="secondary-content"><i class="material-icons">grade</i></a>
-    </li>
-  </ul>
-        
-      </div>
-
-
-</div>
-
+      <div class="col s4" id="chat">
+        <div class="card-title" id="chat-header">GROUP CHAT</div>
+        <div class="card" id="chat-messages">
+          <ul></ul>
+        </div>
+        <div class="chat-input">
+          <textarea cols="30" rows="10" id="chat-message"></textarea>
+          <label for="chat-message">Chat message...</label>
+        </div>
+        <button id="send-chat">Send</button>
       </div>
     </div>
+    <!-- </div> -->
   </body>
-    <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCZxHXBsKxpepn-CHCKGdgnDNcjonCo8ec",
-      authDomain: "mahjong-7d9ae.firebaseapp.com",
-      databaseURL:
-        "https://mahjong-7d9ae-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "mahjong-7d9ae",
-      storageBucket: "mahjong-7d9ae.appspot.com",
-      messagingSenderId: "786831681379",
-      appId: "1:786831681379:web:f4b3f6beaa559156209556",
-      measurementId: "G-4JDXRRGDV0",
-    };
-    const firebase = initializeApp(firebaseConfig);
-    const db = getFirestore(firebase);
-  </script>
-  <script type="module" src="js/rooms/interstitial.js" defer></script>
 </html>

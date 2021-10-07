@@ -4,8 +4,8 @@ import cors from 'cors'
 import { Server } from 'socket.io'
 import { initializeApp } from 'firebase/app'
 // import { getAnalytics } from "firebase/analytics";
-import { getFirestore, collection, getDocs, doc, setDoc, updateDoc, arrayUnion, arrayRemove, query, where } from 'firebase/firestore/lite'
-import firebaseConfig from './environment.js'
+import { getDatabase, connectDatabaseEmulator } from 'firebase/database'
+import firebaseConfig from './public/js/config.js'
 import { 
   getAuth,
   signOut,
@@ -14,14 +14,28 @@ import {
   signInWithEmailAndPassword, 
   signInWithPopup,
   GoogleAuthProvider,
-  FacebookAuthProvider } from 'firebase/auth'
+  FacebookAuthProvider,
+  connectAuthEmulator } from 'firebase/auth'
 import { v4 as uuidv4 } from 'uuid'
+import admin from 'firebase-admin'
+// https://www.stefanjudis.com/snippets/how-to-import-json-files-in-es-modules-node-js/
+import { readFile } from 'fs/promises'
+const serviceAccount = JSON.parse(await readFile( new URL('./serviceAccountKey.json', import.meta.url)))
 
+// INITIALISE FIREBASE AS DATABASE
 const firebase = initializeApp(firebaseConfig)
-const db = getFirestore(firebase)
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  // databaseURL: "https://mahjong-7d9ae-default-rtdb.asia-southeast1.firebasedatabase.app"
+});
+
+const db = getDatabase(firebase)
+connectDatabaseEmulator(db, "localhost", 9000)
+
 // const analytics = getAnalytics(firebase)
 
-// socketio configuration to connect
+// SERVER CONFIGURATION TO HOST PEERJS CONNECTIONS
 const app = express()
 const server = http.createServer(app)
 
@@ -31,16 +45,9 @@ const io = new Server(server,{
       methods: ['GET','POST']
     }
 })
-  
-// get data fronm db
-const getData = async (db) => {
-  const users = collection(db, 'items')
-  const usersSnapshot = await getDocs(users)
-  const usersList = usersSnapshot.docs.map(doc=> doc.data());
-  console.log(usersList)
-  return usersList
-}
 
+
+// GLOBAL APP CONFIG FOR EXPRESS
 app.set('view engine','ejs')
 app.use(express.static('public'))
 app.use(express.json())
@@ -49,17 +56,13 @@ app.use(express.urlencoded({
 }))
 app.use(cors())
 
-
-app.get('/signout',(req,res)=> {
-  const auth = getAuth()
-  signOut(auth).then(()=>{
-    // sign out successful
-    console.log('Signed out')
-  }).catch((error)=> {
-    console.error(error)
-  })
+// ROUTES
+// DEFAULT
+app.get('/', (req,res)=>{
+  res.render('/lobby')
 })
 
+// REGISTER NEW USERS
 app.get('/register', (req,res)=>{
   res.render('register')
 })
@@ -71,7 +74,7 @@ app.get('/register', (req,res)=>{
   console.log('getting credentials')
   createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential)=> {
-      return userCredential.user.updateProfile({
+       userCredential.updateProfile({
         displayName: `${firstname} ${lastname}`
       }).then((result)=> {
         console.log(result)
@@ -86,39 +89,107 @@ app.get('/register', (req,res)=>{
     // res.redirect('/login')
 })
 
+// LOGIN 
+app.get('/login', (req,res)=>{
+  res.render('login')
+})
 
-// authorisation middleware
-const authRoute = (req,res,next)=>{
+// app.post('/login', (req,res)=> {
+//   const { idToken } = req.body
+//   admin.auth().verifyIdToken(idToken).then((decodedToken)=> {
+//     const uid = decodedToken.uid
+//     console.log(uid)
+//   })
+// })
+
+app.post('/login/form', (req,res)=> {
   const auth = getAuth()
-  onAuthStateChanged(auth, (user)=> {
-    if(user) {
-      // https://firebase.google.com/docs/reference/js/firebase.User
-      console.log(user.displayName)
-      console.log(user.uid)
-      console.log('User is signed in.')
-      next()
-    } else {
-      console.log('User is signed out.')
-      res.redirect('/login')
-    }
+  signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential)=> {
+      const user = userCredential.user;
+      // TODO: save it in localstorage for persistence
+      res.redirect('/main')
+    }).catch((error)=> {
+      const errorCode = error.code
+      const errorMessage = error.message;
+      // TODO: toastr this shit
+    })
+})
+
+app.post('/login/google', (req,res)=>{
+  const auth = getAuth()
+  const provider = new GoogleAuthProvider
+  signInWithPopup(auth, provider)
+    .then((result)=>{
+      // this gives you a Google Access Token
+      const credential = provider.credentialFromResult(result)
+      const token = credential.accessToken
+
+      console.log(credential)
+      console.log(token)
+      console.log(result.user)
+      // the signed in user info
+      const user = result.user
+    })
+})
+
+app.post('/login/facebook', (req,res)=>{
+  const auth = getAuth()
+  const provider = new FacebookAuthProvider
+  signInWithPopup(auth, provider)
+    .then((result)=>{
+      // this gives you a Google Access Token
+      const credential = provider.credentialFromResult(result)
+      const token = credential.accessToken
+
+      console.log(credential)
+      console.log(token)
+      console.log(result.user)
+      // the signed in user info
+      const user = result.user
+    })
+})
+
+// SIGN OUT
+app.post('/signout',(req,res)=> {
+  const auth = getAuth()
+  signOut(auth).then(()=>{
+    // sign out successful
+    console.log('Signed out')
+  }).catch((error)=> {
+    console.error(error)
   })
-}
-
-app.get('/',(req,res)=> {
-  res.redirect(`/${uuidv4()}`)
 })
 
-app.get('/:room', (req,res)=> {
-  res.render('game', {roomId: req.params.room})
-})
+// ROOM STRUCTURE
+// LOBBY -> INTERSTITIAL -> GAME
 
-app.get('/lobby', async (req,res)=> {
+// LOBBY
+// After you login and authenticate, it will bring you to a game lobby
+// Game lobby (SPA) will display the available games within the server
+// Lobby allows you to create or join rooms
+app.get('/lobby', (req,res)=> {
   res.render('lobby')
 })
 
+// INTERSTITIAL
+// After you create a room, you get into the waiting area where players can chat and indicate if they are ready or not. 
+// Once all are ready, the host can start the game, and all players are transported to a room with an already established game room id
+app.get('/interstitial/:key', (req,res)=>{
+  // TODO: use the admin sdk to check if the room is 
+  // if(room) {
+    res.render('interstitial', {roomKey: req.params.key})
+  // }
+})
 
-app.get('/interstitial/:room', (req,res)=>{
+// GAME ROOMS
+app.get('/:new',(req,res)=> {
+  res.redirect(`/room/${uuidv4()}`)
+})
 
+// In the gameroom, the client js file reads the db for the 
+app.get('/room/:room', (req,res)=> {
+  res.render('game', {roomId: req.params.room})
 })
 
 // app.post('/lobby/create')
@@ -139,7 +210,6 @@ io.of('/lobby').on('connection', socket=> {
     })
   })
 })
-
 
 
 io.of('/game').on('connection', socket => {
@@ -171,42 +241,6 @@ io.of('/game').on('connection', socket => {
   })
 })
 
-
-app.post('/login/form', (req,res)=> {
-  const auth = getAuth()
-  signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential)=> {
-      const user = userCredential.user;
-      // TODO: save it in localstorage for persistence
-      res.redirect('/main')
-    }).catch((error)=> {
-      const errorCode = error.code
-      const errorMessage = error.message;
-      // TODO: toastr this shit
-    })
-})
-
-
-
-app.post('/login/google', (req,res)=>{
-  const auth = getAuth()
-  const provider = new GoogleAuthProvider
-  signInWithPopup(auth, provider)
-    .then((result)=>{
-      // this gives you a Google Access Token
-      const credential = provider.credentialFromResult(result)
-      const token = credential.accessToken
-
-      // the signed in user info
-      const user = result.user
-    })
-})
-
-
-// for web-based RTC
-io.on('connection', (socket) => {
-  
-});
 
 
 
