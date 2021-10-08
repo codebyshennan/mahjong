@@ -42,7 +42,7 @@ const Chat = ()=> {
       messages = document.getElementById('chat-messages')
       // TODO: build the chat UI
       sendButton.addEventListener('click', sendMessage)
-      chatRef = ref(db, `interstitial/${roomId}/chats/`)
+      chatRef = ref(rtdb, `interstitial/${roomId}/chats/`)
       onChildAdded(chatRef, (snapshot)=> {
         const message = snapshot.val()
         addChatMessage(message.name, message.message)

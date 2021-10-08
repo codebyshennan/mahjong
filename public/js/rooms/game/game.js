@@ -11,7 +11,7 @@ import { getDatabase, connectDatabaseEmulator } from 'https://www.gstatic.com/fi
 
 import { ref, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
 
-// 
+// const GAME_STATE = { DICEROLL: 0, EAST: 1, SOUTH: 2, WEST: 3, NORTH: 4}
 const firebase = initializeApp(firebaseConfig)
 const auth = getAuth()
 const db = getDatabase(firebase)

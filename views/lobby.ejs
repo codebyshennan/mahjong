@@ -21,6 +21,38 @@
 
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script>
+      toastr.options = {
+        closeButton: false,
+        debug: false,
+        newestOnTop: false,
+        progressBar: true,
+        positionClass: "toast-top-right",
+        preventDuplicates: true,
+        onclick: null,
+        showDuration: "300",
+        hideDuration: "1000",
+        timeOut: "5000",
+        extendedTimeOut: "1000",
+        showEasing: "swing",
+        hideEasing: "linear",
+        showMethod: "fadeIn",
+        hideMethod: "fadeOut",
+      };
+    </script>
+    <style>
+      #toast-container {
+        top: 0 !important;
+        right: 1em !important;
+      }
+    </style>
+    <script type="module" src="js/rooms/lobby/lobby.js" defer></script>
   </head>
   <body>
     <!-- read from firebase a list of UUID rooms and connected users -->
@@ -33,5 +65,4 @@
       <div class="col s12 m7 l4 room" id="roomList"></div>
     </div>
   </body>
-  <script type="module" src="js/rooms/lobby/lobby.js" defer></script>
 </html>

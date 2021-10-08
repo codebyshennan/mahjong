@@ -5,6 +5,7 @@ import { Server } from 'socket.io'
 import { initializeApp } from 'firebase/app'
 // import { getAnalytics } from "firebase/analytics";
 import { getDatabase, connectDatabaseEmulator } from 'firebase/database'
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
 import firebaseConfig from './public/js/config.js'
 import { 
   getAuth,
@@ -18,20 +19,24 @@ import {
   connectAuthEmulator } from 'firebase/auth'
 import { v4 as uuidv4 } from 'uuid'
 import admin from 'firebase-admin'
+import * as functions from 'firebase-functions'
 // https://www.stefanjudis.com/snippets/how-to-import-json-files-in-es-modules-node-js/
 import { readFile } from 'fs/promises'
 const serviceAccount = JSON.parse(await readFile( new URL('./serviceAccountKey.json', import.meta.url)))
+
 
 // INITIALISE FIREBASE AS DATABASE
 const firebase = initializeApp(firebaseConfig)
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  // databaseURL: "https://mahjong-7d9ae-default-rtdb.asia-southeast1.firebasedatabase.app"
+  databaseURL: "https://mahjong-7d9ae-default-rtdb.asia-southeast1.firebasedatabase.app"
 });
 
-const db = getDatabase(firebase)
-connectDatabaseEmulator(db, "localhost", 9000)
+const rtdb = getDatabase(firebase)
+// connectDatabaseEmulator(rtdb, "localhost", 9000)
+
+
 
 // const analytics = getAnalytics(firebase)
 
@@ -187,7 +192,7 @@ app.get('/:new',(req,res)=> {
   res.redirect(`/room/${uuidv4()}`)
 })
 
-// In the gameroom, the client js file reads the db for the 
+// In the gameroom, the client js file reads the rtdb for the 
 app.get('/room/:room', (req,res)=> {
   res.render('game', {roomId: req.params.room})
 })
@@ -198,7 +203,7 @@ io.of('/lobby').on('connection', socket=> {
   socket.on('create-and-join-room', async (callback)=> {
     const roomid = uuidv4()
     console.log(`room ${roomid} was created`)
-    await setDoc(doc(db,'rooms', roomid), {
+    await setDoc(doc(rtdb,'rooms', roomid), {
       roomid: `${roomid}`,
       noOfPlayers: 1,
       gameState: 'Not Ready',
@@ -224,7 +229,7 @@ io.of('/game').on('connection', socket => {
   socket.on('join-room', async (roomId, userId)=>{
     console.log('Joined Room: ', roomId)
     socket.join(roomId);
-    const roomRef = doc(db, 'rooms', roomId)
+    const roomRef = doc(rtdb, 'rooms', roomId)
     await updateDoc(roomRef, {
       players: arrayUnion(userId)
     })

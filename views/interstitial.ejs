@@ -19,10 +19,11 @@
     <script>
       const roomId = "<%=roomKey%>";
     </script>
-    <script src="/js/rooms/interstitial/init.js"> <script>
+    <script type="module" src="/js/rooms/interstitial/init.js"> </script>
     <script type="module" src="/js/rooms/interstitial/chat.js" defer></script>
     <script type="module" src="/js/rooms/interstitial/room.js" defer></script>
   </head>
+  
   <body>
     <!-- <div class="container"> -->
     <div class="row">
@@ -107,6 +108,6 @@
         <button id="send-chat">Send</button>
       </div>
     </div>
-    <!-- </div> -->
+    </div>
   </body>
 </html>
