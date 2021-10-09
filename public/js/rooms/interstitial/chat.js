@@ -1,15 +1,5 @@
 import { ref, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
 
-/**
- * 
- * 
- */
-
-const Chat = ()=> {
-
-  let sendButton, messageField, messages, chatRef
- 
-
   /**
    * Send a chat message to the database
    *
@@ -31,23 +21,14 @@ const Chat = ()=> {
     messageList.appendChild(item)
     messages.scrollTop = messageList.scrollHeight;
   }
-
-  return {
-    init: ()=> {
-
-      sendButton = document.getElementById('send-chat')
-      messageField = document.getElementById('chat-message')
-      messages = document.getElementById('chat-messages')
-      // TODO: build the chat UI
-      sendButton.addEventListener('click', sendMessage)
-      chatRef = ref(rtdb, `interstitial/${roomId}/chats/`)
-      onChildAdded(chatRef, (snapshot)=> {
-        const message = snapshot.val()
-        addChatMessage(message.name, message.message)
-      })
-
-    }
-  }
-}
-
-export default Chat
+  
+  const sendButton = document.getElementById('send-chat')
+  const messageField = document.getElementById('chat-message')
+  const messages = document.getElementById('chat-messages')
+  // TODO: build the chat UI
+  sendButton.addEventListener('click', sendMessage)
+  const chatRef = ref(rtdb, `interstitial/${roomId}/chats/`)
+  onChildAdded(chatRef, (snapshot)=> {
+    const message = snapshot.val()
+    addChatMessage(message.name, message.message)
+  })

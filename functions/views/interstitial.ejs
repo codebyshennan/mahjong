@@ -16,98 +16,103 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="/socket.io/socket.io.js" defer></script>
 
+    <style>
+      img {
+        width: -webkit-fill-available;
+        border-radius: 8px;
+        padding-top:11px;
+      }
+
+      .card{
+        border-radius: 8px;
+        height: 50vh;
+      }
+
+      .playerWind {
+        text-align: center;
+        font-size: 3em;
+      }
+
+      textarea {
+        resize: none;
+      }
+
+      #send-chat{
+        float: right
+      }
+
+      .chat-box {
+        height: 40vh;
+      }
+
+      h2{
+        font-size: 2em;
+        font-weight: bold;
+      }
+
+      .card-content {
+        display:flex;
+        text-align: center;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .card-action {
+        text-align: center;
+        font-weight:bold;
+        color:tomato;
+        cursor:pointer;
+      }
+
+      .readiness {
+        text-align: center;
+        font-weight: bold;
+        color:yellowgreen;
+      }
+
+      .card-action:hover,
+      .readiness:hover {
+        background-color: whitesmoke;
+        border-radius: 8px;
+        cursor:pointer;
+      }
+
+      .deactivated {
+        background-color: whitesmoke;
+        box-shadow: none;
+      }
+
+      
+    </style>
     <script>
       const roomId = "<%=roomKey%>";
     </script>
-    <script type="module" src="/js/rooms/interstitial/init.js"> </script>
-    <script type="module" src="/js/rooms/interstitial/chat.js" defer></script>
-    <script type="module" src="/js/rooms/interstitial/room.js" defer></script>
   </head>
-  
-  <body>
-    <!-- <div class="container"> -->
-    <div class="row">
-      <div class="col s8">
-        <div class="row">
-          <div class="col s3">
-            <div class="card blue-grey darken-1">
-              <div class="card-content white-text">
-                <span class="card-title">Card Title</span>
-                <p>
-                  I am a very simple card. I am good at containing small bits of
-                  information. I am convenient because I require little markup
-                  to use effectively.
-                </p>
-              </div>
-              <div class="card-action">
-                <a href="#">This is a link</a>
-                <a href="#">This is a link</a>
-              </div>
-            </div>
-          </div>
-          <div class="col s3">
-            <div class="card blue-grey darken-1">
-              <div class="card-content white-text">
-                <span class="card-title">Card Title</span>
-                <p>
-                  I am a very simple card. I am good at containing small bits of
-                  information. I am convenient because I require little markup
-                  to use effectively.
-                </p>
-              </div>
-              <div class="card-action">
-                <a href="#">This is a link</a>
-                <a href="#">This is a link</a>
-              </div>
-            </div>
-          </div>
-          <div class="col s3">
-            <div class="card blue-grey darken-1">
-              <div class="card-content white-text">
-                <span class="card-title">Card Title</span>
-                <p>
-                  I am a very simple card. I am good at containing small bits of
-                  information. I am convenient because I require little markup
-                  to use effectively.
-                </p>
-              </div>
-              <div class="card-action">
-                <a href="#">This is a link</a>
-                <a href="#">This is a link</a>
-              </div>
-            </div>
-          </div>
-          <div class="col s3">
-            <div class="card blue-grey darken-1">
-              <div class="card-content white-text">
-                <span class="card-title">Card Title</span>
-                <p>
-                  I am a very simple card. I am good at containing small bits of
-                  information. I am convenient because I require little markup
-                  to use effectively.
-                </p>
-              </div>
-              <div class="card-action">
-                <a href="#">This is a link</a>
-                <a href="#">This is a link</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <div class="col s4" id="chat">
-        <div class="card-title" id="chat-header">GROUP CHAT</div>
-        <div class="card" id="chat-messages">
-          <ul></ul>
+    <div class="container">
+      <div class="row" style="height:100vh;display:flex;align-items:center">
+        <h2 class="header">Game Lobby</h2>
+        <div class="col s8">
+          <div class="row" id="playerContainers">
+              
+          </div>
         </div>
-        <div class="chat-input">
-          <textarea cols="30" rows="10" id="chat-message"></textarea>
-          <label for="chat-message">Chat message...</label>
+
+        <div class="col s4" id="chat">
+          <div class="chat-box" id="chat-messages">
+            <ul></ul>
+          </div>
+          <div class="chat-input">
+            <label for="chat-message">Chat message...</label>
+            <textarea cols="30" rows="10" id="chat-message"></textarea>
+            
+          </div>
+          <button id="send-chat">Send</button>
         </div>
-        <button id="send-chat">Send</button>
       </div>
-    </div>
     </div>
   </body>
+      <script type="module" src="/js/rooms/interstitial/interstitial.js" defer> </script>
+
 </html>

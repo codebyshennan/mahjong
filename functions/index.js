@@ -172,9 +172,8 @@ export const onUserStatusChanged = functions.database.ref('/status/{roomId}/play
   async (change, context) => {
     // get the data written to rtdb
     const eventStatus = change.after.val()
-
     // then use other event data to create a ref to the corresponding firestore document
-    const userStatusFirestoreRef = firestore.doc(`status/{roomId}/players/${context.params.uid}`)
+    const userStatusFirestoreRef = firestore.doc(`status/${context.params.roomId}/players/${context.params.uid}`)
 
     // it is likely that the rtdb that triggered this event has already been overwritten 
     // by a fast change in the online/offline status, so we'll re-read the current data and compare the timestamps
@@ -190,8 +189,34 @@ export const onUserStatusChanged = functions.database.ref('/status/{roomId}/play
 
     // otherwise, we convert the last_changed field to a Date
     eventStatus.last_changed = new Date(eventStatus.last_changed)
-    console.log(eventStatus)
+    console.log('New Event', eventStatus)
     // and write it to firestore
     return userStatusFirestoreRef.set(eventStatus)
+  }
+)
+export const onLobbyStatusChanged = functions.database.ref('/online/{uid}').onUpdate(
+  async (change, context) => {
+    // get the data written to rtdb
+    const lobbyStatus = change.after.val()
+    // then use other event data to create a ref to the corresponding firestore document
+    const lobbyStatusFSRef = firestore.doc(`online/${context.params.uid}`)
+
+    // it is likely that the rtdb that triggered this event has already been overwritten 
+    // by a fast change in the online/offline status, so we'll re-read the current data and compare the timestamps
+
+    const lobbyStatusSnapShot = await change.after.ref.once('value')
+    const statusSnapShot = lobbyStatusSnapShot.val()
+    functions.logger.log(statusSnapShot, lobbyStatus);
+
+    // if the current timestamp for this data is newer than the data that triggered this event, we exit this fn
+    if(statusSnapShot.last_changed > lobbyStatus.last_changed) {
+      return null;
+    }
+
+    // otherwise, we convert the last_changed field to a Date
+    lobbyStatus.last_changed = new Date(lobbyStatus.last_changed)
+    console.log('New Event', lobbyStatus)
+    // and write it to firestore
+    return lobbyStatusFSRef.set(lobbyStatus)
   }
 )

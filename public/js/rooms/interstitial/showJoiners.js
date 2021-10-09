@@ -1,1 +1,1 @@
-const playerRef = ref()
+// when a player joins a room, he is assigned a player number

@@ -13,12 +13,7 @@ const FacebookProvider = new FacebookAuthProvider();
 
 onAuthStateChanged(auth, (user)=> {
   if(user) {
-    console.log(user.uid)
-    // auth.currentUser.getIdToken(/* forceRefresh */ true).then(idToken => {
-    //       axios.post('/login', {
-    //         idToken: idToken
-    //       })
-    //     })
+    window.location.pathname ='/lobby'
   }
 })
 
@@ -28,14 +23,7 @@ document
     event.preventDefault();
     signInWithPopup(auth, GoogleProvider)
       .then((result)=> {
-        const credential = GoogleAuthProvider.credentialFromResult(result)
-        const token = credential.accessToken
-        const user = result.user 
-
-        console.log(credential)
-        console.log(token)
-        console.log(user)
-        window.location.path = '/register'
+        window.location.pathname = '/lobby'
       })
   })
 
@@ -45,13 +33,7 @@ document
     event.preventDefault();
     signInWithPopup(auth, FacebookProvider)
       .then((result)=> {
-        const credential = FacebookAuthProvider.credentialFromResult(result)
-        const token = credential.accessToken
-        const user = result.user 
-
-        console.log(credential)
-        console.log(token)
-        console.log(user.uid)
+        window.location.pathname = '/lobby'
       })
   })
 

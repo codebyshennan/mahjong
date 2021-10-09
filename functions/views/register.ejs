@@ -38,21 +38,53 @@
     </style>
   </head>
   <body>
+
+
+
+
+
+          <style>
+
+      .login {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+      }
+
+      .card {
+        border-radius: 10px;
+      }
+
+      .row {
+        margin-bottom: 0px !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .auth {
+        margin: 5px auto;
+      }
+
+      .card-title {
+        padding-top: 20px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+
     <div class="container">
-      <div class="login">
-        <div class="col s12 m6">
-          <div class="card">
-            <div class="card-image">
-              <span class="card-title"></span>
-              <a
-                class="btn-floating halfway-fab waves-effect waves-light black"
-              >
-                <i class="material-icons"> password </i>
-              </a>
-            </div>
-            <div class="card-content">
+      <div
+        class="row"
+        style="height: 100vh; display: flex; align-items: center"
+      >
+        <h2 class="header">Register</h2>
+        <div class="col s8 room">
+          <div class="card-content">
               <div class="row">
-                <form
+<form
                   class="col s12"
                   action="/register"
                   method="POST"
@@ -102,7 +134,7 @@
                   </div>
 
                   <div class="row">
-                    <div class="col offset-s3">
+                    <div class="col">
                       <a
                         href="javascript:{}"
                         onclick="document.getElementById('registerUser').submit()"
@@ -116,7 +148,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
+
   </body>
 </html>

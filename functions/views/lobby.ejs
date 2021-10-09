@@ -12,13 +12,6 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
     />
 
-    <style>
-      .join-room:hover {
-        background-color: aqua;
-        cursor: pointer;
-      }
-    </style>
-
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -47,22 +40,83 @@
       };
     </script>
     <style>
+      .join-room:hover {
+        background-color: whitesmoke;
+        cursor: pointer;
+      }
+
       #toast-container {
         top: 0 !important;
         right: 1em !important;
+      }
+      img {
+        width: -webkit-fill-available;
+        border-radius: 8px;
+        padding-top: 11px;
+      }
+
+      .card {
+        border-radius: 8px;
+      }
+
+      .playerWind {
+        text-align: center;
+        font-size: 3em;
+      }
+
+      textarea {
+        resize: none;
+      }
+
+      #send-chat {
+        float: right;
+      }
+
+      #create-room {
+        margin: 0 auto;
+        height: 70px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #create-room:hover {
+        color: green;
+        background-color: whitesmoke;
+        cursor: pointer;
+      }
+
+      h2 {
+        font-size: 2em;
+        font-weight: bold;
+      }
+
+      .chat-box {
+        height: 40vh;
       }
     </style>
     <script type="module" src="js/rooms/lobby/lobby.js" defer></script>
   </head>
   <body>
     <!-- read from firebase a list of UUID rooms and connected users -->
-
     <div class="container">
-      <h2 class="header">Rooms</h2>
-      <div class="col s12 m7 l4 room" id="create-room">
-        <div class="card">CREATE ROOM</div>
+      <div
+        class="row"
+        style="height: 100vh; display: flex; align-items: center"
+      >
+        <h2 class="header">Main Lobby</h2>
+        <div class="col s8 room">
+          <div class="row card horizontal" id="create-room">CREATE ROOM</div>
+          <div class="row" id="roomList"></div>
+        </div>
+
+        <div class="col s4" id="chat">
+          <div class="chat-box" id="chat-messages">
+            <strong>ONLINE NOW: </strong>
+            <ul></ul>
+          </div>
+        </div>
       </div>
-      <div class="col s12 m7 l4 room" id="roomList"></div>
     </div>
   </body>
 </html>

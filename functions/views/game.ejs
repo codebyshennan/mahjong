@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <tile>Game</tile>
+    <title>Game</title>
     <!-- <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <script type="module" src="interactivity.js" defer></script> -->
 
@@ -13,7 +13,7 @@
     </script>
 
     <!-- PROVIDES THE FIREBASE CONFIGURATIONS -->
-    <script type="module" src="/js/rooms/firebase/initFirebase.js"></script>
+    <!-- <script type="module" src="/js/rooms/firebase/initFirebase.js"></script> -->
     <script type="module" src="/js/rooms/game/game.js" defer></script>
     <script
       src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"
@@ -26,7 +26,25 @@
       defer
     ></script>
     <script src="/js/rooms/game/gameroom.js" defer></script>
+    <style>
+      textarea {
+        resize: none;
+        width: 100%;
+      }
 
+      .insetvideo {
+        border: 0.5px solid black;
+      }
+
+      #send-chat {
+        float: right;
+      }
+
+      .chat-box {
+        height: 35vh;
+        border: 0.5px solid black;
+      }
+    </style>
     <link rel="stylesheet" type="text/css" href="/css/game.css" />
     <!-- <link rel="stylesheet" href="experimental.css" /> -->
   </head>
@@ -79,12 +97,25 @@
           <div class="insetvideo" id="leftvideo">
             <div id="audio"></div>
           </div>
-          <div class="insetvideo" id="rightvideo"></div>
-          <div class="insetvideo" id="topvideo"></div>
-          <div class="insetvideo" id="mainvideo"></div>
+          <div class="insetvideo" id="rightvideo">
+            <div id="audio"></div>
+          </div>
+          <div class="insetvideo" id="topvideo">
+            <div id="audio"></div>
+          </div>
+          <div class="insetvideo" id="mainvideo">
+            <div id="audio"></div>
+          </div>
         </div>
-        <div class="message">
-          <div id="gamelog"></div>
+        <div class="col" id="chat">
+          <div class="chat-box" id="chat-messages">
+            <ul></ul>
+          </div>
+          <div class="chat-input">
+            <label for="chat-message">Chat message...</label>
+            <textarea cols="30" rows="10" id="chat-message"></textarea>
+          </div>
+          <button id="send-chat">Send</button>
         </div>
       </div>
     </div>
