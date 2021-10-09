@@ -1,7 +1,5 @@
 import { ref, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
 
-
-
 /**
  * 
  * 

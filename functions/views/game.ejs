@@ -8,19 +8,26 @@
     <!-- <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <script type="module" src="interactivity.js" defer></script> -->
 
+    <script>
+      const ROOM_ID = "<%= roomId %>";
+    </script>
+
     <!-- PROVIDES THE FIREBASE CONFIGURATIONS -->
-    <script src="js/environment.js"></script>
-    <script type="module" src="js/game.js" defer></script>
+    <script type="module" src="/js/rooms/firebase/initFirebase.js"></script>
+    <script type="module" src="/js/rooms/game/game.js" defer></script>
     <script
       src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"
       defer
     ></script>
-    <script src="/socket.io/socket.io.js" defer></script>
-    <script src="js/rooms/gameroom.js" defer></script>
-    <script>
-      const ROOM_ID = "<%= roomId %>";
-    </script>
-    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+    <script
+      src="https://cdn.socket.io/4.2.0/socket.io.min.js"
+      integrity="sha384-PiBR5S00EtOj2Lto9Uu81cmoyZqR57XcOna1oAuVuIEjzj0wpqDVfD0JA9eXlRsj"
+      crossorigin="anonymous"
+      defer
+    ></script>
+    <script src="/js/rooms/game/gameroom.js" defer></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/game.css" />
     <!-- <link rel="stylesheet" href="experimental.css" /> -->
   </head>
   <body>

@@ -20,6 +20,8 @@
       rel="stylesheet"
     />
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <style>
       .login {
         display: flex;
@@ -34,6 +36,18 @@
 
       .row {
         margin-bottom: 0px !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .auth {
+        margin: 2px auto;
+      }
+
+      .card-title {
+        padding-top: 20px;
+        text-align: center;
       }
     </style>
   </head>
@@ -42,45 +56,18 @@
       <div class="login">
         <div class="col s12 m6">
           <div class="card">
-            <div class="card-image">
-              <img
-                src="https://static.vecteezy.com/system/resources/thumbnails/000/124/091/small/mahjong-hand-drawn-vector.jpg"
-              />
-              <span class="card-title"></span>
-              <a
-                class="btn-floating halfway-fab waves-effect waves-light black"
-              >
-                <i class="material-icons"> password </i>
-              </a>
-            </div>
+            <div class="card-title">LOGIN</div>
+            <a class="btn-floating halfway-fab waves-effect waves-light black">
+              <i class="material-icons"> password </i>
+            </a>
             <div class="card-content">
               <div class="row">
                 <form
                   class="col s12"
-                  action="/register"
+                  action="/login/form"
                   method="POST"
                   id="registerUser"
                 >
-                  <div class="row">
-                    <div class="input-field col s6">
-                      <input
-                        id="first_name"
-                        type="text"
-                        class="validate"
-                        name="firstname"
-                      />
-                      <label for="first_name">First Name</label>
-                    </div>
-                    <div class="input-field col s6">
-                      <input
-                        id="last_name"
-                        type="text"
-                        class="validate"
-                        name="lastname"
-                      />
-                      <label for="last_name">Last Name</label>
-                    </div>
-                  </div>
                   <div class="row">
                     <div class="input-field col s12">
                       <input
@@ -105,13 +92,31 @@
                   </div>
 
                   <div class="row">
-                    <div class="col offset-s3">
-                      <a
-                        href="javascript:{}"
-                        onclick="document.getElementById('registerUser').submit()"
-                        class="waves-effect waves-light btn-large"
-                        ><i class="material-icons right">face</i>Register</a
-                      >
+                    <div class="col">
+                      <div class="row auth">
+                        <a
+                          href="javascript:{}"
+                          onclick="document.getElementById('registerUser').submit()"
+                          class="waves-effect waves-light btn-small"
+                          ><i class="material-icons right">face</i>Login</a
+                        >
+                      </div>
+                      <div class="row auth">
+                        <a
+                          class="waves-effect waves-light btn-small"
+                          id="googlesignin"
+                          ><i class="material-icons right">login</i>Sign In Via
+                          Google</a
+                        >
+                      </div>
+                      <div class="row auth">
+                        <a
+                          class="waves-effect waves-light btn-small"
+                          id="facebooksignin"
+                          ><i class="material-icons right">facebook</i>Sign In
+                          Via Facebook</a
+                        >
+                      </div>
                     </div>
                   </div>
                 </form>
@@ -121,5 +126,15 @@
         </div>
       </div>
     </div>
+
+    <script type="module">
+      // If you enabled Analytics in your project, add the Firebase SDK for Google Analytics
+      // import { analytics } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-analytics.js";
+
+      // Add Firebase products that you want to use
+      // import { auth } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
+    </script>
+    <script type="module" src="js/config.js"></script>
+    <script type="module" src="js/auth/login.js" defer></script>
   </body>
 </html>

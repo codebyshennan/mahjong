@@ -2,41 +2,48 @@ import {refDeck, buildDeck} from '../../utils/makeDeck.js'
 import sortHand from '../../utils/sorthand.js'
 import {timer, startTimer} from '../../utils/timer.js'
 import diceRoll from '../../utils/diceroll.js'
-import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from '../../tileset.js'
+import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from './tileset.js'
 import Player from './Player.js'
-import firebaseConfig from '../../config.js'
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
-import { getDatabase, connectDatabaseEmulator } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
+import { ref, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set, getDatabase, connectDatabaseEmulator } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
+import { collection, getDocs, doc, getDoc, setDoc, getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
+import initFirebase from '../firebase/initFirebase.js'
 
-import { ref, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
+const rtdb = initFirebase.rtdb
+const fsdb = initFirebase.fsdb
+const loggedInUser = initFirebase.loggedInUser
 
+// ROOM_ID is declared in upperscope
+const roomId = ROOM_ID
+const gameId = ROOM_ID
+console.log(roomId)
 // const GAME_STATE = { DICEROLL: 0, EAST: 1, SOUTH: 2, WEST: 3, NORTH: 4}
-const firebase = initializeApp(firebaseConfig)
-const auth = getAuth()
-const db = getDatabase(firebase)
-connectDatabaseEmulator(db,"localhost",9000)
-
-const loggedInUser = {}
-
-onAuthStateChanged(auth, (user)=>{
-  if(user) {
-  // loggedInUser[accessToken] = await user.accessToken;
-      loggedInUser['displayName'] = user.displayName;
-      loggedInUser['uid'] = user.uid;
-      loggedInUser['photoURL'] = user.photoURL;
-      console.log(loggedInUser)
-    } else {
-      // user is signed out
-      window.location.pathname = '/login'
-  }
-})
 
 let PLAYERS = []
 let possibleMergeCombinations = []
 let deckInPlay
 
+// CHECK IF EVERYONE IS ONLINE AND 
+const onlineStatusRef = collection(fsdb, 'status', gameId, 'players')
 
+const queryForUsers = query(collection(fsdb, 'status', roomId, 'players'), where('state','==','online'))
+// HELPER REFERENCES
+onSnapshot(queryForUsers,(snapshot)=>{
+  snapshot.docChanges().forEach((change)=> {
+    if(change.type=="added") {
+      const message = 'User ' + change.doc.id + ' is online.'
+      console.log(message)
+    }
+
+    if(change.type=="removed") {
+      const message = 'User ' + change.doc.id + ' is offline.'
+      console.log(message)
+      // addToChat(message)
+    }
+  })
+})
+const gameChatRTRef = ref(rtdb, `chats/${roomId}`)
+const playerHandFSRef = doc(fsdb, 'game', gameId, 'player', loggedInUser.uid, 'playerHand')
+const otherPlayersDiscardRef = collection(fsdb,'game', gameId, 'player')
 // to write to db
 const playerDBRef = ref(db, 'game/${gameId}/players')
 // listen to other player's discarded tiles
