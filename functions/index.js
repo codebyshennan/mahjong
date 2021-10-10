@@ -11,9 +11,6 @@ import {
   onAuthStateChanged, 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
-  signInWithPopup,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
   connectAuthEmulator } from 'firebase/auth'
 import admin from 'firebase-admin'
 import * as functions from 'firebase-functions'

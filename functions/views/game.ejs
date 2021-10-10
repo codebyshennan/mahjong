@@ -9,8 +9,20 @@
     <script type="module" src="interactivity.js" defer></script> -->
 
     <script>
-      const ROOM_ID = "<%= roomId %>";
+      const roomId = "<%=roomId%>";
     </script>
+
+    <!-- Compiled and minified CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,7 +33,7 @@
 
     <!-- PROVIDES THE FIREBASE CONFIGURATIONS -->
     <!-- <script type="module" src="/js/rooms/firebase/initFirebase.js"></script> -->
-    <script type="module" src="/js/rooms/game/game.js" defer></script>
+
     <!-- <script type="module" src="/js/rooms/game/gameroom.js" defer></script> -->
     <style>
       textarea {
@@ -83,23 +95,23 @@
       </div>
     </nav>
     <div class="board">
-      <div class="game">
-        <div class="settings"></div>
-        <div class="leftplayer">
-          <div class="leftHand" id="leftPlayerHand"></div>
-          <div class="leftChecked" id="leftPlayerChecked"></div>
-        </div>
-        <div class="rightplayer">
+      <div class="game card">
+        <div class="gameLog" id="gameLog"></div>
+        <div class="players rightplayer" id="rightPlayer">
           <div class="rightChecked" id="rightPlayerChecked"></div>
           <div class="rightHand" id="rightPlayerHand"></div>
         </div>
-        <div class="mainplayer">
-          <div class="playerChecked" id="playerChecked"></div>
-          <div class="playerHand" id="playerHand"></div>
-        </div>
-        <div class="topplayer">
+        <div class="players topplayer" id="topPlayer">
           <div class="topHand" id="topPlayerHand"></div>
           <div class="topChecked" id="topPlayerChecked"></div>
+        </div>
+        <div class="players leftplayer" id="leftPlayer">
+          <div class="leftHand" id="leftPlayerHand"></div>
+          <div class="leftChecked" id="leftPlayerChecked"></div>
+        </div>
+        <div class="players mainplayer" id="mainPlayer">
+          <div class="playerChecked" id="playerChecked"></div>
+          <div class="playerHand" id="playerHand"></div>
         </div>
         <div class="topdiscard" id="topPlayerDiscard"></div>
         <div class="rightdiscard" id="rightPlayerDiscard"></div>
@@ -107,17 +119,17 @@
         <div class="maindiscard" id="playerDiscardPile"></div>
         <div class="controls">
           <div class="square" id="playerControls">
+            <div class="rightcontrols">
+              <div class="playerWind"></div>
+            </div>
             <div class="topcontrols">
-              <div class="content"></div>
+              <div class="playerWind"></div>
             </div>
             <div class="leftcontrols">
-              <div class="content"></div>
-            </div>
-            <div class="rightcontrols">
-              <div class="content"></div>
+              <div class="playerWind"></div>
             </div>
             <div class="bottomcontrols">
-              <div class="content"></div>
+              <div class="playerWind"></div>
             </div>
           </div>
           <div class="circle">
@@ -125,7 +137,7 @@
           </div>
         </div>
       </div>
-      <div class="messenger">
+      <div class="messenger card">
         <div class="video" id="videogrid">
           <div class="insetvideo" id="leftvideo"></div>
           <div class="insetvideo" id="rightvideo"></div>
@@ -147,4 +159,5 @@
       </div>
     </div>
   </body>
+  <script type="module" src="/js/rooms/game/game.js" defer></script>
 </html>

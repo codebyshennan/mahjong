@@ -3,14 +3,16 @@ import { refDeck, buildDeck } from '../../utils/makeDeck.js'
 import sortHand from '../../utils/sorthand.js'
 import {timer, startTimer} from '../../utils/timer.js'
 import diceRoll from '../../utils/diceroll.js'
-import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from './tileset.js'
+import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from '../game/tileset.js'
+import { playerMetaInfoConverter, playerCheckedConverter, playerHandConverter, playerDiscardedConverter } from '../game/converters.js'
 
 
 import firebaseConfig from '../../config.js'
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, connectAuthEmulator, signOut } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
 import { ref, serverTimestamp, onDisconnect, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set, getDatabase, connectDatabaseEmulator } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
-import { collection, increment, getDocs, doc, getDoc, setDoc, updateDoc,getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
+import { writeBatch, collection, increment, getDocs, doc, getDoc, setDoc, updateDoc,getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
+
 
 const firebase = initializeApp(firebaseConfig)
 const auth = getAuth()
@@ -45,8 +47,9 @@ window.addEventListener('DOMContentLoaded', async ()=> {
     if(firstInit) {
       firstInit = false
       return
-    } else{
-       const startButton=document.getElementById('startButton')
+    } else {
+      const startButton=document.getElementById('startButton')
+      console.log(snapshot.size)
       if(snapshot.size == 4){
        startButton.disabled == false
       } else {
@@ -57,7 +60,8 @@ window.addEventListener('DOMContentLoaded', async ()=> {
         snapshot.docChanges().forEach(change=> {
           console.log(change.doc)
           const readyId = change.doc.id
-          const playerCard = document.getElementById(readyId);          // const actionButton = playerCard.lastElementChild
+          const playerCard = document.getElementById(readyId);          
+          // const actionButton = playerCard.lastElementChild
           playerCard.classList.toggle('deactivated')
           // actionButton.classList.toggle('readiness')
           if(change.type == 'added'){
@@ -81,7 +85,7 @@ window.addEventListener('DOMContentLoaded', async ()=> {
       startGameInstance(roomId, loggedInUser.uid)
     })
     // disable start button until all four players are ready
-    startButton.disabled = true
+    // startButton.disabled = true
     gamelobby.appendChild(startButton)
   }
 
@@ -223,7 +227,7 @@ window.addEventListener('DOMContentLoaded', async ()=> {
     messages.scrollTop = messageList.scrollHeight;
   }
 
-  const addUser = (player) => {
+  const addUser = (player, windCount) => {
     const WIND = { 
       east: "🀀",
       south: "🀁",
@@ -245,16 +249,12 @@ window.addEventListener('DOMContentLoaded', async ()=> {
     const displayName = document.createElement('p')
     displayName.textContent = player.displayName
     displayName.style.fontWeight = 'bold'
-    const userId = document.createElement('p')
-    userId.textContent = `PLAYER ${player.playerNo}`
-    userId.style.wordBreak = 'break-all' 
     const playerWind = document.createElement('p')
-    playerWind.textContent = WIND[player.playerWind]
+    playerWind.textContent = WIND[WIND_TILES[windCount]]
     playerWind.classList.add('playerWind')
 
     cardContent.appendChild(cardTitle)
     cardContent.appendChild(displayName)
-    cardContent.appendChild(userId)
     cardContent.appendChild(playerWind)
     card.appendChild(cardTitle)
     card.appendChild(cardContent)
@@ -317,17 +317,15 @@ window.addEventListener('DOMContentLoaded', async ()=> {
   const renderUserCards = (users) => {
     // reset board
       document.getElementById('playerContainers').innerHTML = ''
-      addUser(users.host)
-      users.players.forEach(player=> {
-        addUser(player)
-      })
+      addUser(users.host,0)
+      for(let playerCount=0; playerCount < users.players.length; playerCount +=1 ){
+        addUser(users.players[playerCount], playerCount+1)
+      }
   }
 
   // QUERY FOR PLAYER DETAILS
   const playersRef = doc(fsdb,'lobby', roomId)
   onSnapshot(playersRef, (doc)=> {
-    // 
-    console.log(doc)
     renderUserCards(doc.data())
   })
   
@@ -356,15 +354,57 @@ window.addEventListener('DOMContentLoaded', async ()=> {
   onSnapshot(gameStateRef, (gameInit)=> {
     gameInit.docChanges().forEach( doc=>{
       if(doc.type == "added") {
-        return startUpProcedures(gameInit.docChanges()[0].doc.id)
+        return startUpProcedures(roomId)
       }
     })
     })
-
   
   // ONLY VISIBLE TO THE HOST
   const startGameInstance = async (roomId, hostId) => {
-    let deckInPlay
+    let deckInPlay= buildDeck()
+    let otherPlayers = []
+
+    // update gameState
+    /** @type {*} */
+    let gameState = {
+        roomId: roomId,
+        host: hostId,
+        players: [],
+        windCount: 0,
+        currentWind: 'east',
+        currentPlayer: 0,
+        currentTurnNo: 0,
+        currentHouse: 'east',
+        diceRolled: 0,
+        timeStarted: new Date(),
+        tilesInDiscard: 0,
+        tilesInHands: 0,
+        tilesToPlay: 148
+      }
+
+    /**
+   * Updates to the overall game state depending on the actions that were taken by a player
+   *
+   * @param {string} type
+   * @param {number} [playerNumber=0]
+   */
+  const updateGameState = (type, playerNumber = 0) => {
+
+
+    switch (type) {
+      case 'drawtiles':
+        gameState.tilesInHands++
+        gameState.tilesToPlay--
+        // updateGameLog()
+        break;
+
+      default:
+        // updateGameLog()
+        break;
+    }
+  }
+
+
     class Player {
       // push this into database
       /**
@@ -585,14 +625,12 @@ window.addEventListener('DOMContentLoaded', async ()=> {
         }
       }
     }
-
-    deckInPlay = buildDeck()
-    
+    // wind and player no
     const playerGameInit = async (uid,displayName,wind,playerNo) => {
       // set the metainformation of the player within its own document
       const initBatch = writeBatch(fsdb)
       const playerMetaRef = doc(fsdb, 'games', roomId, 'players', uid).withConverter(playerMetaInfoConverter)
-      currentPlayer = new Player(uid, displayName, wind , playerNo)
+      const currentPlayer = new Player(uid, displayName, wind , playerNo)
       currentPlayer.drawTile(13)
       initBatch.set(playerMetaRef, currentPlayer)
       
@@ -608,41 +646,29 @@ window.addEventListener('DOMContentLoaded', async ()=> {
       await initBatch.commit()
     }
 
-    const players = await getDoc(doc(fsdb,'lobby', roomId)).data().players
+    const players = (await getDoc(doc(fsdb,'lobby', roomId))).data().players
     playerGameInit(loggedInUser.uid, loggedInUser.displayName, 'east',0)
-    players.forEach(player => {
-      playerGameInit(player.uid, player.displayName, player.playerWind, player.playerNo)
-    })
+    for(let count=0; count < 3; count+=1){
+      playerGameInit(players[count].uid, players[count].displayName, WIND_TILES[count+1], count+1)
+      otherPlayers.push({playerId: players[count].uid, playerWind: WIND_TILES[count+1]})
+    }
+
+    gameState.players = otherPlayers    
 
     const deckRef = doc(fsdb, 'games', roomId, 'deck', 'deckInPlay')
-    await setDoc(deckRef, deckInPlay)
+    await setDoc(deckRef, {"deckInPlay": deckInPlay})
 
-    // update gameState
-    /** @type {*} */
-    const gameState = {
-        roomId: roomId,
-        host: hostId,
-        windCount: 0,
-        currentWind: 'east',
-        currentPlayer: 0,
-        currentTurnNo: 0,
-        currentHouse: 'east',
-        diceRolled: 0,
-        timeStarted: new Date(),
-        tilesInDiscard: 0,
-        tilesInHands: 0,
-        tilesToPlay: 148
-      }
+    
     // get all the id of the players
 
     // return newGameState.id //generated id for the game state to be used as a subsequent reference
-    const gameStateInit = doc(fsdb, 'games', roomId, 'gameState', 'gameState')
+    const gameStateInit = doc(fsdb, 'games', roomId, 'gameState', roomId)
     await setDoc(gameStateInit, gameState)
   }
 
 
   const startUpProcedures = (gameInstance) => {
-    addChatMessage(gameInstance)
+    addChatMessage('Transporting all players to Room Id: ', gameInstance)
     // write to database to create an instance of the game
     // use toastr to countdown instead
     setTimeout(()=>{
@@ -658,6 +684,5 @@ window.addEventListener('DOMContentLoaded', async ()=> {
       window.location.pathname = `/game/${gameInstance}`
     },4000)
   }
-
 
 })

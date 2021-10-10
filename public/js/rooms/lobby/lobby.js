@@ -129,8 +129,6 @@ window.addEventListener('DOMContentLoaded', async ()=> {
     }
   })
 
-  const sendButton = document.getElementById('send-chat')
-  const messageField = document.getElementById('chat-message')
   const messages = document.getElementById('chat-messages')
 
   // Add a chat message to the chat UI
@@ -195,14 +193,10 @@ window.addEventListener('DOMContentLoaded', async ()=> {
               throw "Room does not exist!"
             }
             
-            const currentPlayerWind = wind[room.data().playerCount+1]
-            
             const newPlayer = {
                 uid: loggedInUser.uid,
                 displayName: loggedInUser.displayName,
                 photoURL: loggedInUser.photoURL,
-                playerWind: currentPlayerWind,
-                playerNo: room.data().playerCount+1
               }
 
             transaction.update(doc(fsdb, 'lobby', key), { "players": arrayUnion(newPlayer), "state": ROOM_STATE.JOINED, "playerCount": increment(1)})
@@ -267,11 +261,11 @@ window.addEventListener('DOMContentLoaded', async ()=> {
     roomList.appendChild(roomItem)
   }
 
-
-
   //  READ ONCE AND THEN LISTEN INDIVIDUALLY TO EACH ROOM FOR CHANGES
   const lobbyRooms = collection(fsdb, "lobby")
   onSnapshot(lobbyRooms, rooms => {
+    const roomList = document.getElementById('roomList')
+    roomList.innerHTML = ''
     rooms.forEach( room => {
       const createdRoom = room.data()
         if(createdRoom.host.uid != loggedInUser.uid ) {
