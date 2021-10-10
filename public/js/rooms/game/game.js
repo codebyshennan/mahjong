@@ -55,6 +55,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const commitPlayerHand = async (player, gameState) => {
     const initBatch = writeBatch(fsdb)
+    console.log(gameState)
     initBatch.set(mainPlayerMetaRef, player)
     initBatch.set(mainPlayerHandRef, player)
     initBatch.set(mainPlayerCheckedRef, player)
@@ -152,7 +153,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           this.playerHand.push(newTile)
         }
 
-        updateGameState('drawtiles')
+        updateGameState(gameState,'drawtiles')
       }
       renderPlayer(this.playerHand,this.playerChecked,this.playerDiscarded)
     }
@@ -172,8 +173,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       this.playerDiscarded.push(discardedTile[0])
 
       timer.clearAll()
-      updateGameState('discardtiles')
-      updateGameState('nextround')
+      updateGameState(gameState,'discardtiles')
+      updateGameState(gameState,'nextround')
       renderPlayer(this.playerHand,this.playerChecked, this.playerDiscarded)
       commitPlayerHand(this, gameState)
     }
@@ -203,7 +204,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       renderPlayer(this.playerHand,this.playerChecked, this.playerDiscarded)
 
       timer.clearAll()
-      updateGameState('eattiles')
+      updateGameState(gameState,'eattiles')
     }
 
     /**
@@ -665,7 +666,7 @@ window.addEventListener('DOMContentLoaded', async () => {
    * @param {string} type
    * @param {number} [playerNumber=0]
    */
-  const updateGameState = (gameState, type, playerNumber = 0) => {
+  const updateGameState = (gameState, type) => {
 
     // const updateGameLog = () =>{
     //   const gamelog = document.getElementById('gameLog')
@@ -697,11 +698,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       case 'eattiles':
         gameState.tilesInDiscard--
         gameState.tilesInHands++
-        gameState.currentPlayer = playerNumber // TODO: need to change this to reflect the player who clicked
         gameState.currentTurnNo++
         // updateGameLog()
         const timerDisplay = document.getElementById('timer')
-        startTimer(10, timerDisplay, PLAYERS[gameState.currentPlayer].skipTurn)
+        startTimer(10, timerDisplay, currentPlayer.skipTurn)
         break;
 
       case 'wingame':
