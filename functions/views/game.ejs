@@ -12,20 +12,17 @@
       const ROOM_ID = "<%= roomId %>";
     </script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=ZCOOL+QingKe+HuangYou&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- PROVIDES THE FIREBASE CONFIGURATIONS -->
     <!-- <script type="module" src="/js/rooms/firebase/initFirebase.js"></script> -->
     <script type="module" src="/js/rooms/game/game.js" defer></script>
-    <script
-      src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"
-      defer
-    ></script>
-    <script
-      src="https://cdn.socket.io/4.2.0/socket.io.min.js"
-      integrity="sha384-PiBR5S00EtOj2Lto9Uu81cmoyZqR57XcOna1oAuVuIEjzj0wpqDVfD0JA9eXlRsj"
-      crossorigin="anonymous"
-      defer
-    ></script>
-    <script src="/js/rooms/game/gameroom.js" defer></script>
+    <!-- <script type="module" src="/js/rooms/game/gameroom.js" defer></script> -->
     <style>
       textarea {
         resize: none;
@@ -44,11 +41,47 @@
         height: 35vh;
         border: 0.5px solid black;
       }
+
+      li {
+        margin-right: 20px;
+      }
+
+      .brand-logo {
+        margin-left: 20px;
+        font-family: "ZCOOL QingKe HuangYou", cursive;
+      }
+
+      li:hover {
+        color: tomato;
+        cursor: pointer;
+      }
+
+      nav {
+        background-color: whitesmoke;
+      }
+
+      .nav-wrapper > * > *,
+      .nav-mobile,
+      span {
+        color: black;
+      }
     </style>
     <link rel="stylesheet" type="text/css" href="/css/game.css" />
     <!-- <link rel="stylesheet" href="experimental.css" /> -->
   </head>
   <body>
+    <nav>
+      <div class="nav-wrapper">
+        <a href="/lobby" class="brand-logo">
+          <i class="material-icons">sports_esports</i>
+          <span> 麻将之王 </span></a
+        >
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+          <li id="userName"></li>
+          <li id="logout">Logout</li>
+        </ul>
+      </div>
+    </nav>
     <div class="board">
       <div class="game">
         <div class="settings"></div>
@@ -94,15 +127,9 @@
       </div>
       <div class="messenger">
         <div class="video" id="videogrid">
-          <div class="insetvideo" id="leftvideo">
-            <div id="audio"></div>
-          </div>
-          <div class="insetvideo" id="rightvideo">
-            <div id="audio"></div>
-          </div>
-          <div class="insetvideo" id="topvideo">
-            <div id="audio"></div>
-          </div>
+          <div class="insetvideo" id="leftvideo"></div>
+          <div class="insetvideo" id="rightvideo"></div>
+          <div class="insetvideo" id="topvideo"></div>
           <div class="insetvideo" id="mainvideo">
             <div id="audio"></div>
           </div>

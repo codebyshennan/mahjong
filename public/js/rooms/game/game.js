@@ -1,4 +1,3 @@
-import { refDeck, buildDeck } from '../../utils/makeDeck.js'
 import sortHand from '../../utils/sorthand.js'
 import {timer, startTimer} from '../../utils/timer.js'
 import diceRoll from '../../utils/diceroll.js'
@@ -7,241 +6,61 @@ import firebaseConfig from '../../config.js'
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, connectAuthEmulator } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
 import { ref, serverTimestamp, onDisconnect, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set, getDatabase, connectDatabaseEmulator } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
-import { collection, getDocs, doc, getDoc, setDoc, getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
+import { collection, getDocs, doc, getDoc, setDoc, getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp, writeBatch} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
 
 const firebase = initializeApp(firebaseConfig)
 const auth = getAuth()
 const rtdb = getDatabase(firebase)
-const fsdb = getFirestore(firebase)
+export const fsdb = getFirestore(firebase)
 connectAuthEmulator(auth, "http://localhost:9099")
 connectDatabaseEmulator(rtdb, "localhost", 9000)
 connectFirestoreEmulator(fsdb, "localhost", 8080)
 
-/**
- *
- *
- * @class Player
- */
-class Player {
-  // push this into database
-  /**
-   * Creates an instance of Player.
-   * @param {*} name
-   * @param {*} wind
-   * @param {*} playerNumber
-   * @memberof Player
-   */
-  constructor(uid, name, wind, playerNumber, chips = 1000, playerHand = [], playerDiscarded = [], playerChecked = [], currentScore = 0){
-    this.id = uid
-    this.name = name 
-    this.wind = wind
-    this.chips = chips
-    this.playerNumber = playerNumber
-    this.playerHand = playerHand
-    this.playerChecked = playerChecked
-    this.playerDiscarded = playerDiscarded
-    this.currentScore = currentScore
-    }
-
-  /**
-   *
-   *
-   * @param {*} arrayOfTileNames
-   * @param {*} type
-   * @memberof Player
-   */
-  highlightTilesToBeMergedWith = (arrayOfTileNames, type) => {
-    arrayOfTileNames.forEach((tilename,index) => {
-      const tiles = document.querySelectorAll(`.${tilename}`)
-      const idx = tiles.length > 1 ? index : 0
-      tiles[idx].classList.add(`'${type}'`)
-      tiles[idx].style.border = '2px solid red'
+window.addEventListener('DOMContentLoaded', async ()=> {
+  document.getElementById('logout').addEventListener('click', (ev)=> {
+    ev.preventDefault()
+    signOut(auth).then(()=> {
+      window.location.pathname ='/login'
     })
-  }
+  })
 
-  
-  /**
-   *
-   *
-   * @param {*} playerHand
-   * @memberof Player
-   */
-  tallyByName = (playerHand) => {
-    const sortedHand = sortHand(playerHand, 'name')
-      // tally hand by name
-    let playerHandTally = {}
+  const sendButton = document.getElementById('send-chat')
+  const messageField = document.getElementById('chat-message')
+  const messages = document.getElementById('chat-messages')
 
-    // get statistics about hand
-    for(let i=0; i< sortedHand.length; i++){
-      if(playerHandTally[sortedHand[i].name]){
-        playerHandTally[sortedHand[i].name] +=1
-      } else {
-        playerHandTally[sortedHand[i].name] =1
-      }
-    }
-
-    return playerHandTally;
-  }
-
-  /**
-   *
-   *
-   * @param {number} [noOfTiles=1]
-   * @param {string} [type='normal']
-   * @memberof Player
-   */
-  drawTile = (noOfTiles = 1, type = 'normal') => {
-    // deck.shift for normal draws
-    // deck.pop for flowers
-
-    for(let drawCount = 0; drawCount < noOfTiles; drawCount+=1) {
-      let newTile
-      if(type == 'normal') {
-        newTile = deckInPlay.shift()
-      } else if(type == 'special') {
-        console.log('Drawing special...')
-        newTile = deckInPlay.pop()
-      }
-
-      if(ANIMAL_TILES.includes(newTile.name) || FLOWER_TILES.includes(newTile.name)) {
-        console.log('Special drawn...')
-        this.playerChecked.push(newTile)
-        this.drawTile(1,'special')
-      } else {
-        this.playerHand.push(newTile)
-      }
-
-      updateGameState('drawtiles')
-    }
-  }
-
-  
-  /**
-   *
-   *
-   * @param {*} tile
-   * @memberof Player
-   */
-  discardTile = (tile) => {
-    // find the index of the tile in the player's hand
-    console.log('Discarding tile ', tile)
-    const tileIndex = this.playerHand.findIndex(playerTile => playerTile.index == tile.index)
-    const discardedTile = this.playerHand.splice(tileIndex, 1)
-    this.playerDiscarded.push(discardedTile[0])
-
-    timer.clearAll()
-    updateGameState('discardtiles')
-    updateGameState('nextround')
-    renderBoard()
-  }
-
-  /**
-   *
-   *
-   * @param {*} tile
-   * @param {*} withThisCombi
-   * @memberof Player
-   */
-  eatTile = (eatFromPlayer, tile, withThisCombi) => {
-    console.log(`Adding ${tile.name} to checked`)
-  
-    let checkedGroup = []
-    checkedGroup.push(tile)
-    eatFromPlayer.pop()
-
-    withThisCombi.forEach(tileName => {
-      const tileToBeChecked = this.playerHand.find(tile=> tile.name == tileName)
-      const tileIndex = this.playerHand.findIndex(tile => tile.name == tileName)
-      this.playerHand.splice(tileIndex,1)
-      checkedGroup.push(tileToBeChecked)
-    })
-
-    this.playerChecked.push(sortHand(checkedGroup))
-
-    timer.clearAll()
-    updateGameState('eattiles')
-    renderBoard()
-  }
-
-  /**
-   *
-   *
-   * @memberof Player
-   */
-  skipTurn = () => {
-    const currentPlayerHand = this.playerHand
-    const randomIndex = Math.floor(currentPlayerHand.length * Math.random())
-    const randomTile = currentPlayerHand[randomIndex]
-    this.discardTile(randomTile)
-  }
-
-  /**
-   *
-   *
-   * @memberof Player
-   */
-  showSimplifiedHand = () => {
-    return this.playerHand.map( tile => {
-      
-      const name = tile.name
-      const index = tile.index
-      const simplifiedObj = { name, index}
-
-      return simplifiedObj
-    })
-  }
-
-  /**
-   *
-   *
-   * @param {*} discardedTile
-   * @memberof Player
-   */
-  checkIfCanBeEaten = (discardedTile) => {
-    const playerTally = this.tallyByName(this.playerHand)
-    console.log('TALLY BY NAME: ', playerTally)
-    // check if the discarded tile can complete a set of non-sequential tiles i.e. NOT tiles with numbers
-    if(discardedTile.index > 108) {
-      if (playerTally[discardedTile.name] >= 2 ) {
-        possibleMergeCombinations.push([discardedTile.name, discardedTile.name])
-        this.highlightTilesToBeMergedWith([discardedTile.name],'same')
-        return true
-      }
-      // highlight the tiles to be eaten
-    } else {
-      // deconstruct the discarded tile (numbered) to get the name and number
-      let hasOutcome = false
-      const discardedTileChar = discardedTile.name.substr(0,1) 
-      const discardedTileNo = +discardedTile.name.substr(1,1)
-
-      // if the discardedtile can complete a pair of duplicates or if the discardedtile can form part of a sequence e.g. X,_,_ || _,X,_ || _,_,X
-      if (playerTally[discardedTile.name] == 2) {
-        possibleMergeCombinations.push([discardedTile.name, discardedTile.name])
-        this.highlightTilesToBeMergedWith([discardedTile.name],'same')
-        hasOutcome = true
-      } 
-      if (playerTally[discardedTileChar+(discardedTileNo+1)] && playerTally[discardedTileChar+(discardedTileNo+2)]) {
-        console.log(' X , _ , _ ')
-        possibleMergeCombinations.push([discardedTileChar+(discardedTileNo+1), discardedTileChar+(discardedTileNo+2)])
-        this.highlightTilesToBeMergedWith([discardedTileChar+(discardedTileNo+1),discardedTileChar+(discardedTileNo+2)],'first')
-        hasOutcome = true
-      } 
-      if (playerTally[discardedTileChar+(discardedTileNo-1)] && playerTally[discardedTileChar+(discardedTileNo+1)]) {
-        console.log(' _ , X , _ ')
-        possibleMergeCombinations.push([discardedTileChar+(discardedTileNo-1), discardedTileChar+(discardedTileNo+1)])
-        this.highlightTilesToBeMergedWith([discardedTileChar+(discardedTileNo-1),discardedTileChar+(discardedTileNo+1)],'middle')
-        hasOutcome = true
-      } 
-      if (playerTally[discardedTileChar+(discardedTileNo-1)] && playerTally[discardedTileChar+(discardedTileNo-2)]) {
-        console.log(' _ , _ , X ')
-        possibleMergeCombinations.push([discardedTileChar+(discardedTileNo-1), discardedTileChar+(discardedTileNo-2)])
-        this.highlightTilesToBeMergedWith([discardedTileChar+(discardedTileNo-1),discardedTileChar+(discardedTileNo-2)],'last')
-        hasOutcome = true
-      }
-      return hasOutcome
-    }
-  }
+const signout = ()=> {
+  signOut(auth).then(()=> {
+    window.location.pathname ='/login'
+  })
 }
+
+// ROOM_ID is declared in upperscope
+const roomId = ROOM_ID
+const gameId = ROOM_ID
+console.log(roomId)
+// const GAME_STATE = { DICEROLL: 0, EAST: 1, SOUTH: 2, WEST: 3, NORTH: 4}
+
+let PLAYERS = []
+let possibleMergeCombinations = []
+let deckInPlay
+let onlinePlayerCount = 0
+
+let gameState = {
+        roomId: roomId,
+        host: 0,
+        windCount: 0,
+        currentWind: 'east',
+        currentPlayer: 0,
+        currentTurnNo: 0,
+        currentHouse: '',
+        diceRolled: 0,
+        timeStarted: new Date(),
+        tilesInDiscard: 0,
+        tilesInHands: 0,
+        tilesToPlay: 148
+      }
+
+
 
 let loggedInUser = {}
 let currentPlayer
@@ -352,20 +171,8 @@ const newGame = async(diceRolled=0, house=0) => {
     new Player('player3', 'west', 2),
     new Player('player4', 'south', 3)
   ]
+  
 
-
-
-  // default for drawing tiles
-  const playerRef = doc(fsdb, 'games', roomId, 'players', loggedInUser.uid).withConverter(playerConverter)
-  currentPlayer = new Player(loggedInUser.uid, loggedInUser.displayName, 'east', 0)
-  currentPlayer.drawTile(13)
-  console.log('1',currentPlayer.playerHand.length)
-  await setDoc(playerRef, currentPlayer)
-
-  currentPlayer = (await getDoc(playerRef)).data()
-  currentPlayer.drawTile(13)
-  console.log('2',currentPlayer.playerHand.length)
-  await setDoc(playerRef, currentPlayer)
 
   // listen to player tiles changes, especially their hand length and their discarded pile
   const otherPlayersDiscardedRef = query(collection(fsdb,'games', roomId, 'players'), where('id', '!=', loggedInUser.uid))
@@ -381,17 +188,6 @@ const newGame = async(diceRolled=0, house=0) => {
         // put into own hand
     })
   })
-
-
-  // deliver the tiles to the players
-  // PLAYERS[0].drawTile(13)
-  // PLAYERS[1].drawTile(13)
-  // PLAYERS[2].drawTile(13)
-  // PLAYERS[3].drawTile(13)
-
-  // TODO: replace this with database
-  // PLAYERS.push(player1, player2, player3, player4)
-
 }
 
 /**
@@ -408,15 +204,24 @@ const startRound = () => {
 }
 
 
-
-onAuthStateChanged(auth, (user)=>{
+onAuthStateChanged(auth, async (user)=>{
   if(user) {
   // loggedInUser[accessToken] = await user.accessToken;
       loggedInUser['displayName'] = user.displayName;
       loggedInUser['uid'] = user.uid;
       loggedInUser['photoURL'] = user.photoURL;
-      
+      const userName = document.getElementById('userName');
+      userName.innerText = `Welcome ${user.displayName}`
       startDBSync(loggedInUser)
+      const gameRoomRef = doc(fsdb, 'lobby', roomId)
+      const gamePlayers = (await getDoc(gameRoomRef)).data()
+      if(gamePlayers.host.uid == user.uid) {
+        loggedInUser['playerWind'] = gamePlayers.host.uid
+      } else {
+        loggedInUser['playerWind'] = gamePlayers.players.filter(player=> player.uid == user.uid)['playerWind']
+      }
+
+      // retrieve gamestate
       newGame()
       startRound()
     } else {
@@ -425,24 +230,33 @@ onAuthStateChanged(auth, (user)=>{
   }
 })
 
-// ROOM_ID is declared in upperscope
-const roomId = ROOM_ID
-const gameId = ROOM_ID
-console.log(roomId)
-// const GAME_STATE = { DICEROLL: 0, EAST: 1, SOUTH: 2, WEST: 3, NORTH: 4}
+  const chatRef = ref(rtdb, `games/${roomId}/chats/`)
 
-let PLAYERS = []
-let possibleMergeCombinations = []
-let deckInPlay
-let onlinePlayerCount = 0
+  const addToChat = (name='', message) => {
+    const item = document.createElement('li')
+    item.innerHTML = `<strong>${name}</strong> ${message}`
 
+    const messageList = messages.querySelector('ul')
+    messageList.appendChild(item)
+    messages.scrollTop = messageList.scrollHeight;
+  }
 
+  const sendMessage = () => {
+    const newMessage = {
+      name: loggedInUser.displayName,
+      message: messageField.value
+    }
+    messageField.value = ''
+    set(push(chatRef), newMessage)
+  }
 
+  sendButton.addEventListener('click', sendMessage)
 
-const addToChat = (message) => {
-  const gamelog = document.getElementById('gamelog')
-  gamelog.innerText+=(message)
-}
+  onChildAdded(chatRef, (snapshot)=> {
+    const message = snapshot.val()
+    addToChat(message.name, message.message)
+  })
+
 
 // CHECK IF EVERYONE IS ONLINE
 const queryForUsers = query(collection(fsdb, 'status', roomId, 'players'), where('state','==','online'))
@@ -483,20 +297,20 @@ const updateGameState = (type, playerNumber = 0) => {
       gameState.currentWind = WIND_TILES[gameState.windCount%4]
       gameState.currentPlayer = ++gameState.currentPlayer % 4
       gameState.currentTurnNo++
-      updateGameLog()
+      // updateGameLog()
       startRound()
       break;
 
     case 'drawtiles':
       gameState.tilesInHands++
       gameState.tilesToPlay--
-      updateGameLog()
+      // updateGameLog()
       break;
 
     case 'discardtiles':
       gameState.tilesInDiscard++
       gameState.tilesInHands--
-      updateGameLog()
+      // updateGameLog()
       break;
 
     case 'eattiles':
@@ -504,7 +318,7 @@ const updateGameState = (type, playerNumber = 0) => {
       gameState.tilesInHands++
       gameState.currentPlayer = playerNumber // TODO: need to change this to reflect the player who clicked
       gameState.currentTurnNo++
-      updateGameLog()
+      // updateGameLog()
       const timerDisplay = document.getElementById('timer')
       startTimer(10, timerDisplay, PLAYERS[gameState.currentPlayer].skipTurn)
       break;
@@ -514,16 +328,23 @@ const updateGameState = (type, playerNumber = 0) => {
 
     case 'gameover':
       timer.clearAll()
-      updateGameLog()
+      // updateGameLog()
       break;
 
     default:
-      updateGameLog()
+      // updateGameLog()
       break;
   }
 }
+const updateCurrentPlayerInfo = (id,name,wind,chips,playerNo) => {
+  currentPlayer.id = id
+  currentPlayer.name = name
+  currentPlayer.wind = wind
+  currentPlayer.chips = chips
+  currentPlayer.playerNo = playerNo
+}
 
-const playerConverter = {
+const playerMetaInfoConverter = {
   toFirestore: (player) => {
     return {
       id: player.id,
@@ -531,18 +352,50 @@ const playerConverter = {
       wind : player.wind,
       chips : player.chips,
       playerNumber : player.playerNumber,
-      playerHand : player.playerHand,
-      playerChecked : player.playerChecked,
-      playerDiscarded : player.playerDiscarded,
       currentScore : player.currentScore,
     }
   }, 
   fromFirestore: (snapshot, options) => {
     const data = snapshot.data(options)
-    return new Player(data.id, data.name, data.wind, data.chips, data.playerNumber, data.playerHand, data.playerChecked, data.playerDiscarded, data.currentScore)
+    updateCurrentPlayerInfo(data.id, data.name, data.wind, data.chips, data.playerNumber)
   }
 }
 
+const playerHandConverter = {
+  toFirestore: (player)=> {
+    return {
+      playerHand: player.playerHand
+    }
+  },
+  fromFirestore: (snapshot,options) => {
+    const data = snapshot.data(options)
+    return data.playerHand
+  }
+}
+
+const playerDiscardedConverter = {
+  toFirestore: (player)=> {
+    return {
+      playerDiscarded: player.playerDiscarded
+    }
+  },
+  fromFirestore: (snapshot,options) => {
+    const data = snapshot.data(options)
+    return data.playerDiscarded
+  }
+}
+
+const playerCheckedConverter = {
+  toFirestore: (player)=> {
+    return {
+      playerChecked: player.playerChecked
+    }
+  },
+  fromFirestore: (snapshot,options) => {
+    const data = snapshot.data(options)
+    return data.playerChecked
+  }
+}
 
 
 
@@ -552,156 +405,157 @@ const playerConverter = {
  */
 const renderBoard = ()=> {
 
-  // check game state
-  if(gameState.tilesToPlay == 15) {
-    alert('GAME OVER')
-    updateGameState('gameover')
-    return
-  }
+  // // check game state
+  // if(gameState.tilesToPlay == 15) {
+  //   alert('GAME OVER')
+  //   updateGameState('gameover')
+  //   return
+  // }
 
-  const currentHand = PLAYERS[0].playerHand
-  const currentChecked = PLAYERS[0].playerChecked.flat(2)
-  const playerDiscarded = PLAYERS[0].playerDiscarded
-  const playerHand = document.getElementById('playerHand');
-  const playerChecked = document.getElementById('playerChecked');
-  const playerDiscardPile = document.getElementById('playerDiscardPile') 
-  playerChecked.innerText=''
-  playerHand.innerText =''
-  playerDiscardPile.innerText = ''
+  // const currentHand = PLAYERS[0].playerHand
+  // const currentChecked = PLAYERS[0].playerChecked.flat(2)
+  // const playerDiscarded = PLAYERS[0].playerDiscarded
+  // const playerHand = document.getElementById('playerHand');
+  // const playerChecked = document.getElementById('playerChecked');
+  // const playerDiscardPile = document.getElementById('playerDiscardPile') 
+  // playerChecked.innerText=''
+  // playerHand.innerText =''
+  // playerDiscardPile.innerText = ''
 
-  // RENDER PLAYER HAND
-  if(currentHand.length>0) {
-    currentHand.forEach(playerTile => {
-      const tileContainer = document.createElement('div')
-      tileContainer.classList.add('tile', playerTile.name)
-      tileContainer.id = playerTile.index
-      tileContainer.addEventListener('click', (ev)=> {
-        // immediately disable the clicking of other tiles
-        if(gameState.currentPlayer == 0 ) {
-          // discardTile(ev.target)
-          const tileIndex = ev.target.parentElement.id
-          const tileToBeRemoved = currentHand.find(tile=> tile.index == tileIndex)
-          PLAYERS[0].discardTile(tileToBeRemoved)
-        }
-      })
-      const tileImg = document.createElement('img')
-      tileImg.src = playerTile.url;
-      tileContainer.appendChild(tileImg)
-      playerHand.appendChild(tileContainer)
-    })
+  // // RENDER PLAYER HAND
+  // if(currentHand.length>0) {
+  //   currentHand.forEach(playerTile => {
+  //     const tileContainer = document.createElement('div')
+  //     tileContainer.classList.add('tile', playerTile.name)
+  //     tileContainer.id = playerTile.index
+  //     tileContainer.addEventListener('click', (ev)=> {
+  //       // immediately disable the clicking of other tiles
+  //       if(gameState.currentPlayer == 0 ) {
+  //         // discardTile(ev.target)
+  //         const tileIndex = ev.target.parentElement.id
+  //         const tileToBeRemoved = currentHand.find(tile=> tile.index == tileIndex)
+  //         PLAYERS[0].discardTile(tileToBeRemoved)
+  //       }
+  //     })
+  //     const tileImg = document.createElement('img')
+  //     tileImg.src = playerTile.url;
+  //     tileContainer.appendChild(tileImg)
+  //     playerHand.appendChild(tileContainer)
+  //   })
 
-    currentChecked.forEach(playerTile => {
-      const tileContainer = document.createElement('div')
-      tileContainer.classList.add('tile')
-      const tileImg = document.createElement('img')
-      tileImg.src = playerTile.url;
-      tileContainer.appendChild(tileImg)
-      playerChecked.appendChild(tileContainer)
-    })
+  //   currentChecked.forEach(playerTile => {
+  //     const tileContainer = document.createElement('div')
+  //     tileContainer.classList.add('tile')
+  //     const tileImg = document.createElement('img')
+  //     tileImg.src = playerTile.url;
+  //     tileContainer.appendChild(tileImg)
+  //     playerChecked.appendChild(tileContainer)
+  //   })
 
-    playerDiscarded.forEach(playerTile => {
-      const tileContainer = document.createElement('div')
-      tileContainer.id = playerTile.index
-      tileContainer.classList.add('tile')
-      const tileImg = document.createElement('img')
-      tileImg.src = playerTile.url
-      tileContainer.appendChild(tileImg)
+  //   playerDiscarded.forEach(playerTile => {
+  //     const tileContainer = document.createElement('div')
+  //     tileContainer.id = playerTile.index
+  //     tileContainer.classList.add('tile')
+  //     const tileImg = document.createElement('img')
+  //     tileImg.src = playerTile.url
+  //     tileContainer.appendChild(tileImg)
 
-      // insert into the dropzone randomly      
-      playerDiscardPile.appendChild(tileContainer)
-    })
-  }
+  //     // insert into the dropzone randomly      
+  //     playerDiscardPile.appendChild(tileContainer)
+  //   })
+  // }
 
 
-  // RENDER PLAYER DISPLAY OF OPPONENT TILES (hidden)
-  for(let remainingPlayer = 0; remainingPlayer < PLAYERS.length-1; remainingPlayer +=1){
-    const playerHands = ['leftPlayer','topPlayer','rightPlayer']
-    const remainingPlayerHand = document.getElementById(`${playerHands[remainingPlayer]}Hand`);
-    const remainingPlayerChecked = document.getElementById(`${playerHands[remainingPlayer]}Checked`);
-    const playerDiscardPile = document.getElementById(`${playerHands[remainingPlayer]}Discard`)
-    remainingPlayerChecked.innerText = ''
-    remainingPlayerHand.innerText=''
-    playerDiscardPile.innerText = ''
-    const nextPlayerHand = PLAYERS[remainingPlayer+1].playerHand
-    const nextPlayerChecked = PLAYERS[remainingPlayer+1].playerChecked
-    const nextPlayerDiscarded = PLAYERS[remainingPlayer+1].playerDiscarded
+  // // RENDER PLAYER DISPLAY OF OPPONENT TILES (hidden)
+  // for(let remainingPlayer = 0; remainingPlayer < PLAYERS.length-1; remainingPlayer +=1){
+  //   const playerHands = ['leftPlayer','topPlayer','rightPlayer']
+  //   const remainingPlayerHand = document.getElementById(`${playerHands[remainingPlayer]}Hand`);
+  //   const remainingPlayerChecked = document.getElementById(`${playerHands[remainingPlayer]}Checked`);
+  //   const playerDiscardPile = document.getElementById(`${playerHands[remainingPlayer]}Discard`)
+  //   remainingPlayerChecked.innerText = ''
+  //   remainingPlayerHand.innerText=''
+  //   playerDiscardPile.innerText = ''
+  //   const nextPlayerHand = PLAYERS[remainingPlayer+1].playerHand
+  //   const nextPlayerChecked = PLAYERS[remainingPlayer+1].playerChecked
+  //   const nextPlayerDiscarded = PLAYERS[remainingPlayer+1].playerDiscarded
 
-    if(nextPlayerHand.length>0) {
-      nextPlayerHand.forEach(playerTile => {
-        const tileContainer = document.createElement('div')
-        tileContainer.classList.add('tile')
-        const tileImg = document.createElement('img')
-        tileImg.style.backgroundColor = 'brown'
-        tileContainer.appendChild(tileImg)
-        remainingPlayerHand.appendChild(tileContainer)
-      })
-    }
+  //   if(nextPlayerHand.length>0) {
+  //     nextPlayerHand.forEach(playerTile => {
+  //       const tileContainer = document.createElement('div')
+  //       tileContainer.classList.add('tile')
+  //       const tileImg = document.createElement('img')
+  //       tileImg.style.backgroundColor = 'brown'
+  //       tileContainer.appendChild(tileImg)
+  //       remainingPlayerHand.appendChild(tileContainer)
+  //     })
+  //   }
 
-    if(nextPlayerChecked.length > 0 ) {
-      nextPlayerChecked.forEach(playerTile => {
-        const tileContainer = document.createElement('div')
-        tileContainer.classList.add('tile')
-        const tileImg = document.createElement('img')
-        tileImg.src = playerTile.url
-        tileContainer.appendChild(tileImg)
-        remainingPlayerChecked.appendChild(tileContainer)
-      })
-    }
+  //   if(nextPlayerChecked.length > 0 ) {
+  //     nextPlayerChecked.forEach(playerTile => {
+  //       const tileContainer = document.createElement('div')
+  //       tileContainer.classList.add('tile')
+  //       const tileImg = document.createElement('img')
+  //       tileImg.src = playerTile.url
+  //       tileContainer.appendChild(tileImg)
+  //       remainingPlayerChecked.appendChild(tileContainer)
+  //     })
+  //   }
 
-    if(nextPlayerDiscarded.length > 0 ) {
-      nextPlayerDiscarded.forEach(playerTile => {
-        const tileContainer = document.createElement('div')
-        tileContainer.classList.add('tile')
-        const tileImg = document.createElement('img')
-        tileImg.src = playerTile.url
-        tileContainer.appendChild(tileImg)
-        playerDiscardPile.appendChild(tileContainer)
-      })
-    }
-  }
+  //   if(nextPlayerDiscarded.length > 0 ) {
+  //     nextPlayerDiscarded.forEach(playerTile => {
+  //       const tileContainer = document.createElement('div')
+  //       tileContainer.classList.add('tile')
+  //       const tileImg = document.createElement('img')
+  //       tileImg.src = playerTile.url
+  //       tileContainer.appendChild(tileImg)
+  //       playerDiscardPile.appendChild(tileContainer)
+  //     })
+  //   }
+  // }
 
-  // RENDER EAT POSSIBILITY
+  // // RENDER EAT POSSIBILITY
   
-  // reset merge combinations
-  possibleMergeCombinations = []
-  console.log(refDeck())
+  // // reset merge combinations
+  // possibleMergeCombinations = []
+  // console.log(refDeck())
 
-  const playerControls = document.getElementById('playerControls').getElementsByClassName('content')[3]
+  // const playerControls = document.getElementById('playerControls').getElementsByClassName('content')[3]
 
-  // [0,2,3] -> [3,1,2]
-  const justDiscarded = PLAYERS[(gameState.currentPlayer+7) % 4].playerDiscarded
-    // activate when discard pile is not empty and not player's own discard
+  // // [0,2,3] -> [3,1,2]
+  // const justDiscarded = PLAYERS[(gameState.currentPlayer+7) % 4].playerDiscarded
+  //   // activate when discard pile is not empty and not player's own discard
   
-  if(justDiscarded.length > 0 && gameState.currentPlayer != 1  ) {
-    console.log('CHECKING EAT POSSIBILITY')
-    const lastDiscardedTile = justDiscarded[justDiscarded.length-1]
-    if(PLAYERS[0].checkIfCanBeEaten(lastDiscardedTile)) {
+  // if(justDiscarded.length > 0 && gameState.currentPlayer != 1  ) {
+  //   console.log('CHECKING EAT POSSIBILITY')
+  //   const lastDiscardedTile = justDiscarded[justDiscarded.length-1]
+  //   if(PLAYERS[0].checkIfCanBeEaten(lastDiscardedTile)) {
       
-      let set = new Set(possibleMergeCombinations.map(JSON.stringify))
-      let possibleUniqueCombinations = Array.from(set).map(JSON.parse)
+  //     let set = new Set(possibleMergeCombinations.map(JSON.stringify))
+  //     let possibleUniqueCombinations = Array.from(set).map(JSON.parse)
 
-      // give the player options which one to eat
-      possibleUniqueCombinations.forEach(combo => {
-        const eatDiscardedTile = document.createElement('button')
-        eatDiscardedTile.id = combo
-        for(const tileName of combo) {
-          eatDiscardedTile.textContent += refDeck()[tileName]
-        }
+  //     // give the player options which one to eat
+  //     possibleUniqueCombinations.forEach(combo => {
+  //       const eatDiscardedTile = document.createElement('button')
+  //       eatDiscardedTile.id = combo
+  //       for(const tileName of combo) {
+  //         eatDiscardedTile.textContent += refDeck()[tileName]
+  //       }
 
-        eatDiscardedTile.addEventListener('click', (ev)=> {
-          // TODO: eat the tiles based on the combinations
-          const tileCombiToCheck = ev.target.id.split(',')
-          PLAYERS[0].eatTile(justDiscarded, lastDiscardedTile, tileCombiToCheck)
-        })
-        playerControls.appendChild(eatDiscardedTile)
-      })
+  //       eatDiscardedTile.addEventListener('click', (ev)=> {
+  //         // TODO: eat the tiles based on the combinations
+  //         const tileCombiToCheck = ev.target.id.split(',')
+  //         PLAYERS[0].eatTile(justDiscarded, lastDiscardedTile, tileCombiToCheck)
+  //       })
+  //       playerControls.appendChild(eatDiscardedTile)
+  //     })
       
 
-    } else {
-      playerControls.innerText = "NOTHING TO EAT"
-    }
-  }
+  //   } else {
+  //     playerControls.innerText = "NOTHING TO EAT"
+  //   }
+  // }
 
 }
 
 renderBoard()
+})

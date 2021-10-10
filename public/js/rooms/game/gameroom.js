@@ -1,25 +1,27 @@
-const socket = io('/')
 
-const videoGrid = document.getElementById('videogrid').getElementsByClassName('insetvideo')
+import { collection, getDocs, doc, getDoc, setDoc, getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp, writeBatch} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
+import {fsdb} from './game.js'
 
-// id must start and end with alphanumeric character
-// dashes and underscores are allowed
-const peer = new Peer(undefined, {
-  host: 'localhost',
-  port: '3001', //client
-  //server and client exists on different ports
-  // pingInterval: 5000
-  path: '/videostream',
-  // secure: true if SSL
-  // config
-  debug: 3 
-  // => prints no logs (3 prints all logs)
-})
+const servers = {
+  iceServers: [
+    {
+      urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302']
+    }
+  ],
+  iceCandidatePoolSize: 10,
+}
 
-const peers = {}
-const myVideo = document.createElement('video')
-// mutes your own microphone output to yourself
-myVideo.muted = true;
+const pc = new RTCPeerConnection(servers)
+let localStream = null;
+let remoteStreams = [new MediaStream(),new MediaStream(),new MediaStream()]
+
+const remoteVideo2 = document.getElementById('rightvideo')
+const remoteVideo3 = document.getElementById('topvideo')
+const remoteVideo1 = document.getElementById('leftvideo')
+
+let remoteVideos = [remoteVideo1, remoteVideo2, remoteVideo3]
+
+const ownVideoStream = document.getElementById('mainvideo')
 
 const audio = document.getElementById('audio')
 for(let i = 0; i < 10; i++) {
@@ -28,105 +30,153 @@ for(let i = 0; i < 10; i++) {
   audio.appendChild(pid)
 }
 
-
-// navigator.getUserMedia(constraints, successCallback, errorCallback);
-navigator.mediaDevices.getUserMedia({
-  video: true, //can pass in dimensions e.g. {width: 1280, height: 720}
-  audio: true
-}).then(stream=> {
-
-  // audio analyser
-  const colorPids = (vol)=> {
-    
-    let all_pids = [...document.querySelectorAll('.pid')];
-    let amount_of_pids = Math.round(vol/10);
-    let elem_range = all_pids.slice(0, amount_of_pids)
-    for (var i = 0; i < all_pids.length; i++) {
-      all_pids[i].style.backgroundColor="#e6e7e8";
-    }
-    for (var i = 0; i < elem_range.length; i++) {
-      // console.log(elem_range[i]);
-      elem_range[i].style.backgroundColor="#69ce2b";
-    }
-  }
-  audioContext = new AudioContext();
-  analyser = audioContext.createAnalyser();
-  microphone = audioContext.createMediaStreamSource(stream);
-  javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
-
-  analyser.smoothingTimeConstant = 0.8;
-  analyser.fftSize = 1024;
-
-  microphone.connect(analyser);
-  analyser.connect(javascriptNode);
-  javascriptNode.connect(audioContext.destination);
-  javascriptNode.onaudioprocess = function() {
-      var array = new Uint8Array(analyser.frequencyBinCount);
-      analyser.getByteFrequencyData(array);
-      var values = 0;
-
-      var length = array.length;
-      for (var i = 0; i < length; i++) {
-        values += (array[i]);
-      }
-
-      var average = values / length;
-
-    colorPids(average);
-    }
-
-  addVideoStream(myVideo,stream)
-
-// Set listeners for peer events.
-// peer.on(event, callback);
-// Emitted when a remote peer attempts to call you. The emitted mediaConnection is not yet active; you must first answer the call (mediaConnection.answer([stream]);). Then, you can listen for the stream event.
-  peer.on('call', mediaConnection => {
-    mediaConnection.answer(stream)
-    const video = document.createElement('video')
-
-    // `stream` is the MediaStream of the remote peer.
-    mediaConnection.on('stream', userVideoStream => {
-      addVideoStream(video, userVideoStream)
-    })
-  })
-
-  // after new user joins room, get new user stream
-  socket.on('user-connected', userId => {
-    connectToNewUser(userId, stream)
-  })
-})
-
-socket.on('user-disconnected', userId=> {
-  if(peers[userId]) peers[userId].close();
-})
-
-// Emitted when a connection to the PeerServer is established. You may use the peer before this is emitted, but messages to the server will be queued. id is the brokering ID of the peer (which was either provided in the constructor or assigned by the server).
-peer.on('open', userId => {
-  socket.emit('join-room', userId)
-})
-
-const addVideoStream = (video,stream)=> {
+const addVideoStream = (output, stream)=> {
+  const video = document.createElement('video')
   video.srcObject = stream;
   video.addEventListener('loadedmetadata', ()=> {
     video.play();
   })
-  videoGrid[0].appendChild(video)
+  output.append(video)
 }
 
-const connectToNewUser = (userId, stream) => {
-  // Calls the remote peer specified by id and returns a media connection. Be sure to listen on the error event in case the connection fails.
-  // const mediaConnection = peer.call(id, stream, [options]);
-  const call = peer.call(userId, stream);
-  const video = document.createElement('video')
-  call.on('stream', userVideoStream => {
-    addVideoStream(video,userVideoStream)
-  })
-  call.on('close', ()=> {
-    video.remove();
-  })
+// navigator.getUserMedia(constraints, successCallback, errorCallback);
+localStream = await navigator.mediaDevices.getUserMedia({
+  video: true, //can pass in dimensions e.g. {width: 1280, height: 720}
+  audio: true
+})
 
-  peers[userId] = call;
-  console.log(call)
+localStream.getTracks().forEach((track)=> {
+  pc.addTrack(track, localStream)
+})
+
+// audio analyser
+const colorPids = (vol)=> {
+  
+  let all_pids = [...document.querySelectorAll('.pid')];
+  let amount_of_pids = Math.round(vol/10);
+  let elem_range = all_pids.slice(0, amount_of_pids)
+  for (var i = 0; i < all_pids.length; i++) {
+    all_pids[i].style.backgroundColor="#e6e7e8";
+  }
+  for (var i = 0; i < elem_range.length; i++) {
+    // console.log(elem_range[i]);
+    elem_range[i].style.backgroundColor="#69ce2b";
+  }
 }
 
-// socket.emit('create-room')
+const audioContext = new AudioContext();
+const analyser = audioContext.createAnalyser();
+const microphone = audioContext.createMediaStreamSource(localStream);
+const javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+
+analyser.smoothingTimeConstant = 0.8;
+analyser.fftSize = 1024;
+
+microphone.connect(analyser);
+analyser.connect(javascriptNode);
+javascriptNode.connect(audioContext.destination);
+javascriptNode.onaudioprocess = function() {
+    var array = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(array);
+    var values = 0;
+
+    var length = array.length;
+    for (var i = 0; i < length; i++) {
+      values += (array[i]);
+    }
+
+    var average = values / length;
+
+  colorPids(average);
+}
+let counter=0
+pc.ontrack = (event) => {
+  console.log(event.streams)
+  event.streams.forEach(stream=> {
+    stream.getTracks().forEach((track)=>{
+      remoteStreams[counter].addTrack(track)
+    })
+    addVideoStream(remoteVideos[counter],remoteStreams[counter])
+    counter+=1
+  })
+}
+
+addVideoStream(ownVideoStream, localStream)
+
+
+// Reference Firestore collections for signaling
+const callDoc = collection(fsdb,'calls');
+const offerCandidates = doc(fsdb,'calls','offerCandidates');
+const answerCandidates = doc(fsdb,'calls','answerCandidates');
+
+const callerId = callDoc.id;
+
+// Get candidates for caller, save to db
+pc.onicecandidate = (event) => {
+  event.candidate && setDoc(offerCandidates,event.candidate.toJSON());
+};
+
+// Create offer
+const offerDescription = await pc.createOffer();
+await pc.setLocalDescription(offerDescription);
+
+const offer = {
+  sdp: offerDescription.sdp,
+  type: offerDescription.type,
+};
+
+await addDoc(callDoc, { offer });
+
+// Listen for remote answer
+onSnapshot(callDoc, (snapshot) => {
+  const data = snapshot.data();
+  if (!pc.currentRemoteDescription && data?.answer) {
+    const answerDescription = new RTCSessionDescription(data.answer);
+    pc.setRemoteDescription(answerDescription);
+  }
+});
+
+// When answered, add candidate to peer connection
+onSnapshot(answerCandidates, (snapshot) => {
+  snapshot.docChanges().forEach((change) => {
+    if (change.type === 'added') {
+      const candidate = new RTCIceCandidate(change.doc.data());
+      pc.addIceCandidate(candidate);
+    }
+  });
+});
+
+const callNewDoc = doc(fsdb, 'calls', callerId);
+const answerNewCandidates = collection(fsdb, 'calls', callerId,'answerCandidates');
+const offerNewCandidates = collection(fsdb, 'calls', callerId,'offerCandidates');
+
+pc.onicecandidate = (event) => {
+  event.candidate && answerNewCandidates.add(event.candidate.toJSON());
+};
+
+const callData = (await callNewDoc.get()).data();
+
+const offerNewDescription = callData.offer;
+await pc.setRemoteDescription(new RTCSessionDescription(offerNewDescription));
+
+const answerDescription = await pc.createAnswer();
+await pc.setLocalDescription(answerDescription);
+
+const answer = {
+  type: answerDescription.type,
+  sdp: answerDescription.sdp,
+};
+
+await updateDoc(callNewDoc, { answer });
+
+onSnapshot(offerNewCandidates, (snapshot) => {
+  snapshot.docChanges().forEach((change) => {
+    console.log(change);
+    if (change.type === 'added') {
+      let data = change.doc.data();
+      pc.addIceCandidate(new RTCIceCandidate(data));
+    }
+  });
+});
+
+

@@ -11,7 +11,17 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
     />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
 
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=ZCOOL+QingKe+HuangYou&display=swap"
+      rel="stylesheet"
+    />
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -94,10 +104,47 @@
       .chat-box {
         height: 40vh;
       }
+
+      li {
+        margin-right: 20px;
+      }
+
+      .brand-logo {
+        margin-left: 20px;
+        font-family: "ZCOOL QingKe HuangYou", cursive;
+      }
+
+      li:hover {
+        color: tomato;
+        cursor: pointer;
+      }
+
+      nav {
+        background-color: whitesmoke;
+      }
+
+      .nav-wrapper > * > *,
+      .nav-mobile,
+      span {
+        color: black;
+      }
     </style>
     <script type="module" src="js/rooms/lobby/lobby.js" defer></script>
   </head>
   <body>
+    <nav>
+      <div class="nav-wrapper">
+        <a href="/lobby" class="brand-logo">
+          <i class="material-icons">sports_esports</i>
+          <span> 麻将之王 </span></a
+        >
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+          <li id="userName"></li>
+          <li id="logout">Logout</li>
+        </ul>
+      </div>
+    </nav>
+
     <!-- read from firebase a list of UUID rooms and connected users -->
     <div class="container">
       <div
@@ -112,7 +159,7 @@
 
         <div class="col s4" id="chat">
           <div class="chat-box" id="chat-messages">
-            <strong>ONLINE NOW: </strong>
+            <strong>IN LOBBY NOW: </strong>
             <ul></ul>
           </div>
         </div>

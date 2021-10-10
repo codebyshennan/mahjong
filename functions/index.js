@@ -1,7 +1,5 @@
 import express from 'express'
-import http from 'http'
 import cors from 'cors'
-import { Server } from 'socket.io'
 import { initializeApp } from 'firebase/app'
 // import { getAnalytics } from "firebase/analytics";
 import { getDatabase, connectDatabaseEmulator } from 'firebase/database'
@@ -17,7 +15,6 @@ import {
   GoogleAuthProvider,
   FacebookAuthProvider,
   connectAuthEmulator } from 'firebase/auth'
-import { v4 as uuidv4 } from 'uuid'
 import admin from 'firebase-admin'
 import * as functions from 'firebase-functions'
 // https://www.stefanjudis.com/snippets/how-to-import-json-files-in-es-modules-node-js/
@@ -45,16 +42,6 @@ connectFirestoreEmulator(fsdb, "localhost", 8080)
 
 const firestore=admin.firestore()
 
-// INITIALIZING PEERJS SERVER
-const server = http.createServer(app)
-
-const io = new Server(server,{
-  cors: {
-      origins: ['http://localhost:3000','https://admin.socket.io'],
-      methods: ['GET','POST']
-    }
-})
-
 // GLOBAL APP CONFIG FOR EXPRESS
 app.set('view engine','ejs')
 // app.use(express.static('public'))
@@ -67,7 +54,7 @@ app.use(cors())
 // ROUTES
 // DEFAULT
 app.get('/', (req,res)=>{
-  res.redirect('/lobby')
+  res.redirect('/login')
 })
 
 // REGISTER NEW USERS
@@ -143,7 +130,6 @@ app.post('/signout',(req,res)=> {
 // Game lobby (SPA) will display the available games within the server
 // Lobby allows you to create or join rooms
 app.get('/lobby', (req,res)=> {
-  res.set('Cache-Control', 'public, max-age=300,s-max=600')
   res.render('lobby')
 })
 
@@ -157,13 +143,8 @@ app.get('/interstitial/:key', (req,res)=>{
   // }
 })
 
-// GAME ROOMS
-app.get('/:new',(req,res)=> {
-  res.redirect(`/room/${uuidv4()}`)
-})
-
 // In the gameroom, the client js file reads the rtdb for the 
-app.get('/room/:room', (req,res)=> {
+app.get('/game/:room', (req,res)=> {
   res.render('game', {roomId: req.params.room})
 })
 
@@ -220,3 +201,25 @@ export const onLobbyStatusChanged = functions.database.ref('/online/{uid}').onUp
     return lobbyStatusFSRef.set(lobbyStatus)
   }
 )
+
+
+// // CHECK WIN FUNCTIONS
+// export const checkWinningHand = functions.firestore.document('games/{gameId}/players/{playerId}/tiles/playerHand').onUpdate(
+//   async(change, context)=> {
+//     const playerHandStatus = change.after.val()
+//     const playerCheckedRef = firestore.doc(`games/${context.params.gameId}/players/${context.params.playerId}/tiles/playerChecked`)
+//     const playerCheckedStatus = await getDoc(playerCheckedRef)
+//     // data => playerChecked.data()
+//     // checkwin logic (playerHandStatus, playerCheckedStatus)
+    
+//     const winningCombi = {
+//       winner: `${context.params.playerId}`,
+//       combination: playerHandStatus,
+//       checked: playerCheckedStatus
+//     }
+
+//     const winnerRef = firestore.doc(`games/${context.params.gameId}`) 
+//     return winnerRef.set(winningCombi)
+//   }
+
+
