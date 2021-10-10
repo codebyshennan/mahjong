@@ -2,6 +2,13 @@ body {
   overflow-y: hidden;
 }
 
+.playerWind {
+  font-size: 5em;
+  font-weight: bold;
+  color: olivedrab;
+  padding: 30px;
+}
+
 .board {
   display: grid;
   height: 95vh;
@@ -70,7 +77,7 @@ body {
 }
 
 .topdiscard {
-  border: 4px dotted black;
+  border: 4px dotted olivedrab;
   border-right: none;
   grid-area: topdiscard;
   display: flex;
@@ -79,7 +86,7 @@ body {
 }
 
 .rightdiscard {
-  border: 4px dotted black;
+  border: 4px dotted olivedrab;
   border-bottom: none;
   grid-area: rightdiscard;
   display: flex;
@@ -90,7 +97,7 @@ body {
 }
 
 .leftdiscard {
-  border: 4px dotted black;
+  border: 4px dotted olivedrab;
   border-top: none;
   grid-area: leftdiscard;
   display: flex;
@@ -100,7 +107,7 @@ body {
 }
 
 .maindiscard {
-  border: 4px dotted black;
+  border: 4px dotted olivedrab;
   border-left: none;
   grid-area: maindiscard;
   display: flex;
@@ -193,7 +200,7 @@ body {
 .rightChecked {
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 30px;
   width: 2em;
   justify-content: center;
   align-items: center;
@@ -269,8 +276,8 @@ body {
 .circle {
   position: absolute;
   background-color: white;
-  border-radius: 50%;
-  border: 1px solid black;
+  border-radius: 8px;
+  border: 1px solid olivedrab;
   z-index: 99;
   width: 100px;
   height: 100px;
@@ -288,7 +295,7 @@ body {
   width: calc(100% / 1.414);
   top: 50%;
   left: 50%;
-  border: 1px solid black;
+  border: 1px solid olivedrab;
   transform-origin: 0% 0%;
 }
 .rightcontrols {

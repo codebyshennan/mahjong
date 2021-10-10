@@ -1,10 +1,3 @@
-const updateCurrentPlayerInfo = (id,name,wind,chips,playerNo) => {
-  currentPlayer.id = id
-  currentPlayer.name = name
-  currentPlayer.wind = wind
-  currentPlayer.chips = chips
-  currentPlayer.playerNo = playerNo
-}
 
 const playerMetaInfoConverter = {
   toFirestore: (player) => {
@@ -19,7 +12,7 @@ const playerMetaInfoConverter = {
   }, 
   fromFirestore: (snapshot, options) => {
     const data = snapshot.data(options)
-    updateCurrentPlayerInfo(data.id, data.name, data.wind, data.chips, data.playerNumber)
+    return {id: data.id, name: data.name, wind: data.wind, chips: data.chips, playerNumber: data.playerNumber, currentScore: data.currentScore}
   }
 }
 
@@ -29,8 +22,9 @@ const playerHandConverter = {
       playerHand: player.playerHand
     }
   },
-  fromFirestore: (snapshot,options) => {
+  fromFirestore: (snapshot, options) => {
     const data = snapshot.data(options)
+    console.log(data)
     return data.playerHand
   }
 }

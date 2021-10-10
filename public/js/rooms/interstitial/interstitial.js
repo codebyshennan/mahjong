@@ -515,7 +515,7 @@ window.addEventListener('DOMContentLoaded', async ()=> {
         timer.clearAll()
         updateGameState('discardtiles')
         updateGameState('nextround')
-        renderBoard()
+        commitPlayerHand(this)
       }
 
       /**
