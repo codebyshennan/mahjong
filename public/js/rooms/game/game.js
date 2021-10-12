@@ -88,28 +88,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     /**
      *
      *
-     * @param {*} arrayOfTileNames
-     * @param {*} type
-     * @memberof Player
-     */
-    highlightTilesToBeMergedWith = (arrayOfTileNames, type) => {
-      arrayOfTileNames.forEach((tilename,index) => {
-        const tiles = document.querySelectorAll(`.${tilename}`)
-        const idx = tiles.length > 1 ? index : 0
-        tiles[idx].classList.add(`'${type}'`)
-        tiles[idx].style.border = '2px solid red'
-      })
-    }
-
-    
-    /**
-     *
-     *
      * @param {*} playerHand
      * @memberof Player
      */
-    tallyByName = (playerHand) => {
-      const sortedHand = sortHand(playerHand, 'name')
+    tallyByName = () => {
+      const sortedHand = sortHand(this.playerHand, 'name')
         // tally hand by name
       let playerHandTally = {}
 
@@ -152,7 +135,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         } else {
           this.playerHand.push(newTile)
         }
-
         updateGameState(gameState,'drawtiles')
       }
       renderPlayer(this.playerHand,this.playerChecked,this.playerDiscarded)
@@ -161,7 +143,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     /**
      *
-     *
+     * discards a particular tile within a player's hand
+     * returns a Boolean value to indicate success
      * @param {*} tile
      * @memberof Player
      */
@@ -169,19 +152,19 @@ window.addEventListener('DOMContentLoaded', async () => {
       // find the index of the tile in the player's hand
       console.log('Discarding tile ', tile)
       const tileIndex = this.playerHand.findIndex(playerTile => playerTile.index == tile.index)
-      const discardedTile = this.playerHand.splice(tileIndex, 1)
-      this.playerDiscarded.push(discardedTile[0])
-
-      timer.clearAll()
-      updateGameState(gameState,'discardtiles')
-      updateGameState(gameState,'nextround')
-      renderPlayer(this.playerHand,this.playerChecked, this.playerDiscarded)
-      commitPlayerHand(this, gameState)
+      if(tileIndex<0) {
+        console.log("Tile not found within the player's hand")
+        return false;
+      } else {
+        const discardedTile = this.playerHand.splice(tileIndex, 1)
+        this.playerDiscarded.push(discardedTile[0])
+        return true;
+      }
     }
 
     /**
      *
-     *
+     * takes in a tile and adds in to the player's hand
      * @param {*} tile
      * @param {*} withThisCombi
      * @memberof Player
@@ -200,28 +183,13 @@ window.addEventListener('DOMContentLoaded', async () => {
       })
 
       this.playerChecked.push(sortHand(checkedGroup))
-
-      renderPlayer(this.playerHand,this.playerChecked, this.playerDiscarded)
-
-      timer.clearAll()
-      updateGameState(gameState,'eattiles')
     }
+
+
 
     /**
      *
-     *
-     * @memberof Player
-     */
-    skipTurn = () => {
-      const currentPlayerHand = this.playerHand
-      const randomIndex = Math.floor(currentPlayerHand.length * Math.random())
-      const randomTile = currentPlayerHand[randomIndex]
-      this.discardTile(randomTile)
-    }
-
-    /**
-     *
-     *
+     * displays a simplfied version of the player hand
      * @memberof Player
      */
     showSimplifiedHand = () => {
@@ -237,18 +205,36 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     /**
      *
-     *
+     * processes the tile and checks if the tile can be eaten as part of a sequence or a triple
      * @param {*} discardedTile
      * @memberof Player
      */
     checkIfCanBeEaten = (discardedTile) => {
+     
+      /**
+       *
+       * highlight the players tiles that can be merged with the combinations within
+       * @param {*} arrayOfTileNames
+       * @param {*} type
+       * @memberof Player
+       */
+      const highlightTilesToBeMergedWith = (arrayOfTileNames, type) => {
+        arrayOfTileNames.forEach((tilename,index) => {
+          const tiles = document.querySelectorAll(`.${tilename}`)
+          const idx = tiles.length > 1 ? index : 0
+          tiles[idx].classList.add(`'${type}'`)
+          tiles[idx].style.border = '2px solid red'
+        })
+      }
+
+      
       const playerTally = this.tallyByName(this.playerHand)
       console.log('TALLY BY NAME: ', playerTally)
       // check if the discarded tile can complete a set of non-sequential tiles i.e. NOT tiles with numbers
       if(discardedTile.index > 108) {
         if (playerTally[discardedTile.name] >= 2 ) {
           possibleMergeCombinations.push([discardedTile.name, discardedTile.name])
-          this.highlightTilesToBeMergedWith([discardedTile.name],'same')
+          highlightTilesToBeMergedWith([discardedTile.name],'same')
           return true
         }
         // highlight the tiles to be eaten
@@ -261,31 +247,46 @@ window.addEventListener('DOMContentLoaded', async () => {
         // if the discardedtile can complete a pair of duplicates or if the discardedtile can form part of a sequence e.g. X,_,_ || _,X,_ || _,_,X
         if (playerTally[discardedTile.name] == 2) {
           possibleMergeCombinations.push([discardedTile.name, discardedTile.name])
-          this.highlightTilesToBeMergedWith([discardedTile.name],'same')
+          highlightTilesToBeMergedWith([discardedTile.name],'same')
           hasOutcome = true
         } 
         if (playerTally[discardedTileChar+(discardedTileNo+1)] && playerTally[discardedTileChar+(discardedTileNo+2)]) {
           console.log(' X , _ , _ ')
           possibleMergeCombinations.push([discardedTileChar+(discardedTileNo+1), discardedTileChar+(discardedTileNo+2)])
-          this.highlightTilesToBeMergedWith([discardedTileChar+(discardedTileNo+1),discardedTileChar+(discardedTileNo+2)],'first')
+          highlightTilesToBeMergedWith([discardedTileChar+(discardedTileNo+1),discardedTileChar+(discardedTileNo+2)],'first')
           hasOutcome = true
         } 
         if (playerTally[discardedTileChar+(discardedTileNo-1)] && playerTally[discardedTileChar+(discardedTileNo+1)]) {
           console.log(' _ , X , _ ')
           possibleMergeCombinations.push([discardedTileChar+(discardedTileNo-1), discardedTileChar+(discardedTileNo+1)])
-          this.highlightTilesToBeMergedWith([discardedTileChar+(discardedTileNo-1),discardedTileChar+(discardedTileNo+1)],'middle')
+          highlightTilesToBeMergedWith([discardedTileChar+(discardedTileNo-1),discardedTileChar+(discardedTileNo+1)],'middle')
           hasOutcome = true
         } 
         if (playerTally[discardedTileChar+(discardedTileNo-1)] && playerTally[discardedTileChar+(discardedTileNo-2)]) {
           console.log(' _ , _ , X ')
           possibleMergeCombinations.push([discardedTileChar+(discardedTileNo-1), discardedTileChar+(discardedTileNo-2)])
-          this.highlightTilesToBeMergedWith([discardedTileChar+(discardedTileNo-1),discardedTileChar+(discardedTileNo-2)],'last')
+          highlightTilesToBeMergedWith([discardedTileChar+(discardedTileNo-1),discardedTileChar+(discardedTileNo-2)],'last')
           hasOutcome = true
         }
         return hasOutcome
       }
     }
-  }
+  }  
+
+
+  const skipTurn = (player) => {
+      const currentPlayerHand = player.playerHand
+      const randomIndex = Math.floor(currentPlayerHand.length * Math.random())
+      const randomTile = currentPlayerHand[randomIndex]
+      player.discardTile(randomTile)
+      
+      timer.clearAll()
+      updateGameState(gameState,'discardtiles')
+      updateGameState(gameState,'nextround')
+      renderPlayer(player.playerHand,player.playerChecked, player.playerDiscarded)
+      commitPlayerHand(player, gameState)
+    }
+
 
   document.getElementById('logout').addEventListener('click', (ev)=> {
     ev.preventDefault()
@@ -407,6 +408,13 @@ window.addEventListener('DOMContentLoaded', async () => {
             const tileIndex = ev.target.parentElement.id
             const tileToBeRemoved = hand.find(tile=> tile.index == tileIndex)
             currentPlayer.discardTile(tileToBeRemoved)
+
+            timer.clearAll()
+            updateGameState(gameState,'discardtiles')
+            updateGameState(gameState,'nextround')
+            renderPlayer(currentPlayer.playerHand,currentPlayer.playerChecked, currentPlayer.playerDiscarded)
+            commitPlayerHand(currentPlayer, gameState)
+            
           }
         })
         const tileImg = document.createElement('img')
@@ -551,6 +559,9 @@ window.addEventListener('DOMContentLoaded', async () => {
                   // TODO: eat the tiles based on the combinations
                   const tileCombiToCheck = ev.target.id.split(',')
                   currentPlayer.eatTile(lastDiscardedTile, tileCombiToCheck)
+                  renderPlayer(currentPlayer.playerHand,currentPlayer.playerChecked, currentPlayer.playerDiscarded)=
+                  timer.clearAll()
+                  updateGameState(gameState,'eattiles')
                 })
                 alertify.alert(eatDiscardedTile).setting({'modal': false}, {'basic': true}); 
                 // toastr['info'](eatDiscardedTile)

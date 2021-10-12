@@ -1,5 +1,5 @@
 
-import { collection, getDocs, doc, getDoc, setDoc, getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp, writeBatch} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
+import { collection, getDocs, doc, getDoc, setDoc, getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, updateDoc, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp, writeBatch} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
 import {fsdb} from './game.js'
 
 const servers = {
@@ -32,6 +32,7 @@ for(let i = 0; i < 10; i++) {
 
 const addVideoStream = (output, stream)=> {
   const video = document.createElement('video')
+  video.muted = true
   video.srcObject = stream;
   video.addEventListener('loadedmetadata', ()=> {
     video.play();
@@ -39,6 +40,7 @@ const addVideoStream = (output, stream)=> {
   output.append(video)
 }
 
+// PUSH TRACKS FROM LOCAL STREAM TO PEER CONNECTION
 // navigator.getUserMedia(constraints, successCallback, errorCallback);
 localStream = await navigator.mediaDevices.getUserMedia({
   video: true, //can pass in dimensions e.g. {width: 1280, height: 720}
@@ -49,7 +51,8 @@ localStream.getTracks().forEach((track)=> {
   pc.addTrack(track, localStream)
 })
 
-// audio analyser
+// AUDIO ANALYSER
+// CREATE SCRIPT PROCESSOR IS DEPRECATED
 const colorPids = (vol)=> {
   
   let all_pids = [...document.querySelectorAll('.pid')];
@@ -89,6 +92,8 @@ javascriptNode.onaudioprocess = function() {
 
   colorPids(average);
 }
+
+// PULL TRACKS FROM REMOTE STREAM ADD TO VIDEO STREAM
 let counter=0
 pc.ontrack = (event) => {
   console.log(event.streams)
@@ -96,6 +101,7 @@ pc.ontrack = (event) => {
     stream.getTracks().forEach((track)=>{
       remoteStreams[counter].addTrack(track)
     })
+    // SWITCHBOARD INTO NEXT VIDEO IN EVENT OF MULTIPLE VIDEOS
     addVideoStream(remoteVideos[counter],remoteStreams[counter])
     counter+=1
   })
@@ -105,15 +111,16 @@ addVideoStream(ownVideoStream, localStream)
 
 
 // Reference Firestore collections for signaling
-const callDoc = collection(fsdb,'calls');
-const offerCandidates = doc(fsdb,'calls','offerCandidates');
-const answerCandidates = doc(fsdb,'calls','answerCandidates');
-
+const callDoc = doc(collection(fsdb,'calls'));
+// Get the document id of the call document
 const callerId = callDoc.id;
+const offerCandidates = collection(callDoc, 'offerCandidates')
+const answerCandidates = collection(callDoc, 'answerCandidates')
+
 
 // Get candidates for caller, save to db
 pc.onicecandidate = (event) => {
-  event.candidate && setDoc(offerCandidates,event.candidate.toJSON());
+  event.candidate && setDoc(offerCandidates, event.candidate.toJSON());
 };
 
 // Create offer
@@ -125,10 +132,10 @@ const offer = {
   type: offerDescription.type,
 };
 
-await addDoc(callDoc, { offer });
+await setDoc(callDoc, { offer });
 
 // Listen for remote answer
-onSnapshot(callDoc, (snapshot) => {
+onSnapshot(doc(fsdb, 'calls', callerId), (snapshot) => {
   const data = snapshot.data();
   if (!pc.currentRemoteDescription && data?.answer) {
     const answerDescription = new RTCSessionDescription(data.answer);
@@ -146,37 +153,41 @@ onSnapshot(answerCandidates, (snapshot) => {
   });
 });
 
-const callNewDoc = doc(fsdb, 'calls', callerId);
-const answerNewCandidates = collection(fsdb, 'calls', callerId,'answerCandidates');
-const offerNewCandidates = collection(fsdb, 'calls', callerId,'offerCandidates');
+setTimeout(async()=> { 
+  
+  const callNewDoc = doc(fsdb, 'calls', callerId);
+  const answerNewCandidates = collection(fsdb, 'calls', callerId,'answerCandidates');
+  const offerNewCandidates = collection(fsdb, 'calls', callerId,'offerCandidates');
 
-pc.onicecandidate = (event) => {
-  event.candidate && answerNewCandidates.add(event.candidate.toJSON());
-};
+  pc.onicecandidate = (event) => {
+    event.candidate && setDoc(answerNewCandidates, event.candidate.toJSON());
+  };
 
-const callData = (await callNewDoc.get()).data();
+  const callData = (await getDoc(callNewDoc)).data();
 
-const offerNewDescription = callData.offer;
-await pc.setRemoteDescription(new RTCSessionDescription(offerNewDescription));
+  const offerNewDescription = callData.offer;
+  await pc.setRemoteDescription(new RTCSessionDescription(offerNewDescription));
 
-const answerDescription = await pc.createAnswer();
-await pc.setLocalDescription(answerDescription);
+  const answerDescription = await pc.createAnswer();
+  await pc.setLocalDescription(answerDescription);
 
-const answer = {
-  type: answerDescription.type,
-  sdp: answerDescription.sdp,
-};
+  const answer = {
+    type: answerDescription.type,
+    sdp: answerDescription.sdp,
+  };
 
-await updateDoc(callNewDoc, { answer });
+  await updateDoc(callNewDoc, { answer });
 
-onSnapshot(offerNewCandidates, (snapshot) => {
-  snapshot.docChanges().forEach((change) => {
-    console.log(change);
-    if (change.type === 'added') {
-      let data = change.doc.data();
-      pc.addIceCandidate(new RTCIceCandidate(data));
-    }
+  onSnapshot(offerNewCandidates, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      console.log(change);
+      if (change.type === 'added') {
+        let data = change.doc.data();
+        pc.addIceCandidate(new RTCIceCandidate(data));
+      }
+    });
   });
-});
+
+}, 5000)
 
 
