@@ -140,6 +140,11 @@ app.get('/interstitial/:key', (req,res)=>{
   // }
 })
 
+app.post('/interstitial/createGame', (req,res)=>{
+  
+})
+
+
 // In the gameroom, the client js file reads the rtdb for the 
 app.get('/game/:room', (req,res)=> {
   res.render('game', {roomId: req.params.room})

@@ -4,8 +4,9 @@ dist
 # NODE
 node_modules
 
-
 # API KEY FOR FIREBASE ADMIN
 serviceAccountKey.json
 
-,env
+.env
+
+public/js/config.js

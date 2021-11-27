@@ -109,51 +109,52 @@ pc.ontrack = (event) => {
 
 addVideoStream(ownVideoStream, localStream)
 
+export const hostCalling = () => {
+  // Reference Firestore collections for signaling
+  const callDoc = doc(collection(fsdb,'calls'));
+  // Get the document id of the call document
+  const callerId = callDoc.id;
+  const offerCandidates = collection(callDoc, 'offerCandidates')
+  const answerCandidates = collection(callDoc, 'answerCandidates')
 
-// Reference Firestore collections for signaling
-const callDoc = doc(collection(fsdb,'calls'));
-// Get the document id of the call document
-const callerId = callDoc.id;
-const offerCandidates = collection(callDoc, 'offerCandidates')
-const answerCandidates = collection(callDoc, 'answerCandidates')
 
+  // Get candidates for caller, save to db
+  pc.onicecandidate = (event) => {
+    event.candidate && setDoc(offerCandidates, event.candidate.toJSON());
+  };
 
-// Get candidates for caller, save to db
-pc.onicecandidate = (event) => {
-  event.candidate && setDoc(offerCandidates, event.candidate.toJSON());
-};
+  // Create offer
+  const offerDescription = await pc.createOffer();
+  await pc.setLocalDescription(offerDescription);
 
-// Create offer
-const offerDescription = await pc.createOffer();
-await pc.setLocalDescription(offerDescription);
+  const offer = {
+    sdp: offerDescription.sdp,
+    type: offerDescription.type,
+  };
 
-const offer = {
-  sdp: offerDescription.sdp,
-  type: offerDescription.type,
-};
+  await setDoc(callDoc, { offer });
 
-await setDoc(callDoc, { offer });
-
-// Listen for remote answer
-onSnapshot(doc(fsdb, 'calls', callerId), (snapshot) => {
-  const data = snapshot.data();
-  if (!pc.currentRemoteDescription && data?.answer) {
-    const answerDescription = new RTCSessionDescription(data.answer);
-    pc.setRemoteDescription(answerDescription);
-  }
-});
-
-// When answered, add candidate to peer connection
-onSnapshot(answerCandidates, (snapshot) => {
-  snapshot.docChanges().forEach((change) => {
-    if (change.type === 'added') {
-      const candidate = new RTCIceCandidate(change.doc.data());
-      pc.addIceCandidate(candidate);
+  // Listen for remote answer
+  onSnapshot(doc(fsdb, 'calls', callerId), (snapshot) => {
+    const data = snapshot.data();
+    if (!pc.currentRemoteDescription && data?.answer) {
+      const answerDescription = new RTCSessionDescription(data.answer);
+      pc.setRemoteDescription(answerDescription);
     }
   });
-});
 
-setTimeout(async()=> { 
+  // When answered, add candidate to peer connection
+  onSnapshot(answerCandidates, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === 'added') {
+        const candidate = new RTCIceCandidate(change.doc.data());
+        pc.addIceCandidate(candidate);
+      }
+    });
+  });
+}
+
+export const guestsAnswering = () =>  { 
   
   const callNewDoc = doc(fsdb, 'calls', callerId);
   const answerNewCandidates = collection(fsdb, 'calls', callerId,'answerCandidates');
@@ -188,6 +189,6 @@ setTimeout(async()=> {
     });
   });
 
-}, 5000)
+}
 
 

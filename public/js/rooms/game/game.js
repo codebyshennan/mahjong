@@ -9,30 +9,34 @@ import { getAuth, onAuthStateChanged, connectAuthEmulator, signOut } from "https
 import { ref, serverTimestamp, onDisconnect, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set, getDatabase, connectDatabaseEmulator } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
 import { collection, getDocs, doc, getDoc, setDoc, getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp, writeBatch} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
 import { playerMetaInfoConverter, playerCheckedConverter, playerHandConverter, playerDiscardedConverter } from './converters.js'
-
-// toastr["success"]("<div><input class="input-small" value="textbox"/>&nbsp;<a href="http://johnpapa.net" target="_blank">This is a hyperlink</a></div><div><button type="button" id="okBtn" class="btn btn-primary">Close me</button><button type="button" id="surpriseBtn" class="btn" style="margin: 0 8px 0 8px">Surprise me</button></div>")
-// for reference
+import { hostCalling, guestsAnswering } from './gameroom.js'
 
 
-const chineseChars = {
-  'east': "东",
-  'south': "南",
-  'west': "西",
-  'north': "北",
-}
-
+// INITIALISE FIREBASE AND ITS DATABASES
 const firebase = initializeApp(firebaseConfig)
 const auth = getAuth()
 const rtdb = getDatabase(firebase)
 export const fsdb = getFirestore(firebase)
+
+// EMULATORS FOR DEVELOPMENT
 connectAuthEmulator(auth, "http://localhost:9099")
 connectDatabaseEmulator(rtdb, "localhost", 9000)
 connectFirestoreEmulator(fsdb, "localhost", 8080)
 
+// STARTUP THE APPLICATION
 window.addEventListener('DOMContentLoaded', async () => {
-  let gameState, deckInPlay, currentPlayer
+  
+  let gameState = (await getDoc(gameStateRef)).data()
+  deckInPlay, currentPlayer
   let possibleMergeCombinations = []
   let loggedInUser = {}
+  
+  const chineseChars = {
+    'east': "东",
+    'south': "南",
+    'west': "西",
+    'north': "北",
+  }
   
   const sendButton = document.getElementById('send-chat')
   const messageField = document.getElementById('chat-message')
@@ -46,16 +50,21 @@ window.addEventListener('DOMContentLoaded', async () => {
   let checkedRefs = [rightPlayerCheckedRef, topPlayerCheckedRef, leftPlayerCheckedRef]
   let discardRefs = [rightPlayerDiscardRef, topPlayerDiscardRef, leftPlayerDiscardRef]
 
-  // GET GAME STATE AND SET THE CONTAINERS FOR EACH
-  // right, top, left, main
+  // GET GAME STATE AND SET THE CONTAINERS FOR EACH PLAYER
+  // in the following sequence: right, top, left, main
   const playersDiv = [...document.querySelectorAll('.players')]
   const playerWind = [...document.querySelectorAll('.playerWind')]
   const gameStateRef = doc(fsdb, 'games', roomId, 'gameState', roomId)
 
 
-  const commitPlayerHand = async (player, gameState) => {
+  /**
+   *
+   * commits the current player hand into firestore
+   * @param {*} player
+   * @param {*} gameState
+   */
+  const commitPlayerHandToFS = async (player, gameState) => {
     const initBatch = writeBatch(fsdb)
-    console.log(gameState)
     initBatch.set(mainPlayerMetaRef, player)
     initBatch.set(mainPlayerHandRef, player)
     initBatch.set(mainPlayerCheckedRef, player)
@@ -64,6 +73,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     await initBatch.commit()
   }
 
+  /**
+   * creates a player instance to store the player meta-information
+   * provides helper functions to manipulate player hand
+   * @class Player
+   */
   class Player {
     // push this into database
     /**
@@ -86,8 +100,8 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
 
     /**
-     *
-     *
+     * Provides a clean and clear tally of the player's current hand status by tile name
+     * 
      * @param {*} playerHand
      * @memberof Player
      */
@@ -109,8 +123,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 
     /**
-     *
-     *
+     * Draws a tile from the deck
+     * TODO: deck.drawTile(player)
      * @param {number} [noOfTiles=1]
      * @param {string} [type='normal']
      * @memberof Player
@@ -137,14 +151,14 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
         updateGameState(gameState,'drawtiles')
       }
-      renderPlayer(this.playerHand,this.playerChecked,this.playerDiscarded)
+      renderPlayerTiles(this.playerHand,this.playerChecked,this.playerDiscarded)
     }
 
     
     /**
      *
-     * discards a particular tile within a player's hand
-     * returns a Boolean value to indicate success
+     * Discards a particular tile within a player's hand
+     * Returns a Boolean value to indicate success
      * @param {*} tile
      * @memberof Player
      */
@@ -164,7 +178,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     /**
      *
-     * takes in a tile and adds in to the player's hand
+     * Takes in a tile and adds in to the player's hand
      * @param {*} tile
      * @param {*} withThisCombi
      * @memberof Player
@@ -185,11 +199,9 @@ window.addEventListener('DOMContentLoaded', async () => {
       this.playerChecked.push(sortHand(checkedGroup))
     }
 
-
-
     /**
      *
-     * displays a simplfied version of the player hand
+     * Displays a simplfied version of the player hand
      * @memberof Player
      */
     showSimplifiedHand = () => {
@@ -213,7 +225,7 @@ window.addEventListener('DOMContentLoaded', async () => {
      
       /**
        *
-       * highlight the players tiles that can be merged with the combinations within
+       * Highlight the players tiles that can be merged with the combinations within
        * @param {*} arrayOfTileNames
        * @param {*} type
        * @memberof Player
@@ -283,11 +295,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       timer.clearAll()
       updateGameState(gameState,'discardtiles')
       updateGameState(gameState,'nextround')
-      renderPlayer(player.playerHand,player.playerChecked, player.playerDiscarded)
-      commitPlayerHand(player, gameState)
+      renderPlayerTiles(player.playerHand,player.playerChecked, player.playerDiscarded)
+      commitPlayerHandToFS(player, gameState)
     }
 
-
+  // TODO: push this back to the browser
   document.getElementById('logout').addEventListener('click', (ev)=> {
     ev.preventDefault()
     signOut(auth).then(()=> {
@@ -295,104 +307,113 @@ window.addEventListener('DOMContentLoaded', async () => {
     })
   })
 
-
-  gameState = (await getDoc(gameStateRef)).data()
-  console.log(gameState)
-
+  
+  /**
+   * Synchronizes the online/offline status of the user between the RTDB and FS
+   *
+   * @param {*} loggedInUser
+   */
   const startDBSync = (loggedInUser) => {
-  // Create a reference to this user's specific status node.
-  // This is where we will store data about being online/offline.
-  const userStatusDatabaseRef = ref(rtdb, `/status/${roomId}/players/${loggedInUser.uid}`)
+    // Create a reference to this user's specific status node.
+    // This is where we will store data about being online/offline.
+    const userStatusDatabaseRef = ref(rtdb, `/status/${roomId}/players/${loggedInUser.uid}`)
 
-  // We'll create two constants which we will write to 
-  // the Realtime database when this device is offline
-  // or online.
-  const isOfflineForDatabase = {
-    displayName: loggedInUser.displayName,
-        photoURL: loggedInUser.photoURL,
-    status: 'offline',
-    last_changed: serverTimestamp()
-  }
-
-  const isOnlineForDatabase = {
-    displayName: loggedInUser.displayName,
-        photoURL: loggedInUser.photoURL,
-    status: 'online',
-    last_changed: serverTimestamp()
-  }
-
-  // Create a reference to the special '.info/connected' path in 
-  // Realtime Database. This path returns `true` when connected
-  // and `false` when disconnected.
-  onValue(ref(rtdb, '.info/connected'), (snapshot) => {
-    // if we're not currently connected, don't do anything
-    if(snapshot.val() == false){
-      return;
+    // We'll create two constants which we will write to 
+    // the Realtime database when this device is offline
+    // or online.
+    const isOfflineForDatabase = {
+      displayName: loggedInUser.displayName,
+      photoURL: loggedInUser.photoURL,
+      status: 'offline',
+      last_changed: serverTimestamp()
     }
 
-    // if we are currently connected, then use the onDisconnect()
-    // method to add a set which will; only trigger once this client has disconnected by
-    // 1. closing the app 2. losing internet, or any other means.
-
-    onDisconnect(userStatusDatabaseRef).set(isOfflineForDatabase)
-      .then( ()=> {
-        // the promise returned will resolve as soon as the server acknowledges the onDisconnect request,
-        // NOT once we've actually disconnected:
-        // https://firebase.google.com/docs/reference/js/firebase.database.OnDisconnect
-        // we can now safely set ourselves as 'online' knowing that the server will mark us as offline once we lose connection 
-        set(userStatusDatabaseRef, isOnlineForDatabase)
-      })
-  })
-
-  // UPDATING FIRESTORE LOCAL CACHE
-  const userStatusFirestoreRef = doc(fsdb, `/status/${roomId}/players/${loggedInUser.uid}`)
-
-  // firestore uses a different server timestamp value, so we'll create two constants,
-  // (same as the ones in the rtdb) for Firestore state
-
-  const isOfflineForFirestore = {
-    displayName: loggedInUser.displayName,
-        photoURL: loggedInUser.photoURL,
-    state: 'offline',
-    last_changed: fsServerTimestamp(),
-  }
-
-  const isOnlineForFirestore = {
-    displayName: loggedInUser.displayName,
-        photoURL: loggedInUser.photoURL,
-    state: 'online',
-    last_changed: fsServerTimestamp(),
-  }
-
-  onValue(ref(rtdb, '.info/connected'), (snapshot)=> {
-    if(snapshot.val() == false) {
-      // instead of simply returning, we will set Firestore's state to offline
-      // This ensures taht our firestore cache is aware of the switch to offline
-      setDoc(userStatusFirestoreRef, isOfflineForFirestore)
-      return 
+    const isOnlineForDatabase = {
+      displayName: loggedInUser.displayName,
+      photoURL: loggedInUser.photoURL,
+      status: 'online',
+      last_changed: serverTimestamp()
     }
 
-    onDisconnect(userStatusDatabaseRef).set(isOfflineForDatabase)
-      .then(()=>{
-        set(userStatusDatabaseRef, isOnlineForDatabase)
+    // Create a reference to the special '.info/connected' path in 
+    // Realtime Database. This path returns `true` when connected
+    // and `false` when disconnected.
+    onValue(ref(rtdb, '.info/connected'), (snapshot) => {
+      // if we're not currently connected, don't do anything
+      if(snapshot.val() == false){
+        return;
+      }
 
-        // we'll also add firestore set here for when we come online
-        setDoc(userStatusFirestoreRef, isOnlineForFirestore)
-      })
-  })
+      // if we are currently connected, then use the onDisconnect()
+      // method to add a set which will; only trigger once this client has disconnected by
+      // 1. closing the app 2. losing internet, or any other means.
 
-  onSnapshot(userStatusFirestoreRef, (doc)=> {
-    const isOnline = doc.data().state == 'online'
-    console.log('Is user online? ', isOnline)
-  })
+      onDisconnect(userStatusDatabaseRef).set(isOfflineForDatabase)
+        .then( ()=> {
+          // the promise returned will resolve as soon as the server acknowledges the onDisconnect request,
+          // NOT once we've actually disconnected:
+          // https://firebase.google.com/docs/reference/js/firebase.database.OnDisconnect
+          // we can now safely set ourselves as 'online' knowing that the server will mark us as offline once we lose connection 
+          set(userStatusDatabaseRef, isOnlineForDatabase)
+        })
+    })
+
+    // UPDATING FIRESTORE LOCAL CACHE
+    const userStatusFirestoreRef = doc(fsdb, `/status/${roomId}/players/${loggedInUser.uid}`)
+
+    // firestore uses a different server timestamp value, so we'll create two constants,
+    // (same as the ones in the rtdb) for Firestore state
+
+    const isOfflineForFirestore = {
+      displayName: loggedInUser.displayName,
+          photoURL: loggedInUser.photoURL,
+      state: 'offline',
+      last_changed: fsServerTimestamp(),
+    }
+
+    const isOnlineForFirestore = {
+      displayName: loggedInUser.displayName,
+          photoURL: loggedInUser.photoURL,
+      state: 'online',
+      last_changed: fsServerTimestamp(),
+    }
+
+    onValue(ref(rtdb, '.info/connected'), (snapshot)=> {
+      if(snapshot.val() == false) {
+        // instead of simply returning, we will set Firestore's state to offline
+        // This ensures taht our firestore cache is aware of the switch to offline
+        setDoc(userStatusFirestoreRef, isOfflineForFirestore)
+        return 
+      }
+
+      onDisconnect(userStatusDatabaseRef).set(isOfflineForDatabase)
+        .then(()=>{
+          set(userStatusDatabaseRef, isOnlineForDatabase)
+
+          // we'll also add firestore set here for when we come online
+          setDoc(userStatusFirestoreRef, isOnlineForFirestore)
+        })
+    })
+
+    onSnapshot(userStatusFirestoreRef, (doc)=> {
+      const isOnline = doc.data().state == 'online'
+      console.log('Is user online? ', isOnline)
+    })
   }
 
-  const renderPlayer = (hand, check, discard) => {
+  /**
+   * Displays the players own tiles in his own playing field
+   *
+   * @param {*} hand
+   * @param {*} check
+   * @param {*} discard
+   */
+  const renderPlayerTiles = (hand, check, discard) => {
     const playerHand = document.getElementById('playerHand');
     const playerChecked = document.getElementById('playerChecked');
     const playerDiscardPile = document.getElementById('playerDiscardPile') 
-    playerChecked.innerText=''
-    playerHand.innerText =''
+    playerChecked.innerText = ''
+    playerHand.innerText = ''
     playerDiscardPile.innerText = ''
 
     // RENDER PLAYER HAND
@@ -412,8 +433,8 @@ window.addEventListener('DOMContentLoaded', async () => {
             timer.clearAll()
             updateGameState(gameState,'discardtiles')
             updateGameState(gameState,'nextround')
-            renderPlayer(currentPlayer.playerHand,currentPlayer.playerChecked, currentPlayer.playerDiscarded)
-            commitPlayerHand(currentPlayer, gameState)
+            renderPlayerTiles(currentPlayer.playerHand,currentPlayer.playerChecked, currentPlayer.playerDiscarded)
+            commitPlayerHandToFS(currentPlayer, gameState)
             
           }
         })
@@ -446,7 +467,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  const renderOpponent = (destination, tiles) => {
+  /**
+   * Identifies where the opponent sits, and render his checked and discarded tiles
+   *
+   * @param {*} destination
+   * @param {*} tiles
+   */
+  const renderOpponentTiles = (destination, tiles) => {
     // reset
     destination.innerHTML = ''
       
@@ -460,10 +487,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     })
   }
 
-
+  // GETS THE USER DETAILS AND RENDERS THE PAGE BASED ON DATA REFERENCING USERID
   onAuthStateChanged(auth, async (user)=>{
     if(user) {
-    // loggedInUser[accessToken] = await user.accessToken;
+    // Retrieves the user details based on his authstate
         loggedInUser['displayName'] = user.displayName;
         loggedInUser['uid'] = user.uid;
         loggedInUser['photoURL'] = user.photoURL;
@@ -472,6 +499,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         startDBSync(loggedInUser)
         
       if(gameState.host == user.uid) {
+        // starts the call-answer process
+        hostCalling()
         playersDiv[3].id = gameState.host
         playerWind[3].innerText = chineseChars[gameState.currentWind]
         playerWind[3].id = gameState.currentWind
@@ -479,6 +508,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         mainPlayerCheckedRef = doc(fsdb,'games', roomId, 'players', user.uid,'tiles', 'playerChecked').withConverter(playerCheckedConverter)
         mainPlayerDiscardRef = doc(fsdb,'games', roomId, 'players', user.uid,'tiles', 'playerDiscarded').withConverter(playerDiscardedConverter)
         mainPlayerMetaRef = doc(fsdb, 'games', roomId, 'players', user.uid).withConverter(playerMetaInfoConverter)
+        
         for (let windCount = 0; windCount < 3; windCount +=1) {
           playersDiv[windCount].id = gameState.players[windCount].playerId
           playerWind[windCount].innerText = chineseChars[gameState.players[windCount].playerWind]
@@ -487,6 +517,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           discardRefs[windCount] = doc(fsdb,'games', roomId, 'players', gameState.players[windCount].playerId,'tiles', 'playerDiscarded').withConverter(playerDiscardedConverter)
         }
       } else {
+        guestsAnswering()
         const mainPlayer = gameState.players.filter(player => player.playerId == user.uid)
         playersDiv[3].id = mainPlayer[0].playerId;
         playerWind[3].innerText = chineseChars[mainPlayer[0].playerWind]
@@ -522,23 +553,24 @@ window.addEventListener('DOMContentLoaded', async () => {
       const mainPlayerChecked = (await getDoc(mainPlayerCheckedRef)).data()
       const mainPlayerDiscarded = (await getDoc(mainPlayerDiscardRef)).data()
       const metaInfo = (await getDoc(mainPlayerMetaRef)).data()
-      renderPlayer(mainPlayerHand, mainPlayerChecked, mainPlayerDiscarded)
+      renderPlayerTiles(mainPlayerHand, mainPlayerChecked, mainPlayerDiscarded)
       currentPlayer = new Player(metaInfo.id, metaInfo.name, metaInfo.wind, metaInfo.playerNumber, metaInfo.chips, mainPlayerHand, mainPlayerDiscarded, mainPlayerChecked, metaInfo.currentScore)
+
       // RENDER OTHER PLAYER TILES
       for(let i=0; i<3;i+=1){
         onSnapshot(checkedRefs[i], (snapshot)=> {
            // right,top, left
           const playerHands = ['rightPlayer','topPlayer','leftPlayer']
           const destination = document.getElementById(`${playerHands[i]}Checked`)
-          renderOpponent(destination, snapshot.data())
-        })
+          renderOpponentTiles(destination, snapshot.data())
+        })``
 
          onSnapshot(discardRefs[i], (snapshot)=> {
           const discardTiles = snapshot.data()
            // right,top, left
           const playerHands = ['rightPlayer','topPlayer','leftPlayer']
           const destination = document.getElementById(`${playerHands[i]}Discard`)
-          renderOpponent(destination,discardTiles)
+          renderOpponentTiles(destination,discardTiles)
 
           if(discardTiles.length > 0 && gameState.currentPlayer != (currentPlayer.playerNumber+1)%4  ) {
             console.log('CHECKING EAT POSSIBILITY')
@@ -559,7 +591,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                   // TODO: eat the tiles based on the combinations
                   const tileCombiToCheck = ev.target.id.split(',')
                   currentPlayer.eatTile(lastDiscardedTile, tileCombiToCheck)
-                  renderPlayer(currentPlayer.playerHand,currentPlayer.playerChecked, currentPlayer.playerDiscarded)=
+                  renderPlayerTiles(currentPlayer.playerHand,currentPlayer.playerChecked, currentPlayer.playerDiscarded)=
                   timer.clearAll()
                   updateGameState(gameState,'eattiles')
                 })
@@ -624,35 +656,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   })
 
-  
-
-
-  const chatRef = ref(rtdb, `games/${roomId}/chats/`)
-
-  const addToChat = (name='', message) => {
-    const item = document.createElement('li')
-    item.innerHTML = `<strong>${name}</strong> ${message}`
-
-    const messageList = messages.querySelector('ul')
-    messageList.appendChild(item)
-    messages.scrollTop = messageList.scrollHeight;
-  }
-
-  const sendMessage = () => {
-    const newMessage = {
-      name: loggedInUser.displayName,
-      message: messageField.value
-    }
-    messageField.value = ''
-    set(push(chatRef), newMessage)
-  }
-
-  sendButton.addEventListener('click', sendMessage)
-
-  onChildAdded(chatRef, (snapshot)=> {
-    const message = snapshot.val()
-    addToChat(message.name, message.message)
-  })
 
 
   // CHECK IF EVERYONE IS ONLINE
@@ -729,4 +732,36 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+})
+
+
+/*
+CHAT FUNCTIONALITY
+*/
+
+const chatRef = ref(rtdb, `games/${roomId}/chats/`)
+
+const addToChat = (name='', message) => {
+  const item = document.createElement('li')
+  item.innerHTML = `<strong>${name}</strong> ${message}`
+
+  const messageList = messages.querySelector('ul')
+  messageList.appendChild(item)
+  messages.scrollTop = messageList.scrollHeight;
+}
+
+const sendMessage = () => {
+  const newMessage = {
+    name: loggedInUser.displayName,
+    message: messageField.value
+  }
+  messageField.value = ''
+  set(push(chatRef), newMessage)
+}
+
+sendButton.addEventListener('click', sendMessage)
+
+onChildAdded(chatRef, (snapshot)=> {
+  const message = snapshot.val()
+  addToChat(message.name, message.message)
 })
