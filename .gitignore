@@ -8,5 +8,3 @@ node_modules
 serviceAccountKey.json
 
 .env
-
-/public/js/config.js
