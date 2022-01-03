@@ -73,7 +73,7 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-<!-- Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `wongsn`, `repo_name`, `wongsn`, `wongshennan`, `wongshennan`, `gmail`, `project_title`, `project_description` -->
+<!-- Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `wongsn`, `mahjong`, `wongsn`, `wongshennan`, `wongshennan`, `gmail`, `project_title`, `project_description` -->
 You will implement a card game or turn based card-type game. The user or users will be identified by the system and be able to play a game where the server remembers something about the user and the game cannot be cheated by opening the browser dev tools.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -117,7 +117,7 @@ This is an example of how to list things you need to use the software and how to
 1. Get a free API Key at [https://example.com](https://example.com)
 2. Clone the repo
    ```sh
-   git clone https://github.com/wongsn/repo_name.git
+   git clone https://github.com/wongsn/mahjong.git
    ```
 3. Install NPM packages
    ```sh
@@ -151,7 +151,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 - [] Feature 3
     - [] Nested Feature
 
-See the [open issues](https://github.com/wongsn/repo_name/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/wongsn/mahjong/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -189,7 +189,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 Wong Shen Nan - [@wongsn](https://twitter.com/wongsn) - wongshennan@gmail.com
 
-Project Link: [https://github.com/wongsn/repo_name](https://github.com/wongsn/repo_name)
+Project Link: [https://github.com/wongsn/mahjong](https://github.com/wongsn/mahjong)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -208,16 +208,16 @@ Project Link: [https://github.com/wongsn/repo_name](https://github.com/wongsn/re
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/wongsn/repo_name.svg?style=for-the-badge
-[contributors-url]: https://github.com/wongsn/repo_name/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/wongsn/repo_name.svg?style=for-the-badge
-[forks-url]: https://github.com/wongsn/repo_name/network/members
-[stars-shield]: https://img.shields.io/github/stars/wongsn/repo_name.svg?style=for-the-badge
-[stars-url]: https://github.com/wongsn/repo_name/stargazers
-[issues-shield]: https://img.shields.io/github/issues/wongsn/repo_name.svg?style=for-the-badge
-[issues-url]: https://github.com/wongsn/repo_name/issues
-[license-shield]: https://img.shields.io/github/license/wongsn/repo_name.svg?style=for-the-badge
-[license-url]: https://github.com/wongsn/repo_name/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/wongsn/mahjong.svg?style=for-the-badge
+[contributors-url]: https://github.com/wongsn/mahjong/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/wongsn/mahjong.svg?style=for-the-badge
+[forks-url]: https://github.com/wongsn/mahjong/network/members
+[stars-shield]: https://img.shields.io/github/stars/wongsn/mahjong.svg?style=for-the-badge
+[stars-url]: https://github.com/wongsn/mahjong/stargazers
+[issues-shield]: https://img.shields.io/github/issues/wongsn/mahjong.svg?style=for-the-badge
+[issues-url]: https://github.com/wongsn/mahjong/issues
+[license-shield]: https://img.shields.io/github/license/wongsn/mahjong.svg?style=for-the-badge
+[license-url]: https://github.com/wongsn/mahjong/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/wongshennan
 [product-screenshot]: images/screenshot.png
