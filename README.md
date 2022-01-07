@@ -8,6 +8,7 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -15,49 +16,21 @@
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/wongsn/mahjong">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
+# Web Mahjong🀄
 
-<h3 align="center">Web Mahjong</h3>
-
-  <p align="center">
-    project_description
-    <br />
-    <a href="https://github.com/wongsn/mahjong/docs"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/wongsn/mahjong/">View Demo</a>
-    ·
-    <a href="https://github.com/wongsn/mahjong/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/wongsn/mahjong/issues">Request Feature</a>
-  </p>
-</div>
-
-
+##### Web Mahjong is an online multiplayer game client for the popular game, mahjong.
 
 <!-- TABLE OF CONTENTS -->
+
 <details>
   <summary>Table of Contents</summary>
   <ol>
     <li>
       <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
     </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
+    <li><a href="#usage-steps">Usage Steps</a></li>
+    <li><a href="#built-with">Built With</a></li>
+    <li><a href="#pipeline">Pipeline</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -66,14 +39,14 @@
   </ol>
 </details>
 
-
-
 <!-- ABOUT THE PROJECT -->
+
 ## About The Project
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
 <!-- Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `wongsn`, `mahjong`, `wongsn`, `wongshennan`, `wongshennan`, `gmail`, `project_title`, `project_description` -->
+
 You will implement a card game or turn based card-type game. The user or users will be identified by the system and be able to play a game where the server remembers something about the user and the game cannot be cheated by opening the browser dev tools.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -81,58 +54,41 @@ You will implement a card game or turn based card-type game. The user or users w
 ### Problem Statement
 
 > "Viwawa is a portal for casual browser-based multiplayer online games and creation of avatars called Wawas developed by Pendulab Private Limited. The company is based in Singapore."
-*[wikipedia](https://en.wikipedia.org/wiki/Viwawa)*
-> 
+> _[wikipedia](https://en.wikipedia.org/wiki/Viwawa)_
+
 - Wahjong - Mahjong with Singapore rules used to be one of the top casual mahjong gaming site back in 2008
 - Pendulab, the owner, was then acquired by a leading US-based private equity firm.
 - As of 2020, Viwawa was officially shut down, leaving a void in the Gaming market
 - Lack of free-to-play online mahjong games (non-app based)
 
+##### Web Mahjong allows
+
+- four-way multiplayer with real-time game updates (if you left a game the engine will automatically discard tiles upon the end of your turn)
+- lobby and waiting room to chitchat and await friends
+
+You can find the deployed app [here](https://mahjong-7d9ae.firebaseapp.com/)
+
 ### Built With
 
-* [Angular](https://angular.io/)
-* [Firebase](https://svelte.dev/)
-* [Bootstrap](https://getbootstrap.com)
-* [JQuery](https://jquery.com)
+<!-- - [Angular](https://angular.io/) -->
+
+##### Frontend
+
+- [Bootstrap](https://getbootstrap.com)
+
+##### Backend. Authentication, database, functions
+
+- [Firebase Auth](https://firebase.google.com/docs/auth)
+- [Cloud Firestore](https://firebase.google.com/docs/firestore)
+- [Realtime Database](https://firebase.google.com/docs/realtimedatabaes)
+- [Cloud Functions](https://firebase.google.com/docs/functions)
+
+##### Planning
+
+- [Notion](https://wongshennan.notion.site/Web-Mahjong-4d6f08516afe41c79b4725aea5772da2)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
-### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
-
-### Installation
-
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/wongsn/mahjong.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- USAGE EXAMPLES -->
 ## Usage
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
@@ -141,23 +97,19 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- ROADMAP -->
+
 ## Roadmap
 
-- [] Feature 1
-- [] Feature 2
-- [] Feature 3
-    - [] Nested Feature
+- [] deployment
+- [] fix game logic
 
 See the [open issues](https://github.com/wongsn/mahjong/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- CONTRIBUTING -->
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -173,18 +125,16 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- CONTACT -->
+
 ## Contact
 
 Wong Shen Nan - [@wongsn](https://twitter.com/wongsn) - wongshennan@gmail.com
@@ -193,21 +143,16 @@ Project Link: [https://github.com/wongsn/mahjong](https://github.com/wongsn/mahj
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
 <!-- ACKNOWLEDGMENTS -->
+
 ## Acknowledgments
 
-* []()
-* []()
-* []()
-
+- []()
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/wongsn/mahjong.svg?style=for-the-badge
 [contributors-url]: https://github.com/wongsn/mahjong/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/wongsn/mahjong.svg?style=for-the-badge
