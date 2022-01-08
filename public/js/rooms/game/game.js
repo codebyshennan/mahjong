@@ -9,7 +9,7 @@ import { getAuth, onAuthStateChanged, connectAuthEmulator, signOut } from "https
 import { ref, serverTimestamp, onDisconnect, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set, getDatabase, connectDatabaseEmulator } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
 import { collection, getDocs, doc, getDoc, setDoc, getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp, writeBatch} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
 import { playerMetaInfoConverter, playerCheckedConverter, playerHandConverter, playerDiscardedConverter } from './converters.js'
-import { hostCalling, guestsAnswering } from './gameroom.js'
+// import { hostCalling, guestsAnswering } from './gameroom.js'
 
 
 // INITIALISE FIREBASE AND ITS DATABASES
@@ -26,8 +26,8 @@ connectFirestoreEmulator(fsdb, "localhost", 8080)
 // STARTUP THE APPLICATION
 window.addEventListener('DOMContentLoaded', async () => {
   
-  let gameState = (await getDoc(gameStateRef)).data()
-  deckInPlay, currentPlayer
+
+  let deckInPlay, currentPlayer
   let possibleMergeCombinations = []
   let loggedInUser = {}
   
@@ -55,6 +55,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const playersDiv = [...document.querySelectorAll('.players')]
   const playerWind = [...document.querySelectorAll('.playerWind')]
   const gameStateRef = doc(fsdb, 'games', roomId, 'gameState', roomId)
+    let gameState = (await getDoc(gameStateRef)).data()
 
 
   /**
@@ -500,7 +501,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         
       if(gameState.host == user.uid) {
         // starts the call-answer process
-        hostCalling()
+        // hostCalling()
         playersDiv[3].id = gameState.host
         playerWind[3].innerText = chineseChars[gameState.currentWind]
         playerWind[3].id = gameState.currentWind
@@ -517,7 +518,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           discardRefs[windCount] = doc(fsdb,'games', roomId, 'players', gameState.players[windCount].playerId,'tiles', 'playerDiscarded').withConverter(playerDiscardedConverter)
         }
       } else {
-        guestsAnswering()
+        // guestsAnswering()
         const mainPlayer = gameState.players.filter(player => player.playerId == user.uid)
         playersDiv[3].id = mainPlayer[0].playerId;
         playerWind[3].innerText = chineseChars[mainPlayer[0].playerWind]
@@ -732,36 +733,37 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-})
+  
+  /*
+  CHAT FUNCTIONALITY
+  */
 
+  const chatRef = ref(rtdb, `games/${roomId}/chats/`)
 
-/*
-CHAT FUNCTIONALITY
-*/
+  const addToChat = (name='', message) => {
+    const item = document.createElement('li')
+    item.innerHTML = `<strong>${name}</strong> ${message}`
 
-const chatRef = ref(rtdb, `games/${roomId}/chats/`)
-
-const addToChat = (name='', message) => {
-  const item = document.createElement('li')
-  item.innerHTML = `<strong>${name}</strong> ${message}`
-
-  const messageList = messages.querySelector('ul')
-  messageList.appendChild(item)
-  messages.scrollTop = messageList.scrollHeight;
-}
-
-const sendMessage = () => {
-  const newMessage = {
-    name: loggedInUser.displayName,
-    message: messageField.value
+    const messageList = messages.querySelector('ul')
+    messageList.appendChild(item)
+    messages.scrollTop = messageList.scrollHeight;
   }
-  messageField.value = ''
-  set(push(chatRef), newMessage)
-}
 
-sendButton.addEventListener('click', sendMessage)
+  const sendMessage = () => {
+    const newMessage = {
+      name: loggedInUser.displayName,
+      message: messageField.value
+    }
+    messageField.value = ''
+    set(push(chatRef), newMessage)
+  }
 
-onChildAdded(chatRef, (snapshot)=> {
-  const message = snapshot.val()
-  addToChat(message.name, message.message)
+  sendButton.addEventListener('click', sendMessage)
+
+  onChildAdded(chatRef, (snapshot)=> {
+    const message = snapshot.val()
+    addToChat(message.name, message.message)
+  })
+
 })
+
