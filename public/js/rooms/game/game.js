@@ -3,26 +3,11 @@ import { refDeck } from '../../utils/makeDeck.js'
 import {timer, startTimer} from '../../utils/timer.js'
 import diceRoll from '../../utils/diceroll.js'
 import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from './tileset.js'
-import firebaseConfig from '../../config.js'
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, connectAuthEmulator, signOut } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
-import { ref, serverTimestamp, onDisconnect, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set, getDatabase, connectDatabaseEmulator } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
-import { collection, getDocs, doc, getDoc, setDoc, getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp, writeBatch} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
 import { playerMetaInfoConverter, playerCheckedConverter, playerHandConverter, playerDiscardedConverter } from './converters.js'
 // import { hostCalling, guestsAnswering } from './gameroom.js'
 import Player from '../Player'
 
-
-// INITIALISE FIREBASE AND ITS DATABASES
-const firebase = initializeApp(firebaseConfig)
-const auth = getAuth()
-const rtdb = getDatabase(firebase)
-export const fsdb = getFirestore(firebase)
-
-// EMULATORS FOR DEVELOPMENT
-connectAuthEmulator(auth, "http://localhost:9099")
-connectDatabaseEmulator(rtdb, "localhost", 9000)
-connectFirestoreEmulator(fsdb, "localhost", 8080)
 
 // STARTUP THE APPLICATION
 window.addEventListener('DOMContentLoaded', async () => {
