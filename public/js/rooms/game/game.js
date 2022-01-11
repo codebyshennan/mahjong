@@ -10,6 +10,7 @@ import { ref, serverTimestamp, onDisconnect, query, orderByChild, equalTo, onVal
 import { collection, getDocs, doc, getDoc, setDoc, getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp, writeBatch} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
 import { playerMetaInfoConverter, playerCheckedConverter, playerHandConverter, playerDiscardedConverter } from './converters.js'
 // import { hostCalling, guestsAnswering } from './gameroom.js'
+import Player from '../Player'
 
 
 // INITIALISE FIREBASE AND ITS DATABASES
@@ -26,8 +27,7 @@ connectFirestoreEmulator(fsdb, "localhost", 8080)
 // STARTUP THE APPLICATION
 window.addEventListener('DOMContentLoaded', async () => {
   
-
-  let deckInPlay, currentPlayer
+  let currentPlayer
   let possibleMergeCombinations = []
   let loggedInUser = {}
   
@@ -73,232 +73,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     initBatch.set(gameStateRef, gameState)
     await initBatch.commit()
   }
-
-  /**
-   * creates a player instance to store the player meta-information
-   * provides helper functions to manipulate player hand
-   * @class Player
-   */
-  class Player {
-    // push this into database
-    /**
-     * Creates an instance of Player.
-     * @param {*} name
-     * @param {*} wind
-     * @param {*} playerNumber
-     * @memberof Player
-     */
-    constructor(uid, name, wind, playerNumber, chips = 1000, playerHand = [], playerDiscarded = [], playerChecked = [], currentScore = 0){
-      this.id = uid
-      this.name = name 
-      this.wind = wind
-      this.chips = chips
-      this.playerNumber = playerNumber
-      this.playerHand = playerHand
-      this.playerChecked = playerChecked
-      this.playerDiscarded = playerDiscarded
-      this.currentScore = currentScore
-      }
-
-    /**
-     * Provides a clean and clear tally of the player's current hand status by tile name
-     * 
-     * @param {*} playerHand
-     * @memberof Player
-     */
-    tallyByName = () => {
-      const sortedHand = sortHand(this.playerHand, 'name')
-        // tally hand by name
-      let playerHandTally = {}
-
-      // get statistics about hand
-      for(let i=0; i< sortedHand.length; i++){
-        if(playerHandTally[sortedHand[i].name]){
-          playerHandTally[sortedHand[i].name] +=1
-        } else {
-          playerHandTally[sortedHand[i].name] =1
-        }
-      }
-
-      return playerHandTally;
-    }
-
-    /**
-     * Draws a tile from the deck
-     * TODO: deck.drawTile(player)
-     * @param {number} [noOfTiles=1]
-     * @param {string} [type='normal']
-     * @memberof Player
-     */
-    drawTile = (noOfTiles = 1, type = 'normal') => {
-      // deck.shift for normal draws
-      // deck.pop for flowers
-
-      for(let drawCount = 0; drawCount < noOfTiles; drawCount+=1) {
-        let newTile
-        if(type == 'normal') {
-          newTile = deckInPlay.shift()
-        } else if(type == 'special') {
-          console.log('Drawing special...')
-          newTile = deckInPlay.pop()
-        }
-
-        if(ANIMAL_TILES.includes(newTile.name) || FLOWER_TILES.includes(newTile.name)) {
-          console.log('Special drawn...')
-          this.playerChecked.push(newTile)
-          this.drawTile(1,'special')
-        } else {
-          this.playerHand.push(newTile)
-        }
-        updateGameState(gameState,'drawtiles')
-      }
-      renderPlayerTiles(this.playerHand,this.playerChecked,this.playerDiscarded)
-    }
-
-    
-    /**
-     *
-     * Discards a particular tile within a player's hand
-     * Returns a Boolean value to indicate success
-     * @param {*} tile
-     * @memberof Player
-     */
-    discardTile = (tile) => {
-      // find the index of the tile in the player's hand
-      console.log('Discarding tile ', tile)
-      const tileIndex = this.playerHand.findIndex(playerTile => playerTile.index == tile.index)
-      if(tileIndex<0) {
-        console.log("Tile not found within the player's hand")
-        return false;
-      } else {
-        const discardedTile = this.playerHand.splice(tileIndex, 1)
-        this.playerDiscarded.push(discardedTile[0])
-        return true;
-      }
-    }
-
-    /**
-     *
-     * Takes in a tile and adds in to the player's hand
-     * @param {*} tile
-     * @param {*} withThisCombi
-     * @memberof Player
-     */
-    eatTile = (tile, withThisCombi) => {
-      console.log(`Adding ${tile.name} to checked`)
-    
-      let checkedGroup = []
-      checkedGroup.push(tile)
-
-      withThisCombi.forEach(tileName => {
-        const tileToBeChecked = this.playerHand.find(tile=> tile.name == tileName)
-        const tileIndex = this.playerHand.findIndex(tile => tile.name == tileName)
-        this.playerHand.splice(tileIndex,1)
-        checkedGroup.push(tileToBeChecked)
-      })
-
-      this.playerChecked.push(sortHand(checkedGroup))
-    }
-
-    /**
-     *
-     * Displays a simplfied version of the player hand
-     * @memberof Player
-     */
-    showSimplifiedHand = () => {
-      return this.playerHand.map( tile => {
-        
-        const name = tile.name
-        const index = tile.index
-        const simplifiedObj = { name, index}
-
-        return simplifiedObj
-      })
-    }
-
-    /**
-     *
-     * processes the tile and checks if the tile can be eaten as part of a sequence or a triple
-     * @param {*} discardedTile
-     * @memberof Player
-     */
-    checkIfCanBeEaten = (discardedTile) => {
-     
-      /**
-       *
-       * Highlight the players tiles that can be merged with the combinations within
-       * @param {*} arrayOfTileNames
-       * @param {*} type
-       * @memberof Player
-       */
-      const highlightTilesToBeMergedWith = (arrayOfTileNames, type) => {
-        arrayOfTileNames.forEach((tilename,index) => {
-          const tiles = document.querySelectorAll(`.${tilename}`)
-          const idx = tiles.length > 1 ? index : 0
-          tiles[idx].classList.add(`'${type}'`)
-          tiles[idx].style.border = '2px solid red'
-        })
-      }
-
-      
-      const playerTally = this.tallyByName(this.playerHand)
-      console.log('TALLY BY NAME: ', playerTally)
-      // check if the discarded tile can complete a set of non-sequential tiles i.e. NOT tiles with numbers
-      if(discardedTile.index > 108) {
-        if (playerTally[discardedTile.name] >= 2 ) {
-          possibleMergeCombinations.push([discardedTile.name, discardedTile.name])
-          highlightTilesToBeMergedWith([discardedTile.name],'same')
-          return true
-        }
-        // highlight the tiles to be eaten
-      } else {
-        // deconstruct the discarded tile (numbered) to get the name and number
-        let hasOutcome = false
-        const discardedTileChar = discardedTile.name.substr(0,1) 
-        const discardedTileNo = +discardedTile.name.substr(1,1)
-
-        // if the discardedtile can complete a pair of duplicates or if the discardedtile can form part of a sequence e.g. X,_,_ || _,X,_ || _,_,X
-        if (playerTally[discardedTile.name] == 2) {
-          possibleMergeCombinations.push([discardedTile.name, discardedTile.name])
-          highlightTilesToBeMergedWith([discardedTile.name],'same')
-          hasOutcome = true
-        } 
-        if (playerTally[discardedTileChar+(discardedTileNo+1)] && playerTally[discardedTileChar+(discardedTileNo+2)]) {
-          console.log(' X , _ , _ ')
-          possibleMergeCombinations.push([discardedTileChar+(discardedTileNo+1), discardedTileChar+(discardedTileNo+2)])
-          highlightTilesToBeMergedWith([discardedTileChar+(discardedTileNo+1),discardedTileChar+(discardedTileNo+2)],'first')
-          hasOutcome = true
-        } 
-        if (playerTally[discardedTileChar+(discardedTileNo-1)] && playerTally[discardedTileChar+(discardedTileNo+1)]) {
-          console.log(' _ , X , _ ')
-          possibleMergeCombinations.push([discardedTileChar+(discardedTileNo-1), discardedTileChar+(discardedTileNo+1)])
-          highlightTilesToBeMergedWith([discardedTileChar+(discardedTileNo-1),discardedTileChar+(discardedTileNo+1)],'middle')
-          hasOutcome = true
-        } 
-        if (playerTally[discardedTileChar+(discardedTileNo-1)] && playerTally[discardedTileChar+(discardedTileNo-2)]) {
-          console.log(' _ , _ , X ')
-          possibleMergeCombinations.push([discardedTileChar+(discardedTileNo-1), discardedTileChar+(discardedTileNo-2)])
-          highlightTilesToBeMergedWith([discardedTileChar+(discardedTileNo-1),discardedTileChar+(discardedTileNo-2)],'last')
-          hasOutcome = true
-        }
-        return hasOutcome
-      }
-    }
-  }  
-
-
-  const skipTurn = (player) => {
-      const currentPlayerHand = player.playerHand
-      const randomIndex = Math.floor(currentPlayerHand.length * Math.random())
-      const randomTile = currentPlayerHand[randomIndex]
-      player.discardTile(randomTile)
-      
-      timer.clearAll()
-      updateGameState(gameState,'discardtiles')
-      updateGameState(gameState,'nextround')
-      renderPlayerTiles(player.playerHand,player.playerChecked, player.playerDiscarded)
-      commitPlayerHandToFS(player, gameState)
-    }
 
   // TODO: push this back to the browser
   document.getElementById('logout').addEventListener('click', (ev)=> {
@@ -402,6 +176,216 @@ window.addEventListener('DOMContentLoaded', async () => {
     })
   }
 
+  // GETS THE USER DETAILS AND RENDERS THE PAGE BASED ON DATA REFERENCING USERID
+  onAuthStateChanged(auth, async (user)=>{
+    if(!user) {
+      // user is signed out
+        window.location.pathname = '/login'
+    } else {
+    // Retrieves the user details based on his authstate
+        loggedInUser = {...user}
+        const userName = document.getElementById('userName');
+        userName.innerText = `Welcome ${user.displayName}`
+        startDBSync(loggedInUser)
+        
+      if(gameState.host == user.uid) {
+        // starts the call-answer process
+        // hostCalling()
+        playersDiv[3].id = gameState.host
+        playerWind[3].innerText = chineseChars[gameState.currentWind]
+        playerWind[3].id = gameState.currentWind
+        mainPlayerHandRef = doc(fsdb,'games', roomId,'players', user.uid, 'tiles','playerHand')
+                            .withConverter(playerHandConverter)
+        mainPlayerCheckedRef = doc(fsdb,'games', roomId, 'players', user.uid,'tiles', 'playerChecked')
+                                .withConverter(playerCheckedConverter)
+        mainPlayerDiscardRef = doc(fsdb,'games', roomId, 'players', user.uid,'tiles', 'playerDiscarded')
+                              .withConverter(playerDiscardedConverter)
+        mainPlayerMetaRef = doc(fsdb, 'games', roomId, 'players', user.uid)
+                            .withConverter(playerMetaInfoConverter)
+        
+        for (let windCount = 0; windCount < 3; windCount +=1) {
+          playersDiv[windCount].id = gameState.players[windCount].playerId
+          playerWind[windCount].innerText = chineseChars[gameState.players[windCount].playerWind]
+          playerWind[windCount].id = gameState.players[windCount].playerWind
+          checkedRefs[windCount] = doc(fsdb,'games', roomId, 'players', gameState.players[windCount].playerId,'tiles', 'playerChecked')
+                                    .withConverter(playerCheckedConverter)
+          discardRefs[windCount] = doc(fsdb,'games', roomId, 'players', gameState.players[windCount].playerId,'tiles', 'playerDiscarded')
+                                    .withConverter(playerDiscardedConverter)
+        }
+      } else {
+        // guestsAnswering()
+        const mainPlayer = gameState.players.filter(player => player.playerId == user.uid)
+
+        playersDiv[3].id = mainPlayer[0].playerId;
+        playerWind[3].innerText = chineseChars[mainPlayer[0].playerWind]
+        playerWind[3].id = mainPlayer[0].playerWind
+
+        mainPlayerHandRef = doc(fsdb,'games',roomId,'players',mainPlayer[0].playerId,'tiles','playerHand')
+                            .withConverter(playerHandConverter)
+        mainPlayerMetaRef = doc(fsdb, 'games', roomId, 'players', mainPlayer[0].playerId)
+                            .withConverter(playerMetaInfoConverter)
+        mainPlayerCheckedRef = doc(fsdb,'games', roomId, 'players', mainPlayer[0].playerId,'tiles', 'playerChecked')
+                            .withConverter(playerCheckedConverter)
+        mainPlayerDiscardRef = doc(fsdb,'games', roomId, 'players', mainPlayer[0].playerId,'tiles', 'playerDiscarded')
+                            .withConverter(playerDiscardedConverter)
+
+        const mainPlayerWind = mainPlayer[0].playerWind
+        const playerWindIndex = WIND_TILES.indexOf(mainPlayerWind)
+
+        for(let windCount=0; windCount < 3; windCount+=1){
+          
+          const nextPlayer = gameState.players.filter(player => player.playerWind == WIND_TILES[(playerWindIndex+windCount+1)%4])
+          
+          if(nextPlayer.length==0) {
+            playersDiv[windCount].id = gameState.host;
+            playerWind[windCount].innerText = chineseChars[gameState.currentWind]
+            playerWind[windCount].id = gameState.currentWind
+            checkedRefs[windCount] = doc(fsdb,'games', roomId, 'players', gameState.host,'tiles', 'playerChecked')
+                                      .withConverter(playerCheckedConverter)
+            discardRefs[windCount] = doc(fsdb,'games', roomId, 'players', gameState.host,'tiles', 'playerDiscarded')
+                                      .withConverter(playerDiscardedConverter)
+          } else{
+            playersDiv[windCount].id = nextPlayer[0].playerId;
+            playerWind[windCount].innerText = chineseChars[nextPlayer[0].playerWind]
+            playerWind[windCount].id = nextPlayer[0].playerWind
+            checkedRefs[windCount] = doc(fsdb,'games', roomId, 'players', nextPlayer[0].playerId,'tiles', 'playerChecked')
+                                      .withConverter(playerCheckedConverter)
+            discardRefs[windCount] = doc(fsdb,'games', roomId, 'players', nextPlayer[0].playerId,'tiles', 'playerDiscarded')
+                                      .withConverter(playerDiscardedConverter)
+          }
+        }
+      }
+
+      // RENDER PLAYER TILES
+      const mainPlayerHand = (await getDoc(mainPlayerHandRef)).data()
+      const mainPlayerChecked = (await getDoc(mainPlayerCheckedRef)).data()
+      const mainPlayerDiscarded = (await getDoc(mainPlayerDiscardRef)).data()
+      const metaInfo = (await getDoc(mainPlayerMetaRef)).data()
+      renderPlayerTiles(mainPlayerHand, mainPlayerChecked, mainPlayerDiscarded)
+      currentPlayer = new Player(metaInfo.id, 
+                                  metaInfo.name, 
+                                  metaInfo.wind, 
+                                  metaInfo.playerNumber, 
+                                  metaInfo.chips, 
+                                  mainPlayerHand, 
+                                  mainPlayerDiscarded, 
+                                  mainPlayerChecked, 
+                                  metaInfo.currentScore)
+
+      // RENDER OTHER PLAYER TILES
+      for(let i=0; i<3;i+=1){
+        onSnapshot(checkedRefs[i], (snapshot)=> {
+           // right,top, left
+          const playerHands = ['rightPlayer','topPlayer','leftPlayer']
+          const destination = document.getElementById(`${playerHands[i]}Checked`)
+          renderOpponentTiles(destination, snapshot.data())
+        })
+
+         onSnapshot(discardRefs[i], (snapshot)=> {
+          const discardTiles = snapshot.data()
+           // right,top, left
+          const playerHands = ['rightPlayer','topPlayer','leftPlayer']
+          const destination = document.getElementById(`${playerHands[i]}Discard`)
+          renderOpponentTiles(destination,discardTiles)
+
+          if (discardTiles.length > 0 && 
+              gameState.currentPlayer != (currentPlayer.playerNumber+1)%4  ) {
+
+            console.log('CHECKING EAT POSSIBILITY')
+
+            const lastDiscardedTile = discardTiles[discardTiles.length-1]
+
+            if (currentPlayer.checkIfCanBeEaten(lastDiscardedTile)) {
+              
+              let set = new Set(possibleMergeCombinations.map(JSON.stringify))
+              
+              let possibleUniqueCombinations = Array
+                                                .from(set)
+                                                .map(JSON.parse)
+
+              // give the player options which one to eat
+              possibleUniqueCombinations.forEach(combo => {
+                const eatDiscardedTile = document.createElement('button')
+                eatDiscardedTile.id = combo
+                for(const tileName of combo) {
+                  eatDiscardedTile.textContent += refDeck()[tileName]
+                }
+                eatDiscardedTile.addEventListener('click', (ev)=> {
+                  // TODO: eat the tiles based on the combinations
+                  const tileCombiToCheck = ev.target.id.split(',')
+
+                  currentPlayer.eatTile(lastDiscardedTile, tileCombiToCheck)
+
+                  renderPlayerTiles(currentPlayer.playerHand,currentPlayer.playerChecked, currentPlayer.playerDiscarded)
+
+                  timer.clearAll()
+
+                  updateGameState(gameState,'eattiles')
+                })
+                alertify.alert(eatDiscardedTile).setting({'modal': false}, {'basic': true}); 
+                // toastr['info'](eatDiscardedTile)
+              })
+            } else {
+              // toastr['warning']("Nothing to eat.")
+              alertify.alert('Nothing to eat').setting({'modal': false}, {'basic': true}); 
+            }
+          }
+        })
+      }
+
+      // render dummy tiles
+      for(let i=0; i<3;i+=1){
+        const playerHands = ['rightPlayer','topPlayer','leftPlayer']
+        const destination = document.getElementById(`${playerHands[i]}Hand`)
+        for(let j=0; j<14;j+=1){
+          const tileContainer = document.createElement('div')
+          tileContainer.classList.add('tile')
+          const tileImg = document.createElement('img')
+          tileImg.style.backgroundColor = 'limegreen'
+          tileContainer.appendChild(tileImg)
+          destination.appendChild(tileContainer)
+        }
+      }
+
+      // DETERMINE NEXT COURSE OF ACTION FROM GAME STATE CHANGES
+      onSnapshot(gameStateRef, async (snapshot)=> {
+        let currentGameState = snapshot.data()
+        addToChat('STATUS: ', `${WIND_TILES[currentGameState.currentPlayer].toUpperCase()} TURN`)
+
+        // reset indicator colors
+        const indicators = [...document.getElementById('playerControls').children]
+        indicators.forEach(child => {
+          child.style.backgroundColor = 'transparent'
+        })
+
+        const highlightWind = document.getElementById(`${WIND_TILES[currentGameState.currentPlayer]}`)
+
+        highlightWind.parentNode.style.backgroundColor = 'tomato'
+
+        if (currentPlayer.playerNumber != currentGameState.currentPlayer) {
+          return
+        } else {
+          startTimer(10, timerDisplay, currentPlayer.skipTurn)
+          // restart timer
+          // display turn no to everyone
+          // check if turn is own
+          // if not, ignore and start timer
+
+          // if it is, get the deck, draw a tile, and update the deck
+          const deckRef = doc(fsdb, 'games', roomId, 'deck','deckInPlay')
+          deckInPlay = (await getDoc(deckRef)).data().deckInPlay
+          currentPlayer.drawTile()
+          updateGameState("drawtiles")
+          renderPlayerTiles(currentPlayer.playerHand,
+                            currentPlayer.playerChecked,
+                            currentPlayer.playerDiscarded)
+
+        }
+      })
+    } 
+  })
+
+
   /**
    * Displays the players own tiles in his own playing field
    *
@@ -434,7 +418,9 @@ window.addEventListener('DOMContentLoaded', async () => {
             timer.clearAll()
             updateGameState(gameState,'discardtiles')
             updateGameState(gameState,'nextround')
-            renderPlayerTiles(currentPlayer.playerHand,currentPlayer.playerChecked, currentPlayer.playerDiscarded)
+            renderPlayerTiles(currentPlayer.playerHand,
+                              currentPlayer.playerChecked, 
+                              currentPlayer.playerDiscarded)
             commitPlayerHandToFS(currentPlayer, gameState)
             
           }
@@ -488,179 +474,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     })
   }
 
-  // GETS THE USER DETAILS AND RENDERS THE PAGE BASED ON DATA REFERENCING USERID
-  onAuthStateChanged(auth, async (user)=>{
-    if(user) {
-    // Retrieves the user details based on his authstate
-        loggedInUser['displayName'] = user.displayName;
-        loggedInUser['uid'] = user.uid;
-        loggedInUser['photoURL'] = user.photoURL;
-        const userName = document.getElementById('userName');
-        userName.innerText = `Welcome ${user.displayName}`
-        startDBSync(loggedInUser)
-        
-      if(gameState.host == user.uid) {
-        // starts the call-answer process
-        // hostCalling()
-        playersDiv[3].id = gameState.host
-        playerWind[3].innerText = chineseChars[gameState.currentWind]
-        playerWind[3].id = gameState.currentWind
-        mainPlayerHandRef = doc(fsdb,'games', roomId,'players', user.uid, 'tiles','playerHand').withConverter(playerHandConverter)
-        mainPlayerCheckedRef = doc(fsdb,'games', roomId, 'players', user.uid,'tiles', 'playerChecked').withConverter(playerCheckedConverter)
-        mainPlayerDiscardRef = doc(fsdb,'games', roomId, 'players', user.uid,'tiles', 'playerDiscarded').withConverter(playerDiscardedConverter)
-        mainPlayerMetaRef = doc(fsdb, 'games', roomId, 'players', user.uid).withConverter(playerMetaInfoConverter)
-        
-        for (let windCount = 0; windCount < 3; windCount +=1) {
-          playersDiv[windCount].id = gameState.players[windCount].playerId
-          playerWind[windCount].innerText = chineseChars[gameState.players[windCount].playerWind]
-          playerWind[windCount].id = gameState.players[windCount].playerWind
-          checkedRefs[windCount] = doc(fsdb,'games', roomId, 'players', gameState.players[windCount].playerId,'tiles', 'playerChecked').withConverter(playerCheckedConverter)
-          discardRefs[windCount] = doc(fsdb,'games', roomId, 'players', gameState.players[windCount].playerId,'tiles', 'playerDiscarded').withConverter(playerDiscardedConverter)
-        }
-      } else {
-        // guestsAnswering()
-        const mainPlayer = gameState.players.filter(player => player.playerId == user.uid)
-        playersDiv[3].id = mainPlayer[0].playerId;
-        playerWind[3].innerText = chineseChars[mainPlayer[0].playerWind]
-        playerWind[3].id = mainPlayer[0].playerWind
-        mainPlayerHandRef = doc(fsdb,'games',roomId,'players',mainPlayer[0].playerId,'tiles','playerHand').withConverter(playerHandConverter)
-        mainPlayerMetaRef = doc(fsdb, 'games', roomId, 'players', mainPlayer[0].playerId).withConverter(playerMetaInfoConverter)
-        mainPlayerCheckedRef = doc(fsdb,'games', roomId, 'players', mainPlayer[0].playerId,'tiles', 'playerChecked').withConverter(playerCheckedConverter)
-        mainPlayerDiscardRef = doc(fsdb,'games', roomId, 'players', mainPlayer[0].playerId,'tiles', 'playerDiscarded').withConverter(playerDiscardedConverter)
-        const mainPlayerWind = mainPlayer[0].playerWind
-        const playerWindIndex = WIND_TILES.indexOf(mainPlayerWind)
-        for(let windCount=0; windCount < 3; windCount+=1){
-          
-          const nextPlayer = gameState.players.filter(player => player.playerWind == WIND_TILES[(playerWindIndex+windCount+1)%4])
-          
-          if(nextPlayer.length==0) {
-            playersDiv[windCount].id = gameState.host;
-            playerWind[windCount].innerText = chineseChars[gameState.currentWind]
-            playerWind[windCount].id = gameState.currentWind
-            checkedRefs[windCount] = doc(fsdb,'games', roomId, 'players', gameState.host,'tiles', 'playerChecked').withConverter(playerCheckedConverter)
-            discardRefs[windCount] = doc(fsdb,'games', roomId, 'players', gameState.host,'tiles', 'playerDiscarded').withConverter(playerDiscardedConverter)
-          } else{
-            playersDiv[windCount].id = nextPlayer[0].playerId;
-            playerWind[windCount].innerText = chineseChars[nextPlayer[0].playerWind]
-            playerWind[windCount].id = nextPlayer[0].playerWind
-            checkedRefs[windCount] = doc(fsdb,'games', roomId, 'players', nextPlayer[0].playerId,'tiles', 'playerChecked').withConverter(playerCheckedConverter)
-            discardRefs[windCount] = doc(fsdb,'games', roomId, 'players', nextPlayer[0].playerId,'tiles', 'playerDiscarded').withConverter(playerDiscardedConverter)
-          }
-        }
-      }
-
-      // RENDER PLAYER TILES
-      const mainPlayerHand = (await getDoc(mainPlayerHandRef)).data()
-      const mainPlayerChecked = (await getDoc(mainPlayerCheckedRef)).data()
-      const mainPlayerDiscarded = (await getDoc(mainPlayerDiscardRef)).data()
-      const metaInfo = (await getDoc(mainPlayerMetaRef)).data()
-      renderPlayerTiles(mainPlayerHand, mainPlayerChecked, mainPlayerDiscarded)
-      currentPlayer = new Player(metaInfo.id, metaInfo.name, metaInfo.wind, metaInfo.playerNumber, metaInfo.chips, mainPlayerHand, mainPlayerDiscarded, mainPlayerChecked, metaInfo.currentScore)
-
-      // RENDER OTHER PLAYER TILES
-      for(let i=0; i<3;i+=1){
-        onSnapshot(checkedRefs[i], (snapshot)=> {
-           // right,top, left
-          const playerHands = ['rightPlayer','topPlayer','leftPlayer']
-          const destination = document.getElementById(`${playerHands[i]}Checked`)
-          renderOpponentTiles(destination, snapshot.data())
-        })``
-
-         onSnapshot(discardRefs[i], (snapshot)=> {
-          const discardTiles = snapshot.data()
-           // right,top, left
-          const playerHands = ['rightPlayer','topPlayer','leftPlayer']
-          const destination = document.getElementById(`${playerHands[i]}Discard`)
-          renderOpponentTiles(destination,discardTiles)
-
-          if(discardTiles.length > 0 && gameState.currentPlayer != (currentPlayer.playerNumber+1)%4  ) {
-            console.log('CHECKING EAT POSSIBILITY')
-            const lastDiscardedTile = discardTiles[discardTiles.length-1]
-            if(currentPlayer.checkIfCanBeEaten(lastDiscardedTile)) {
-              
-              let set = new Set(possibleMergeCombinations.map(JSON.stringify))
-              let possibleUniqueCombinations = Array.from(set).map(JSON.parse)
-
-              // give the player options which one to eat
-              possibleUniqueCombinations.forEach(combo => {
-                const eatDiscardedTile = document.createElement('button')
-                eatDiscardedTile.id = combo
-                for(const tileName of combo) {
-                  eatDiscardedTile.textContent += refDeck()[tileName]
-                }
-                eatDiscardedTile.addEventListener('click', (ev)=> {
-                  // TODO: eat the tiles based on the combinations
-                  const tileCombiToCheck = ev.target.id.split(',')
-                  currentPlayer.eatTile(lastDiscardedTile, tileCombiToCheck)
-                  renderPlayerTiles(currentPlayer.playerHand,currentPlayer.playerChecked, currentPlayer.playerDiscarded)=
-                  timer.clearAll()
-                  updateGameState(gameState,'eattiles')
-                })
-                alertify.alert(eatDiscardedTile).setting({'modal': false}, {'basic': true}); 
-                // toastr['info'](eatDiscardedTile)
-              })
-            } else {
-              // toastr['warning']("Nothing to eat.")
-              alertify.alert('Nothing to eat').setting({'modal': false}, {'basic': true}); 
-            }
-          }
-        })
-      }
-
-      // render dummy tiles
-      for(let i=0; i<3;i+=1){
-        const playerHands = ['rightPlayer','topPlayer','leftPlayer']
-        const destination = document.getElementById(`${playerHands[i]}Hand`)
-        for(let j=0; j<14;j+=1){
-          const tileContainer = document.createElement('div')
-          tileContainer.classList.add('tile')
-          const tileImg = document.createElement('img')
-          tileImg.style.backgroundColor = 'limegreen'
-          tileContainer.appendChild(tileImg)
-          destination.appendChild(tileContainer)
-        }
-      }
-
-      // DETERMINE NEXT COURSE OF ACTION FROM GAME STATE CHANGES
-      onSnapshot(gameStateRef, async (snapshot)=> {
-        let currentGameState = snapshot.data()
-        addToChat('STATUS: ', `${WIND_TILES[currentGameState.currentPlayer].toUpperCase()} TURN`)
-
-        // reset indicator colors
-        const indicators = [...document.getElementById('playerControls').children]
-        indicators.forEach(child => {
-          child.style.backgroundColor = 'transparent'
-        })
-
-        const highlightWind = document.getElementById(`${WIND_TILES[currentGameState.currentPlayer]}`)
-        highlightWind.parentNode.style.backgroundColor = 'tomato'
-        if(currentPlayer.playerNumber != currentGameState.currentPlayer) {
-          return
-        } else {
-          startTimer(10, timerDisplay, currentPlayer.skipTurn)
-          // restart timer
-          // display turn no to everyone
-          // check if turn is own
-          // if not, ignore and start timer
-
-          // if it is, get the deck, draw a tile, and update the deck
-          const deckRef = doc(fsdb, 'games', roomId, 'deck','deckInPlay')
-          deckInPlay = (await getDoc(deckRef)).data().deckInPlay
-          currentPlayer.drawTile()
-        }
-
-      })
-
-    } else {
-        // user is signed out
-        window.location.pathname = '/login'
-    }
-  })
-
-
 
   // CHECK IF EVERYONE IS ONLINE
   const queryForUsers = query(collection(fsdb, 'status', roomId, 'players'), where('state','==','online'))
+
   onSnapshot(queryForUsers,(snapshot)=>{
     snapshot.docChanges().forEach((change)=> {
       if(change.type=="added") {
