@@ -1,4 +1,4 @@
-export default splitDeck = (shuffledDeck) => {
+ const splitDeck = (shuffledDeck) => {
   let splitDeckArray = [];
   let splitCountArray = [19,18]
   for(let i=0; i<4; i++){
@@ -8,3 +8,5 @@ export default splitDeck = (shuffledDeck) => {
   }
   return splitDeckArray;
 }
+
+export default splitDeck

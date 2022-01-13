@@ -207,29 +207,41 @@ body {
 }
 
 .tile > *,
-#playerChecked .tile > *,
-#playerHand .tile > * {
+#mainPlayerChecked .tile > *,
+#mainPlayerHand .tile > * {
   width: 50px;
   height: 62.5px;
   border: 1px solid black;
   border-radius: 8px;
 }
 
-#playerChecked .tile > *,
-#playerHand .tile > *:hover {
+#mainPlayerChecked .tile > *,
+#mainPlayerHand .tile > *:hover {
   border: 3px solid gold;
   border-radius: 8px;
 }
 
 .leftHand .tile > *,
 .rightHand .tile > * {
-  width: calc(2.2em * 1.4);
+  width: 2.2em;
   margin-bottom: -4px;
   justify-content: center;
   align-items: center;
-  height: 2.2em;
+  height: calc(2.2em * 1.4);
   border: 1px solid black;
   border-radius: 8px;
+}
+
+.topHand .tile > * {
+  transform: rotate(180deg);
+}
+
+.leftHand .tile > * {
+  transform: rotate(90deg);
+}
+
+.rightHand .tile > * {
+  transform: rotate(-90deg);
 }
 
 .leftChecked .tile > * {

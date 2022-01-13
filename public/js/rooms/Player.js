@@ -1,8 +1,8 @@
 // ref from https://github.com/markmandel/happy-angry-surprised/blob/master/html/js/chat.js
-import sortHand from '../../utils/sorthand.js'
-import {timer, startTimer} from '../../utils/timer.js'
-import diceRoll from '../../utils/diceroll.js'
-import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from '../game/tileset.js'
+import sortHand from '../utils/sorthand.js'
+import {timer, startTimer} from '../utils/timer.js'
+import diceRoll from '../utils/diceroll.js'
+import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from './game/tileset.js'
 
 class Player {
   // push this into database
@@ -82,7 +82,7 @@ class Player {
    * @param {string} [type='normal']
    * @memberof Player
    */
-  drawTile = (noOfTiles = 1, type = 'normal') => {
+  drawTile = (deckInPlay, noOfTiles = 1, type = 'normal') => {
     // deck.shift for normal draws
     // deck.pop for flowers
 
@@ -258,3 +258,5 @@ class Player {
     }
   }
 }
+
+export default Player
