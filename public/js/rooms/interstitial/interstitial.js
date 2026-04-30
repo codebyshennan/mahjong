@@ -7,8 +7,9 @@ import { playerMetaInfoConverter, playerCheckedConverter, playerHandConverter, p
 import Player from '../Player.js'
 
 import { auth, rtdb, fsdb } from '../../firebase-init.js'
+import { startDBSync } from '../../presence.js'
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
-import { ref, serverTimestamp, onDisconnect, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
+import { ref, push, set, onChildAdded } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
 import { writeBatch, collection, increment, getDocs, doc, getDoc, setDoc, updateDoc, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
 
 window.addEventListener('DOMContentLoaded', async ()=> {
