@@ -11,18 +11,6 @@ import { playerMetaInfoConverter, playerCheckedConverter, playerHandConverter, p
 // import { hostCalling, guestsAnswering } from './gameroom.js'
 
 
-// INITIALISE FIREBASE AND ITS DATABASES
-const firebase = initializeApp(firebaseConfig)
-const auth = getAuth()
-const rtdb = getDatabase(firebase)
-export const fsdb = getFirestore(firebase)
-
-// EMULATORS FOR DEVELOPMENT
-if (location.hostname === 'localhost') {
-  connectAuthEmulator(auth, "http://localhost:9099")
-  connectDatabaseEmulator(rtdb, "localhost", 9000)
-  connectFirestoreEmulator(fsdb, "localhost", 8080)
-}
 
 // STARTUP THE APPLICATION
 window.addEventListener('DOMContentLoaded', async () => {
