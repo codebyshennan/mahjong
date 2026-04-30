@@ -763,6 +763,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   sendButton.addEventListener('click', sendMessage)
 
+  messageField.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter' && !ev.shiftKey) {
+      ev.preventDefault()
+      sendMessage()
+    }
+  })
+
   onChildAdded(chatRef, (snapshot)=> {
     const message = snapshot.val()
     addToChat(message.name, message.message)
