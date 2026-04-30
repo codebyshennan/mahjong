@@ -6,22 +6,10 @@ import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from '../game/tileset.js'
 import { playerMetaInfoConverter, playerCheckedConverter, playerHandConverter, playerDiscardedConverter } from '../game/converters.js'
 import Player from '../Player.js'
 
-import firebaseConfig from '../../config.js'
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, connectAuthEmulator, signOut } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
-import { ref, serverTimestamp, onDisconnect, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set, getDatabase, connectDatabaseEmulator } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
-import { writeBatch, collection, increment, getDocs, doc, getDoc, setDoc, updateDoc,getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
-
-
-const firebase = initializeApp(firebaseConfig)
-const auth = getAuth()
-const rtdb = getDatabase(firebase)
-const fsdb = getFirestore(firebase)
-if (location.hostname === 'localhost') {
-  connectAuthEmulator(auth, "http://localhost:9099")
-  connectDatabaseEmulator(rtdb, "localhost", 9000)
-  connectFirestoreEmulator(fsdb, "localhost", 8080)
-}
+import { auth, rtdb, fsdb } from '../../firebase-init.js'
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
+import { ref, serverTimestamp, onDisconnect, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
+import { writeBatch, collection, increment, getDocs, doc, getDoc, setDoc, updateDoc, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
 
 window.addEventListener('DOMContentLoaded', async ()=> {
 
