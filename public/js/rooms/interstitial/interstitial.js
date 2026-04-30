@@ -326,7 +326,7 @@ window.addEventListener('DOMContentLoaded', async ()=> {
       const playerMetaRef = doc(fsdb, 'games', roomId, 'players', uid)
                             .withConverter(playerMetaInfoConverter)
       const currentPlayer = new Player(uid, displayName, wind , playerNo)
-      currentPlayer.drawTile(13)
+      currentPlayer.drawTile(13, deckInPlay, updateGameState)
       initBatch.set(playerMetaRef, currentPlayer)
       
       const playerHandRef = doc(fsdb, 'games', roomId, 'players', uid, 'tiles', 'playerHand')
