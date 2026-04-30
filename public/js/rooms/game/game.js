@@ -581,36 +581,35 @@ window.addEventListener('DOMContentLoaded', async () => {
           const destination = document.getElementById(`${playerHands[i]}Discard`)
           renderOpponentTiles(destination,discardTiles)
 
-          if(discardTiles.length > 0 && gameState.currentPlayer != (currentPlayer.playerNumber+1)%4  ) {
-            console.log('CHECKING EAT POSSIBILITY')
+          if(discardTiles.length > 0 && gameState.currentPlayer != (currentPlayer.playerNumber+1)%4) {
             const lastDiscardedTile = discardTiles[discardTiles.length-1]
+            if(lastDiscardedTile.index === lastCheckedTileIndex) return
+            lastCheckedTileIndex = lastDiscardedTile.index
+
             possibleMergeCombinations = []
+            const eatOptionsDiv = document.getElementById('eatOptions')
+            eatOptionsDiv.innerHTML = ''
+
             if(currentPlayer.checkIfCanBeEaten(lastDiscardedTile)) {
-              
               let set = new Set(possibleMergeCombinations.map(JSON.stringify))
               let possibleUniqueCombinations = Array.from(set).map(JSON.parse)
 
-              // give the player options which one to eat
               possibleUniqueCombinations.forEach(combo => {
-                const eatDiscardedTile = document.createElement('button')
-                eatDiscardedTile.id = combo
+                const eatBtn = document.createElement('button')
+                eatBtn.className = 'waves-effect waves-light btn-small'
                 for(const tileName of combo) {
-                  eatDiscardedTile.textContent += refDeck()[tileName]
+                  eatBtn.textContent += refDeck()[tileName]
                 }
-                eatDiscardedTile.addEventListener('click', (ev)=> {
-                  // TODO: eat the tiles based on the combinations
-                  const tileCombiToCheck = ev.target.id.split(',')
-                  currentPlayer.eatTile(lastDiscardedTile, tileCombiToCheck)
-                  renderPlayerTiles(currentPlayer.playerHand,currentPlayer.playerChecked, currentPlayer.playerDiscarded)
+                eatBtn.addEventListener('click', () => {
+                  currentPlayer.eatTile(lastDiscardedTile, combo)
+                  renderPlayerTiles(currentPlayer.playerHand, currentPlayer.playerChecked, currentPlayer.playerDiscarded)
                   timer.clearAll()
-                  updateGameState(gameState,'eattiles')
+                  updateGameState(gameState, 'eattiles')
+                  eatOptionsDiv.innerHTML = ''
+                  lastCheckedTileIndex = null
                 })
-                alertify.alert(eatDiscardedTile).setting({'modal': false}, {'basic': true}); 
-                // toastr['info'](eatDiscardedTile)
+                eatOptionsDiv.appendChild(eatBtn)
               })
-            } else {
-              // toastr['warning']("Nothing to eat.")
-              alertify.alert('Nothing to eat').setting({'modal': false}, {'basic': true}); 
             }
           }
         })
