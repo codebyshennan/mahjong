@@ -567,7 +567,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           const playerHands = ['rightPlayer','topPlayer','leftPlayer']
           const destination = document.getElementById(`${playerHands[i]}Checked`)
           renderOpponentTiles(destination, snapshot.data())
-        })``
+        })
 
          onSnapshot(discardRefs[i], (snapshot)=> {
           const discardTiles = snapshot.data()
