@@ -663,6 +663,23 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   
+  const showWinScreen = (type) => {
+    const overlay = document.createElement('div')
+    overlay.id = 'winOverlay'
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:white;font-size:2rem;gap:1rem;'
+    const msg = type === 'self-draw' ? '🀄 自摸！(Self Draw Win!)' : '🀄 胡！(Discard Win!)'
+    const msgEl = document.createElement('div')
+    msgEl.textContent = msg
+    const playerEl = document.createElement('div')
+    playerEl.style.fontSize = '1rem'
+    playerEl.textContent = `Winner: ${currentPlayer.name}`
+    overlay.appendChild(msgEl)
+    overlay.appendChild(playerEl)
+    document.body.appendChild(overlay)
+    updateGameState(gameState, 'wingame')
+    commitPlayerHandToFS(currentPlayer, gameState)
+  }
+
   /*
   CHAT FUNCTIONALITY
   */
