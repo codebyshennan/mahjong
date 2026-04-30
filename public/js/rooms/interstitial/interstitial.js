@@ -430,10 +430,10 @@ window.addEventListener('DOMContentLoaded', async ()=> {
     }
 
     const players = (await getDoc(doc(fsdb,'lobby', roomId))).data().players
-    playerGameInit(loggedInUser.uid, loggedInUser.displayName, 'east',0)
+    await playerGameInit(loggedInUser.uid, loggedInUser.displayName, 'east',0)
 
     for(let count=0; count < 3; count+=1){
-      playerGameInit(players[count].uid, players[count].displayName, WIND_TILES[count+1], count+1)
+      await playerGameInit(players[count].uid, players[count].displayName, WIND_TILES[count+1], count+1)
       otherPlayers.push({playerId: players[count].uid, playerWind: WIND_TILES[count+1]})
     }
 
