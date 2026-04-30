@@ -211,8 +211,10 @@ window.addEventListener('DOMContentLoaded', async ()=> {
   // Add a chat message to the chat UI
   const addChatMessage = (name, message) => {
     const item = document.createElement('li')
-    item.innerHTML = `<strong>${name}</strong> ${message}`
-
+    const nameNode = document.createElement('strong')
+    nameNode.textContent = name
+    item.appendChild(nameNode)
+    item.appendChild(document.createTextNode(' ' + message))
     const messageList = messages.querySelector('ul')
     messageList.appendChild(item)
     messages.scrollTop = messageList.scrollHeight;
