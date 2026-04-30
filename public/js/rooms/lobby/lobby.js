@@ -194,7 +194,10 @@ window.addEventListener('DOMContentLoaded', async ()=> {
             if(!room.exists()){
               throw "Room does not exist!"
             }
-            
+            if (room.data().playerCount >= 4) {
+              throw "Room is full!"
+            }
+
             const newPlayer = {
                 uid: loggedInUser.uid,
                 displayName: loggedInUser.displayName,
