@@ -641,7 +641,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         if(currentPlayer.playerNumber != currentGameState.currentPlayer) {
           return
         } else {
-          startTimer(10, timerDisplay, currentPlayer.skipTurn)
+          startTimer(10, timerDisplay, () => skipTurn(currentPlayer))
           // restart timer
           // display turn no to everyone
           // check if turn is own
@@ -651,6 +651,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           const deckRef = doc(fsdb, 'games', roomId, 'deck','deckInPlay')
           deckInPlay = (await getDoc(deckRef)).data().deckInPlay
           currentPlayer.drawTile()
+          await setDoc(deckRef, { deckInPlay: deckInPlay })
         }
 
       })
