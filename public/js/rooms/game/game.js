@@ -695,8 +695,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     switch (type) {
       case 'nextround':
-        ++gameState.windCount
-        gameState.currentWind = WIND_TILES[gameState.windCount%4]
         gameState.currentPlayer = ++gameState.currentPlayer % 4
         gameState.currentTurnNo++
         // updateGameLog()
