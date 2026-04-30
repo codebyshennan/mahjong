@@ -212,48 +212,46 @@ window.addEventListener('DOMContentLoaded', async ()=> {
    * @param {*} key
    * @param {*} room
    */
-  const addRoomInvitation = (key, room) => {
+  const buildRoomCard = (key, contentText, actionText) => {
     const roomItem = document.createElement('div')
     roomItem.id = key
     roomItem.classList.add('card', 'horizontal')
-    roomItem.innerHTML = `<div class="card-image"
-                              style="background-image: url(https://static.vecteezy.com/system/resources/thumbnails/000/124/091/small/mahjong-hand-drawn-vector.jpg);
-                                background-repeat: no-repeat;
-                                min-width: 300px;"></div>
-                            <div class="card-stacked">
-                              <div class="card-content">
-                                ${room.playerCount} / 4
-                                ${Object.keys(ROOM_STATE)[room.state]}
-                              </div>
-                              <div class="card-action join-room">JOIN ${room.host.displayName.toUpperCase()} ROOM</div>
-                            </div>`
-    roomItem.addEventListener('click', ()=> {
-      joinRoom(key)
-    })
-    const roomList = document.getElementById('roomList');
-    roomList.appendChild(roomItem)
+
+    const cardImg = document.createElement('div')
+    cardImg.className = 'card-image'
+    cardImg.style.cssText = 'background-image: url(https://static.vecteezy.com/system/resources/thumbnails/000/124/091/small/mahjong-hand-drawn-vector.jpg); background-repeat: no-repeat; min-width: 300px;'
+    roomItem.appendChild(cardImg)
+
+    const cardStacked = document.createElement('div')
+    cardStacked.className = 'card-stacked'
+
+    const cardContent = document.createElement('div')
+    cardContent.className = 'card-content'
+    cardContent.textContent = contentText
+
+    const cardAction = document.createElement('div')
+    cardAction.className = 'card-action join-room'
+    cardAction.textContent = actionText
+
+    cardStacked.appendChild(cardContent)
+    cardStacked.appendChild(cardAction)
+    roomItem.appendChild(cardStacked)
+    return roomItem
+  }
+
+  const addRoomInvitation = (key, room) => {
+    const stateLabel = Object.keys(ROOM_STATE)[room.state]
+    const hostName = room.host.displayName.toUpperCase()
+    const roomItem = buildRoomCard(key, `${room.playerCount} / 4  ${stateLabel}`, `JOIN ${hostName} ROOM`)
+    roomItem.addEventListener('click', () => joinRoom(key))
+    document.getElementById('roomList').appendChild(roomItem)
   }
 
   const addOwnRoom = (key, room) => {
-    const roomItem = document.createElement('div')
-    roomItem.id = key
-    roomItem.classList.add('card', 'horizontal')
-    roomItem.innerHTML = `<div class="card-image"
-                              style="background-image: url(https://static.vecteezy.com/system/resources/thumbnails/000/124/091/small/mahjong-hand-drawn-vector.jpg);
-                                background-repeat: no-repeat;
-                                min-width: 300px;"></div>
-                            <div class="card-stacked">
-                              <div class="card-content">
-                                ${room.playerCount} / 4
-                                ${Object.keys(ROOM_STATE)[room.state]}
-                              </div>
-                              <div class="card-action join-room"> GO BACK TO YOUR CRIB </div>
-                            </div>`
-    roomItem.addEventListener('click', ()=> {
-      joinRoom(key)
-    })
-    const roomList = document.getElementById('roomList');
-    roomList.appendChild(roomItem)
+    const stateLabel = Object.keys(ROOM_STATE)[room.state]
+    const roomItem = buildRoomCard(key, `${room.playerCount} / 4  ${stateLabel}`, 'GO BACK TO YOUR CRIB')
+    roomItem.addEventListener('click', () => joinRoom(key))
+    document.getElementById('roomList').appendChild(roomItem)
   }
 
   //  READ ONCE AND THEN LISTEN INDIVIDUALLY TO EACH ROOM FOR CHANGES
