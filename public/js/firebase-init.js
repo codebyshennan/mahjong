@@ -1,0 +1,16 @@
+import firebaseConfig from './config.js'
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
+import { getAuth, connectAuthEmulator } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
+import { getDatabase, connectDatabaseEmulator } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
+import { getFirestore, connectFirestoreEmulator } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
+
+const firebase = initializeApp(firebaseConfig)
+export const auth = getAuth()
+export const rtdb = getDatabase(firebase)
+export const fsdb = getFirestore(firebase)
+
+if (location.hostname === 'localhost') {
+  connectAuthEmulator(auth, "http://localhost:9099")
+  connectDatabaseEmulator(rtdb, "localhost", 9000)
+  connectFirestoreEmulator(fsdb, "localhost", 8080)
+}
