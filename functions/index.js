@@ -12,7 +12,7 @@ import {
   signInWithEmailAndPassword,
   connectAuthEmulator } from 'firebase/auth'
 import admin from 'firebase-admin'
-import * as functions from 'firebase-functions'
+import * as functions from 'firebase-functions/v1'
 // https://www.stefanjudis.com/snippets/how-to-import-json-files-in-es-modules-node-js/
 import { readFile } from 'fs/promises'
 const serviceAccount = JSON.parse(await readFile( new URL('./serviceAccountKey.json', import.meta.url)))
