@@ -23,7 +23,7 @@
       "port": 5001
     },
     "hosting": {
-      "port": 5000
+      "port": 12528
     }
   },
   "functions": {
