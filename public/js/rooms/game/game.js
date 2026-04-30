@@ -2,11 +2,11 @@ import sortHand from '../../utils/sorthand.js'
 import { refDeck } from '../../utils/makeDeck.js'
 import {timer, startTimer} from '../../utils/timer.js'
 import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from './tileset.js'
-import firebaseConfig from '../../config.js'
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, connectAuthEmulator, signOut } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
-import { ref, serverTimestamp, onDisconnect, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set, getDatabase, connectDatabaseEmulator } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
-import { collection, getDocs, doc, getDoc, setDoc, getFirestore, connectFirestoreEmulator, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp, writeBatch} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
+import { auth, rtdb, fsdb } from '../../firebase-init.js'
+export { fsdb }
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
+import { ref, serverTimestamp, onDisconnect, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
+import { collection, getDocs, doc, getDoc, setDoc, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp, writeBatch} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
 import { playerMetaInfoConverter, playerCheckedConverter, playerHandConverter, playerDiscardedConverter } from './converters.js'
 // import { hostCalling, guestsAnswering } from './gameroom.js'
 
