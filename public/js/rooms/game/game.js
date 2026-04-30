@@ -539,6 +539,15 @@ window.addEventListener('DOMContentLoaded', async () => {
       // DETERMINE NEXT COURSE OF ACTION FROM GAME STATE CHANGES
       onSnapshot(gameStateRef, async (snapshot)=> {
         let currentGameState = snapshot.data()
+
+        if (currentGameState.winner) {
+          timer.clearAll()
+          if (!document.getElementById('winOverlay')) {
+            showLossScreen(currentGameState.winner)
+          }
+          return
+        }
+
         // clear eat options on new turn
         const eatOptionsDiv = document.getElementById('eatOptions')
         if(eatOptionsDiv) eatOptionsDiv.innerHTML = ''
