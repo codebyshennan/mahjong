@@ -579,6 +579,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           if(discardTiles.length > 0 && gameState.currentPlayer != (currentPlayer.playerNumber+1)%4  ) {
             console.log('CHECKING EAT POSSIBILITY')
             const lastDiscardedTile = discardTiles[discardTiles.length-1]
+            possibleMergeCombinations = []
             if(currentPlayer.checkIfCanBeEaten(lastDiscardedTile)) {
               
               let set = new Set(possibleMergeCombinations.map(JSON.stringify))
