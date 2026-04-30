@@ -107,6 +107,32 @@
       span {
         color: black;
       }
+
+      #turnBanner {
+        text-align: center;
+        font-size: 1rem;
+        font-weight: bold;
+        padding: 4px 10px;
+        border-radius: 4px;
+        background: transparent;
+        color: #555;
+      }
+      #turnBanner.turn-banner--active {
+        background: tomato;
+        color: white;
+        animation: pulse 1s ease-in-out infinite alternate;
+      }
+      @keyframes pulse {
+        from { opacity: 1; }
+        to { opacity: 0.7; }
+      }
+      #eatOptions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        justify-content: center;
+        margin-top: 6px;
+      }
     </style>
     <link rel="stylesheet" type="text/css" href="/css/game.css" />
     <!-- <link rel="stylesheet" href="experimental.css" /> -->
