@@ -15,7 +15,7 @@ import admin from 'firebase-admin'
 import * as functions from 'firebase-functions/v1'
 import { readFile } from 'fs/promises'
 
-const { FIREBASE_PROJECT_ID, FIREBASE_DATABASE_URL } = process.env
+const { PROJECT_ID, DATABASE_URL } = process.env
 
 // INITIALISING EXPRESS
 const app = express()
