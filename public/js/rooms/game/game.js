@@ -260,7 +260,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         const discardedTileNo = +discardedTile.name.substr(1,1)
 
         // if the discardedtile can complete a pair of duplicates or if the discardedtile can form part of a sequence e.g. X,_,_ || _,X,_ || _,_,X
-        if (playerTally[discardedTile.name] == 2) {
+        if (playerTally[discardedTile.name] >= 2) {
           possibleMergeCombinations.push([discardedTile.name, discardedTile.name])
           highlightTilesToBeMergedWith([discardedTile.name],'same')
           hasOutcome = true
