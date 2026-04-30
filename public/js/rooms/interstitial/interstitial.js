@@ -202,10 +202,10 @@ window.addEventListener('DOMContentLoaded', async ()=> {
       const gameRoomRef = doc(fsdb,'lobby', roomId)
       const gameRoomData = await getDoc(gameRoomRef)
       if(gameRoomData.exists() && gameRoomData.data().host.uid == user.uid) {
-        loggedInUser['host'] == true;
+        loggedInUser['host'] = true;
         showStartBtn()
       } else {
-        loggedInUser['host'] == false;
+        loggedInUser['host'] = false;
         showLeaveBtn()
       }
 
