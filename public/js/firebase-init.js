@@ -10,7 +10,7 @@ export const rtdb = getDatabase(firebase)
 export const fsdb = getFirestore(firebase)
 
 if (location.hostname === 'localhost') {
-  connectAuthEmulator(auth, "http://localhost:9099")
-  connectDatabaseEmulator(rtdb, "localhost", 9000)
-  connectFirestoreEmulator(fsdb, "localhost", 8080)
+  connectAuthEmulator(auth, "http://localhost:12088")
+  connectDatabaseEmulator(rtdb, "localhost", 15047)
+  connectFirestoreEmulator(fsdb, "localhost", 14701)
 }
