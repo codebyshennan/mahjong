@@ -14,6 +14,9 @@ import {
 import admin from 'firebase-admin'
 import * as functions from 'firebase-functions/v1'
 import { readFile } from 'fs/promises'
+import 'dotenv/config'
+
+const { FIREBASE_PROJECT_ID, FIREBASE_DATABASE_URL } = process.env
 
 // INITIALISING EXPRESS
 const app = express()
@@ -26,14 +29,14 @@ const isEmulator = process.env.FUNCTIONS_EMULATOR === 'true'
 
 if (isEmulator) {
   admin.initializeApp({
-    projectId: "mahjong-7d9ae",
-    databaseURL: "https://mahjong-7d9ae-default-rtdb.asia-southeast1.firebasedatabase.app"
+    projectId: FIREBASE_PROJECT_ID,
+    databaseURL: FIREBASE_DATABASE_URL
   })
 } else {
   const serviceAccount = JSON.parse(await readFile(new URL('./serviceAccountKey.json', import.meta.url)))
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://mahjong-7d9ae-default-rtdb.asia-southeast1.firebasedatabase.app"
+    databaseURL: FIREBASE_DATABASE_URL
   })
 }
 
