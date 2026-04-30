@@ -66,22 +66,18 @@ app.get('/register', (req,res)=>{
   const { firstname, lastname, email, password} = req.body
   // create new users
   
-  console.log('getting credentials')
-  createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential)=> {
-       userCredential.updateProfile({
-        displayName: `${firstname} ${lastname}`
-      }).then((result)=> {
-        res.render("lobby")
-        console.log(result)
-      })
-
-      // TODO: save it in localstorage for persistence 
-    }).catch((error)=> {
-      const errorCode = error.code
-      const errorMessage = error.message;
-      // TODO: toastr this shit
-    })
+  admin.auth().createUser({
+    email,
+    password,
+    displayName: `${firstname} ${lastname}`
+  }).then(() => {
+    res.redirect('/login')
+  }).catch((error) => {
+    const errorCode = error.code
+    const errorMessage = error.message
+    console.error('Registration error:', errorCode, errorMessage)
+    res.status(400).send(errorMessage)
+  })
     // res.redirect('/login')
 })
 
