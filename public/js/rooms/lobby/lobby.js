@@ -1,6 +1,6 @@
-import { auth, rtdb, fsdb } from '../../firebase-init.js'
+import { auth, fsdb } from '../../firebase-init.js'
+import { startDBSync } from '../../presence.js'
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
-import { onDisconnect, serverTimestamp, ref, query, orderByChild, equalTo, onValue, onChildAdded, onChildRemoved, push, set } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
 import { increment, collection, getDocs, doc, getDoc, setDoc, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
 
 window.addEventListener('DOMContentLoaded', async ()=> {
