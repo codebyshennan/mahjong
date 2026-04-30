@@ -62,7 +62,6 @@ app.get('/register', (req,res)=>{
 .post('/register', (req,res)=>{
   res.set('Cache-Control', 'public, max-age=300,s-max=600')
   const { firstname, lastname, email, password} = req.body
-  console.log(firstname, lastname, email, password)
   // create new users
   
   console.log('getting credentials')
