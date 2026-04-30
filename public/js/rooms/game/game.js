@@ -428,9 +428,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         tileContainer.id = playerTile.index
         tileContainer.addEventListener('click', (ev)=> {
           // immediately disable the clicking of other tiles
-          if(gameState.currentPlayer == 0 ) {
+          if(gameState.currentPlayer == currentPlayer.playerNumber) {
             // discardTile(ev.target)
-            const tileIndex = ev.target.parentElement.id
+            const tileIndex = ev.currentTarget.id
             const tileToBeRemoved = hand.find(tile=> tile.index == tileIndex)
             currentPlayer.discardTile(tileToBeRemoved)
 
