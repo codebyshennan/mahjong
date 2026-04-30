@@ -115,7 +115,7 @@ window.addEventListener('DOMContentLoaded', async ()=> {
         showLeaveBtn()
       }
 
-      startDBSync(loggedInUser)
+      startDBSync(loggedInUser, `status/${roomId}/players`)
       } else {
         // user is signed out
         window.location.pathname = '/login'
