@@ -8,22 +8,22 @@
   },
   "emulators": {
     "auth": {
-      "port": 9099
+      "port": 12088
     },
     "firestore": {
-      "port": 8080
+      "port": 14701
     },
     "ui": {
       "enabled": true
     },
     "database": {
-      "port": 9000
+      "port": 15047
     },
     "functions": {
-      "port": 5001
+      "port": 16838
     },
     "hosting": {
-      "port": 12528
+      "port": 15951
     }
   },
   "functions": {
