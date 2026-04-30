@@ -271,29 +271,6 @@ window.addEventListener('DOMContentLoaded', async ()=> {
   })
 
 
-  let initFirebase = true;
-
-  // listen to changes in no of pax in the room
-  // listen for the waiting queue
-  const openRooms = collection(fsdb, "lobby")
-  onSnapshot(openRooms, (collection)=> {
-    
-    // SET INIT FLAG TO INDICATE FIRST INITIALIZATION OF FIRESTORE
-    if(initFirebase) {
-      initFirebase = false
-    }
-    collection.docs.forEach(doc=> {
-      console.log(doc)
-      console.log(doc.id)
-      console.log('Doc data: ', doc.data())
-    })
-    console.log(collection)
-
-    // doc changes provides change types "added", "modified", "removed"
-    console.log('Changes to collecton', collection.docChanges())  
-    console.log('data',collection.size)
-  })
-
   const createRoom = async() => {
     console.log('Creating a game room...')
     const currentGame = {
