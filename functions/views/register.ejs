@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
+    <title>Register</title>
     <!-- Compiled and minified CSS -->
     <link
       rel="stylesheet"
@@ -21,30 +21,6 @@
     />
 
     <style>
-      .login {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 20px;
-      }
-
-      .card {
-        border-radius: 10px;
-      }
-
-      .row {
-        margin-bottom: 0px !important;
-      }
-    </style>
-  </head>
-  <body>
-
-
-
-
-
-          <style>
-
       .login {
         display: flex;
         justify-content: center;
@@ -83,58 +59,59 @@
         <h2 class="header">Register</h2>
         <div class="col s8 room">
           <div class="card-content">
-              <div class="row">
-<form
-                  class="col s12"
-                  action="/register"
-                  method="POST"
-                  id="registerUser"
-                >
-                  <div class="row">
-                    <div class="input-field col s6">
-                      <input
-                        id="first_name"
-                        type="text"
-                        class="validate"
-                        name="firstname"
-                      />
-                      <label for="first_name">First Name</label>
-                    </div>
-                    <div class="input-field col s6">
-                      <input
-                        id="last_name"
-                        type="text"
-                        class="validate"
-                        name="lastname"
-                      />
-                      <label for="last_name">Last Name</label>
-                    </div>
+            <div class="row">
+              <form
+                class="col s12"
+                action="/register"
+                method="POST"
+                id="registerUser"
+              >
+                <div class="row">
+                  <div class="input-field col s6">
+                    <input
+                      id="first_name"
+                      type="text"
+                      class="validate"
+                      name="firstname"
+                    />
+                    <label for="first_name">First Name</label>
                   </div>
-                  <div class="row">
-                    <div class="input-field col s12">
-                      <input
-                        id="email"
-                        type="email"
-                        name="email"
-                        class="validate"
-                      />
-                      <label for="email">Email</label>
-                    </div>
+                  <div class="input-field col s6">
+                    <input
+                      id="last_name"
+                      type="text"
+                      class="validate"
+                      name="lastname"
+                    />
+                    <label for="last_name">Last Name</label>
                   </div>
-                  <div class="row">
-                    <div class="input-field col s12">
-                      <input
-                        id="password"
-                        type="password"
-                        name="password"
-                        class="validate"
-                      />
-                      <label for="password">Password</label>
-                    </div>
+                </div>
+                <div class="row">
+                  <div class="input-field col s12">
+                    <input
+                      id="email"
+                      type="email"
+                      name="email"
+                      class="validate"
+                    />
+                    <label for="email">Email</label>
                   </div>
+                </div>
+                <div class="row">
+                  <div class="input-field col s12">
+                    <input
+                      id="password"
+                      type="password"
+                      name="password"
+                      class="validate"
+                    />
+                    <label for="password">Password</label>
+                  </div>
+                </div>
 
-                  <div class="row">
-                    <div class="col">
+                <div class="row">
+                  <div class="col">
+                    <div class="row auth">
                       <a
                         href="javascript:{}"
                         onclick="document.getElementById('registerUser').submit()"
@@ -142,12 +119,17 @@
                         ><i class="material-icons right">face</i>Register</a
                       >
                     </div>
+                    <div class="row auth">
+                      <a href="/login" class="waves-effect waves-light btn-small">Already have an account? Login</a>
+                    </div>
                   </div>
-                </form>
-              </div>
+                </div>
+              </form>
             </div>
           </div>
         </div>
+      </div>
+    </div>
 
   </body>
 </html>
