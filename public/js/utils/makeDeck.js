@@ -49,7 +49,7 @@ const buildTiles = () => {
         tile.url = `/assets/svgtiles/dragon_${DRAGON_TILES[tiletype]}.svg`
         tile.copy = copy + 1;
         tile.suit = DRAGON_SUITS[tiletype]
-        tile.index = 124 + (copy + 1) * (tiletype + 1)
+        tile.index = 124 + (tiletype * 4) + copy
         tiles.push(tile)
       }
     }
