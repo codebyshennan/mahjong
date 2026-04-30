@@ -25,7 +25,7 @@ window.addEventListener('DOMContentLoaded', async ()=> {
         loggedInUser['photoURL'] = user.photoURL;
         const userName = document.getElementById('userName');
         userName.innerText = `Welcome ${user.displayName}`
-        startDBSync(loggedInUser)
+        startDBSync(loggedInUser, 'online')
       } else {
         // user is signed out
         // window.location.pathname = '/login'
