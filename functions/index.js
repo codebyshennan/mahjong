@@ -28,14 +28,14 @@ const isEmulator = process.env.FUNCTIONS_EMULATOR === 'true'
 
 if (isEmulator) {
   admin.initializeApp({
-    projectId: FIREBASE_PROJECT_ID,
-    databaseURL: FIREBASE_DATABASE_URL
+    projectId: PROJECT_ID,
+    databaseURL: DATABASE_URL
   })
 } else {
   const serviceAccount = JSON.parse(await readFile(new URL('./serviceAccountKey.json', import.meta.url)))
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: FIREBASE_DATABASE_URL
+    databaseURL: DATABASE_URL
   })
 }
 
