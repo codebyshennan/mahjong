@@ -229,7 +229,7 @@ window.addEventListener('DOMContentLoaded', async ()=> {
                                 min-width: 300px;"></div>
                             <div class="card-stacked">
                               <div class="card-content">
-                                ${room.playerCount} / 3
+                                ${room.playerCount} / 4
                                 ${Object.keys(ROOM_STATE)[room.state]}
                               </div>
                               <div class="card-action join-room">JOIN ${room.host.displayName.toUpperCase()} ROOM</div>
