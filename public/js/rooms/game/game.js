@@ -31,6 +31,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   let deckInPlay, currentPlayer
   let possibleMergeCombinations = []
   let loggedInUser = {}
+  let lastCheckedTileIndex = null
   
   const chineseChars = {
     'east': "东",
