@@ -199,7 +199,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         checkedGroup.push(tileToBeChecked)
       })
 
-      this.playerChecked.push(sortHand(checkedGroup))
+      sortHand(checkedGroup).forEach(t => this.playerChecked.push(t))
     }
 
     /**
