@@ -145,6 +145,11 @@ window.addEventListener('DOMContentLoaded', async () => {
           newTile = deckInPlay.pop()
         }
 
+        if (!newTile) {
+          console.warn('Deck exhausted — draw game')
+          return
+        }
+
         if(ANIMAL_TILES.includes(newTile.name) || FLOWER_TILES.includes(newTile.name)) {
           console.log('Special drawn...')
           this.playerChecked.push(newTile)
