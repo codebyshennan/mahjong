@@ -2,7 +2,6 @@
 import { refDeck, buildDeck } from '../../utils/makeDeck.js'
 import sortHand from '../../utils/sorthand.js'
 import {timer, startTimer} from '../../utils/timer.js'
-import diceRoll from '../../utils/diceroll.js'
 import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from '../game/tileset.js'
 import { playerMetaInfoConverter, playerCheckedConverter, playerHandConverter, playerDiscardedConverter } from '../game/converters.js'
 import Player from '../Player.js'
