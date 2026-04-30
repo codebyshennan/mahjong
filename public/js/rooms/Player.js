@@ -69,27 +69,25 @@ class Player {
    * @param {string} [type='normal']
    * @memberof Player
    */
-  drawTile = (noOfTiles = 1, type = 'normal') => {
-    // deck.shift for normal draws
-    // deck.pop for flowers
-
+  drawTile = (noOfTiles = 1, deck, updateGameState = () => {}) => {
     for(let drawCount = 0; drawCount < noOfTiles; drawCount+=1) {
-      let newTile
-      if(type == 'normal') {
-        newTile = deckInPlay.shift()
-      } else if(type == 'special') {
-        console.log('Drawing special...')
-        newTile = deckInPlay.pop()
+      let newTile = deck.shift()
+      if (!newTile) {
+        console.warn('Deck exhausted')
+        return
       }
 
-      if(ANIMAL_TILES.includes(newTile.name) || FLOWER_TILES.includes(newTile.name)) {
-        console.log('Special drawn...')
+      while(ANIMAL_TILES.includes(newTile.name) || FLOWER_TILES.includes(newTile.name)) {
         this.playerChecked.push(newTile)
-        this.drawTile(1,'special')
-      } else {
-        this.playerHand.push(newTile)
+        updateGameState('drawtiles')
+        newTile = deck.pop()
+        if (!newTile) {
+          console.warn('Deck exhausted during flower replacement')
+          return
+        }
       }
 
+      this.playerHand.push(newTile)
       updateGameState('drawtiles')
     }
   }
