@@ -10,7 +10,7 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "16"
+    "node": "20"
   },
   "main": "index.js",
   "dependencies": {
@@ -20,21 +20,19 @@
     "firebase": "^9.1.1",
     "firebase-admin": "^9.12.0",
     "firebase-functions": "^3.15.7",
-    "http": "^0.0.1-security",
-    "interactjs": "^1.10.11",
-    "peer": "^0.6.1",
-    "socket.io": "^4.2.0",
-    "socket.io-client": "^4.2.0",
-    "toastr": "^2.1.4",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "firebase-functions-test": "^0.2.0",
+    "@babel/preset-env": "^7.16.0",
     "babel-loader": "^8.2.2",
+    "css-loader": "^6.5.0",
+    "firebase-functions-test": "^0.2.0",
     "html-webpack-plugin": "^1.1.0",
     "mini-css-extract-plugin": "^2.3.0",
+    "sass-loader": "^12.0.0",
     "webpack": "^5.56.1",
-    "webpack-cli": "^4.8.0"
+    "webpack-cli": "^4.8.0",
+    "webpack-merge": "^5.8.0"
   },
   "private": true
 }
