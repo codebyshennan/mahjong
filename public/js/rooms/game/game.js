@@ -506,6 +506,8 @@ window.addEventListener('DOMContentLoaded', async () => {
                   updateGameState(gameState, 'eattiles')
                   eatOptionsDiv.innerHTML = ''
                   lastCheckedTileIndex = null
+                  const { win } = checkWin(currentPlayer.playerHand)
+                  if (win) showWinScreen('discard-win')
                 })
                 eatOptionsDiv.appendChild(eatBtn)
               })
