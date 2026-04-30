@@ -33,7 +33,7 @@ const buildTiles = () => {
           suit : WIND_SUITS[tiletype],
           copy : copy + 1,
           count : tiletype + 1, // ESWN
-          index : 108 + (copy + 1) * (tiletype + 1)
+          index : 108 + (tiletype * 4) + copy
         }
         tiles.push(tile)
       }
