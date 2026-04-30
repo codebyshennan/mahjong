@@ -1,7 +1,6 @@
 import sortHand from '../../utils/sorthand.js'
 import { refDeck } from '../../utils/makeDeck.js'
 import {timer, startTimer} from '../../utils/timer.js'
-import diceRoll from '../../utils/diceroll.js'
 import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from './tileset.js'
 import firebaseConfig from '../../config.js'
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
