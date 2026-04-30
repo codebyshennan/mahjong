@@ -570,6 +570,12 @@ window.addEventListener('DOMContentLoaded', async () => {
           deckInPlay = (await getDoc(deckRef)).data().deckInPlay
           currentPlayer.drawTile()
           await setDoc(deckRef, { deckInPlay: deckInPlay })
+          renderPlayerTiles(currentPlayer.playerHand, currentPlayer.playerChecked, currentPlayer.playerDiscarded)
+          const { win } = checkWin(currentPlayer.playerHand)
+          if (win) {
+            timer.clearAll()
+            showWinScreen('self-draw')
+          }
         }
 
       })
