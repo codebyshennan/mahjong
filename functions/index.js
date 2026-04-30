@@ -5,12 +5,11 @@ import { initializeApp } from 'firebase/app'
 import { getDatabase, connectDatabaseEmulator } from 'firebase/database'
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
 import firebaseConfig from './firebaseConfig.js'
-import { 
+import {
   getAuth,
   signOut,
-  onAuthStateChanged, 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
   connectAuthEmulator } from 'firebase/auth'
 import admin from 'firebase-admin'
 import * as functions from 'firebase-functions'
@@ -24,7 +23,6 @@ const app = express()
 // INITIALIZING FIREBASE (RTDB FOR CHAT / FSDB FOR GAMES AND LOBBY)
 const firebase = initializeApp(firebaseConfig)
 const auth = getAuth();
-connectAuthEmulator(auth, "http://localhost:9099")
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -33,8 +31,12 @@ admin.initializeApp({
 
 const rtdb = getDatabase(firebase)
 const fsdb = getFirestore(firebase)
-connectDatabaseEmulator(rtdb, "localhost", 9000)
-connectFirestoreEmulator(fsdb, "localhost", 8080)
+
+if (process.env.FUNCTIONS_EMULATOR === 'true') {
+  connectAuthEmulator(auth, "http://localhost:9099")
+  connectDatabaseEmulator(rtdb, "localhost", 9000)
+  connectFirestoreEmulator(fsdb, "localhost", 8080)
+}
 // const analytics = getAnalytics(firebase)
 
 const firestore=admin.firestore()
