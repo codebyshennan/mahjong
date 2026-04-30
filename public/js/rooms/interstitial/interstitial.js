@@ -93,8 +93,13 @@ window.addEventListener('DOMContentLoaded', async ()=> {
     const leaveButton = document.createElement('button')
     leaveButton.id = 'leave-room'
     leaveButton.textContent = 'Leave Room'
-    leaveButton.addEventListener('click', (ev)=>{
+    leaveButton.addEventListener('click', async (ev)=>{
       ev.preventDefault()
+      const roomRef = doc(fsdb, 'lobby', roomId)
+      await updateDoc(roomRef, {
+        players: arrayRemove({ uid: loggedInUser.uid, displayName: loggedInUser.displayName, photoURL: loggedInUser.photoURL }),
+        playerCount: increment(-1)
+      })
       window.location.pathname = '/lobby'
     })
     gamelobby.appendChild(leaveButton)
