@@ -632,7 +632,10 @@ window.addEventListener('DOMContentLoaded', async () => {
       // DETERMINE NEXT COURSE OF ACTION FROM GAME STATE CHANGES
       onSnapshot(gameStateRef, async (snapshot)=> {
         let currentGameState = snapshot.data()
-        addToChat('STATUS: ', `${WIND_TILES[currentGameState.currentPlayer].toUpperCase()} TURN`)
+        // clear eat options on new turn
+        const eatOptionsDiv = document.getElementById('eatOptions')
+        if(eatOptionsDiv) eatOptionsDiv.innerHTML = ''
+        lastCheckedTileIndex = null
 
         // reset indicator colors
         const indicators = [...document.getElementById('playerControls').children]
@@ -642,6 +645,18 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         const highlightWind = document.getElementById(`${WIND_TILES[currentGameState.currentPlayer]}`)
         highlightWind.parentNode.style.backgroundColor = 'tomato'
+
+        const turnBanner = document.getElementById('turnBanner')
+        if(currentPlayer.playerNumber === currentGameState.currentPlayer) {
+          turnBanner.textContent = 'YOUR TURN'
+          turnBanner.className = 'turn-banner turn-banner--active'
+          addToChat('STATUS: ', 'YOUR TURN')
+        } else {
+          turnBanner.textContent = `${WIND_TILES[currentGameState.currentPlayer].toUpperCase()}'S TURN`
+          turnBanner.className = 'turn-banner'
+          addToChat('STATUS: ', `${WIND_TILES[currentGameState.currentPlayer].toUpperCase()} TURN`)
+        }
+
         if(currentPlayer.playerNumber != currentGameState.currentPlayer) {
           return
         } else {
