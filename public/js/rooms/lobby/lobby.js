@@ -9,9 +9,11 @@ const firebase = initializeApp(firebaseConfig)
 const auth = getAuth()
 const rtdb = getDatabase(firebase)
 const fsdb = getFirestore(firebase)
-connectAuthEmulator(auth, "http://localhost:9099")
-connectDatabaseEmulator(rtdb, "localhost", 9000)
-connectFirestoreEmulator(fsdb, "localhost", 8080)
+if (location.hostname === 'localhost') {
+  connectAuthEmulator(auth, "http://localhost:9099")
+  connectDatabaseEmulator(rtdb, "localhost", 9000)
+  connectFirestoreEmulator(fsdb, "localhost", 8080)
+}
 
 window.addEventListener('DOMContentLoaded', async ()=> {
   document.getElementById('logout').addEventListener('click', (ev)=> {
