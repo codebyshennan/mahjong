@@ -53,9 +53,9 @@ window.addEventListener('DOMContentLoaded', async ()=> {
       const startButton=document.getElementById('startButton')
       console.log(snapshot.size)
       if(snapshot.size == 4){
-       startButton.disabled == false
+       startButton.disabled = false
       } else {
-        startButton.disabled == true
+        startButton.disabled = true
       }
       snapshot.docs.forEach(doc=> {
         
