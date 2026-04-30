@@ -2,6 +2,7 @@ import sortHand from '../../utils/sorthand.js'
 import { refDeck } from '../../utils/makeDeck.js'
 import {timer, startTimer} from '../../utils/timer.js'
 import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from './tileset.js'
+import { checkWin } from '../../utils/winCheck.js'
 import { auth, rtdb, fsdb } from '../../firebase-init.js'
 export { fsdb }
 import { startDBSync } from '../../presence.js'
