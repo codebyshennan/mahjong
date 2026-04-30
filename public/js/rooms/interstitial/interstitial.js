@@ -57,21 +57,18 @@ window.addEventListener('DOMContentLoaded', async ()=> {
       } else {
         startButton.disabled = true
       }
-      snapshot.docs.forEach(doc=> {
-        
-        snapshot.docChanges().forEach(change=> {
-          console.log(change.doc)
-          const readyId = change.doc.id
-          const playerCard = document.getElementById(readyId);          
-          // const actionButton = playerCard.lastElementChild
-          playerCard.classList.toggle('deactivated')
-          // actionButton.classList.toggle('readiness')
-          if(change.type == 'added'){
-            // actionButton.textContent = "WAITING..."
-          } else if(change.type == 'removed'){
-            // actionButton.textContent = "READY"
-          }
-        })
+      snapshot.docChanges().forEach(change=> {
+        console.log(change.doc)
+        const readyId = change.doc.id
+        const playerCard = document.getElementById(readyId);
+        // const actionButton = playerCard.lastElementChild
+        playerCard.classList.toggle('deactivated')
+        // actionButton.classList.toggle('readiness')
+        if(change.type == 'added'){
+          // actionButton.textContent = "WAITING..."
+        } else if(change.type == 'removed'){
+          // actionButton.textContent = "READY"
+        }
       })
     }
   })
