@@ -19,9 +19,11 @@ const rtdb = getDatabase(firebase)
 export const fsdb = getFirestore(firebase)
 
 // EMULATORS FOR DEVELOPMENT
-connectAuthEmulator(auth, "http://localhost:9099")
-connectDatabaseEmulator(rtdb, "localhost", 9000)
-connectFirestoreEmulator(fsdb, "localhost", 8080)
+if (location.hostname === 'localhost') {
+  connectAuthEmulator(auth, "http://localhost:9099")
+  connectDatabaseEmulator(rtdb, "localhost", 9000)
+  connectFirestoreEmulator(fsdb, "localhost", 8080)
+}
 
 // STARTUP THE APPLICATION
 window.addEventListener('DOMContentLoaded', async () => {
