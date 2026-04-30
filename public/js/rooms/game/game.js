@@ -692,7 +692,23 @@ window.addEventListener('DOMContentLoaded', async () => {
     overlay.appendChild(playerEl)
     document.body.appendChild(overlay)
     updateGameState(gameState, 'wingame')
+    setDoc(gameStateRef, { winner: { uid: currentPlayer.id, name: currentPlayer.name, type } }, { merge: true })
     commitPlayerHandToFS(currentPlayer, gameState)
+  }
+
+  const showLossScreen = (winner) => {
+    const overlay = document.createElement('div')
+    overlay.id = 'winOverlay'
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:white;font-size:2rem;gap:1rem;'
+    const msgEl = document.createElement('div')
+    msgEl.textContent = '💀 Game Over!'
+    const winnerEl = document.createElement('div')
+    winnerEl.style.fontSize = '1rem'
+    const winType = winner.type === 'self-draw' ? '自摸 (Self Draw)' : '胡 (Discard Win)'
+    winnerEl.textContent = `${winner.name} wins by ${winType}`
+    overlay.appendChild(msgEl)
+    overlay.appendChild(winnerEl)
+    document.body.appendChild(overlay)
   }
 
   /*
