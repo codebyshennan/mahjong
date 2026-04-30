@@ -13,9 +13,7 @@ import {
   connectAuthEmulator } from 'firebase/auth'
 import admin from 'firebase-admin'
 import * as functions from 'firebase-functions/v1'
-// https://www.stefanjudis.com/snippets/how-to-import-json-files-in-es-modules-node-js/
 import { readFile } from 'fs/promises'
-const serviceAccount = JSON.parse(await readFile( new URL('./serviceAccountKey.json', import.meta.url)))
 
 // INITIALISING EXPRESS
 const app = express()
@@ -24,15 +22,25 @@ const app = express()
 const firebase = initializeApp(firebaseConfig)
 const auth = getAuth();
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://mahjong-7d9ae-default-rtdb.asia-southeast1.firebasedatabase.app"
-});
+const isEmulator = process.env.FUNCTIONS_EMULATOR === 'true'
+
+if (isEmulator) {
+  admin.initializeApp({
+    projectId: "mahjong-7d9ae",
+    databaseURL: "https://mahjong-7d9ae-default-rtdb.asia-southeast1.firebasedatabase.app"
+  })
+} else {
+  const serviceAccount = JSON.parse(await readFile(new URL('./serviceAccountKey.json', import.meta.url)))
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://mahjong-7d9ae-default-rtdb.asia-southeast1.firebasedatabase.app"
+  })
+}
 
 const rtdb = getDatabase(firebase)
 const fsdb = getFirestore(firebase)
 
-if (process.env.FUNCTIONS_EMULATOR === 'true') {
+if (isEmulator) {
   connectAuthEmulator(auth, "http://localhost:12088")
   connectDatabaseEmulator(rtdb, "localhost", 15047)
   connectFirestoreEmulator(fsdb, "localhost", 14701)
