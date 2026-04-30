@@ -8,7 +8,7 @@ const sortHand = (playerHand, by = 'name') => {
     })
   } else if(by=='index'){
     sortedPlayerHand.sort((firstCard,nextCard)=> {
-      return firstCard.index.toString().localeCompare(nextCard.index.toString());
+      return firstCard.index - nextCard.index;
     })
   }
   return sortedPlayerHand;
