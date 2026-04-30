@@ -493,6 +493,12 @@ window.addEventListener('DOMContentLoaded', async () => {
               let set = new Set(possibleMergeCombinations.map(JSON.stringify))
               let possibleUniqueCombinations = Array.from(set).map(JSON.parse)
 
+              // T6.3: only the player immediately right of the discarder can chow
+              const canChow = currentPlayer.playerNumber === (gameState.currentPlayer + 1) % 4
+              if (!canChow) {
+                possibleUniqueCombinations = possibleUniqueCombinations.filter(combo => combo[0] === combo[1])
+              }
+
               possibleUniqueCombinations.forEach(combo => {
                 const eatBtn = document.createElement('button')
                 eatBtn.className = 'waves-effect waves-light btn-small'
