@@ -403,7 +403,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         loggedInUser['photoURL'] = user.photoURL;
         const userName = document.getElementById('userName');
         userName.innerText = `Welcome ${user.displayName}`
-        startDBSync(loggedInUser)
+        startDBSync(loggedInUser, `status/${roomId}/players`)
         
       if(gameState.host == user.uid) {
         // starts the call-answer process
