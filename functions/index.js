@@ -14,7 +14,6 @@ import {
 import admin from 'firebase-admin'
 import * as functions from 'firebase-functions/v1'
 import { readFile } from 'fs/promises'
-import 'dotenv/config'
 
 const { FIREBASE_PROJECT_ID, FIREBASE_DATABASE_URL } = process.env
 
