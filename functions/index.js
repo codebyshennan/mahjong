@@ -1,14 +1,12 @@
 import express from 'express'
 import cors from 'cors'
 import { initializeApp } from 'firebase/app'
-// import { getAnalytics } from "firebase/analytics";
 import { getDatabase, connectDatabaseEmulator } from 'firebase/database'
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
 import firebaseConfig from './firebaseConfig.js'
 import {
   getAuth,
   signOut,
-  onAuthStateChanged,
   signInWithEmailAndPassword,
   connectAuthEmulator } from 'firebase/auth'
 import admin from 'firebase-admin'
@@ -17,12 +15,10 @@ import { readFile } from 'fs/promises'
 
 const { PROJECT_ID, DATABASE_URL } = process.env
 
-// INITIALISING EXPRESS
 const app = express()
 
-// INITIALIZING FIREBASE (RTDB FOR CHAT / FSDB FOR GAMES AND LOBBY)
 const firebase = initializeApp(firebaseConfig)
-const auth = getAuth();
+const auth = getAuth()
 
 const isEmulator = process.env.FUNCTIONS_EMULATOR === 'true'
 
@@ -43,39 +39,42 @@ const rtdb = getDatabase(firebase)
 const fsdb = getFirestore(firebase)
 
 if (isEmulator) {
-  connectAuthEmulator(auth, "http://localhost:12088")
-  connectDatabaseEmulator(rtdb, "localhost", 15047)
-  connectFirestoreEmulator(fsdb, "localhost", 14701)
+  connectAuthEmulator(auth, 'http://localhost:12088')
+  connectDatabaseEmulator(rtdb, 'localhost', 15047)
+  connectFirestoreEmulator(fsdb, 'localhost', 14701)
 }
-// const analytics = getAnalytics(firebase)
 
-const firestore=admin.firestore()
+const firestore = admin.firestore()
 
-// GLOBAL APP CONFIG FOR EXPRESS
-app.set('view engine','ejs')
-// app.use(express.static('public'))
+const allowedOrigins = isEmulator
+  ? ['http://localhost:5000', 'http://127.0.0.1:5000']
+  : ['https://mahjong-7d9ae.firebaseapp.com', 'https://mahjong-7d9ae.web.app']
+
+app.set('view engine', 'ejs')
 app.use(express.json())
-app.use(express.urlencoded({
-  extended: true
-}))
-app.use(cors())
+app.use(express.urlencoded({ extended: true }))
+app.use(cors({ origin: allowedOrigins }))
 
-// ROUTES
-// DEFAULT
-app.get('/', (req,res)=>{
+// Room/game IDs are UUIDs — reject anything else to prevent XSS in EJS injection
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+app.get('/', (req, res) => {
   res.redirect('/login')
 })
 
-// REGISTER NEW USERS
-app.get('/register', (req,res)=>{
-  res.set('Cache-Control', 'public, max-age=300,s-max=600')
+app.get('/register', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, s-maxage=600')
   res.render('register')
 })
-.post('/register', (req,res)=>{
-  res.set('Cache-Control', 'public, max-age=300,s-max=600')
-  const { firstname, lastname, email, password} = req.body
-  // create new users
-  
+
+app.post('/register', (req, res) => {
+  const { firstname, lastname, email, password } = req.body
+  if (!firstname || !lastname || !email || !password) {
+    return res.status(400).send('All fields are required')
+  }
+  if (password.length < 6) {
+    return res.status(400).send('Password must be at least 6 characters')
+  }
   admin.auth().createUser({
     email,
     password,
@@ -83,152 +82,88 @@ app.get('/register', (req,res)=>{
   }).then(() => {
     res.redirect('/login')
   }).catch((error) => {
-    const errorCode = error.code
-    const errorMessage = error.message
-    console.error('Registration error:', errorCode, errorMessage)
-    res.status(400).send(errorMessage)
+    console.error('Registration error:', error.code, error.message)
+    res.status(400).send('Registration failed: ' + error.code)
   })
-    // res.redirect('/login')
 })
 
-// LOGIN 
-app.get('/login', (req,res)=>{
-  res.set('Cache-Control', 'public, max-age=300,s-max=600')
+app.get('/login', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=300, s-maxage=600')
   res.render('login')
 })
 
-app.post('/login/form', (req,res)=> {
-  // res.set('Cache-Control', 'public, max-age=300,s-max=600')
+app.post('/login/form', (req, res) => {
   const { email, password } = req.body
-  const auth = getAuth()
   signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential)=> {
-      const user = userCredential.user;
-      console.log(user)
-      // TODO: save it in localstorage for persistence
+    .then((userCredential) => {
+      console.log('Signed in:', userCredential.user.uid)
       res.redirect('/lobby')
-    }).catch((error)=> {
-      const errorCode = error.code
-      const errorMessage = error.message;
-      // TODO: toastr this shit
+    }).catch((error) => {
+      console.error('Login error:', error.code, error.message)
+      res.redirect('/login?error=' + encodeURIComponent(error.code))
     })
 })
 
-
-// SIGN OUT
-app.post('/signout',(req,res)=> {
-  const auth = getAuth()
-  signOut(auth).then(()=>{
-    // sign out successful
+app.post('/signout', (req, res) => {
+  signOut(auth).then(() => {
     console.log('Signed out')
-  }).catch((error)=> {
+    res.redirect('/login')
+  }).catch((error) => {
     console.error(error)
+    res.redirect('/login')
   })
 })
 
-// ROOM STRUCTURE
-// LOBBY -> INTERSTITIAL -> GAME
-
-// << LOBBY >>
-// After you login and authenticate, it will bring you to a game lobby
-// Game lobby (SPA) will display the available games within the server
-// Lobby allows you to create or join rooms
-app.get('/lobby', (req,res)=> {
+app.get('/lobby', (req, res) => {
   res.render('lobby')
 })
 
-// INTERSTITIAL
-// After you create a room, you get into the waiting area where players can chat and indicate if they are ready or not. 
-// Once all are ready, the host can start the game, and all players are transported to a room with an already established game room id
-app.get('/interstitial/:key', (req,res)=>{
-  // TODO: use the admin sdk to check if the room is 
-  // if(room) {
-    res.render('interstitial', {roomKey: req.params.key})
-  // }
+app.get('/interstitial/:key', (req, res) => {
+  if (!UUID_REGEX.test(req.params.key)) {
+    return res.redirect('/lobby')
+  }
+  res.render('interstitial', { roomKey: req.params.key })
 })
 
-app.post('/interstitial/createGame', (req,res)=>{
-  
+app.post('/interstitial/createGame', (req, res) => {
+  res.status(501).send('Not implemented')
 })
 
-
-// In the gameroom, the client js file reads the rtdb for the 
-app.get('/game/:room', (req,res)=> {
-  res.render('game', {roomId: req.params.room})
+app.get('/game/:room', (req, res) => {
+  if (!UUID_REGEX.test(req.params.room)) {
+    return res.redirect('/lobby')
+  }
+  res.render('game', { roomId: req.params.room })
 })
 
 export const application = functions.https.onRequest(app)
+
 export const onUserStatusChanged = functions.database.ref('/status/{roomId}/players/{uid}').onUpdate(
   async (change, context) => {
-    // get the data written to rtdb
     const eventStatus = change.after.val()
-    // then use other event data to create a ref to the corresponding firestore document
     const userStatusFirestoreRef = firestore.doc(`status/${context.params.roomId}/players/${context.params.uid}`)
-
-    // it is likely that the rtdb that triggered this event has already been overwritten 
-    // by a fast change in the online/offline status, so we'll re-read the current data and compare the timestamps
-
     const statusSnapshot = await change.after.ref.once('value')
     const status = statusSnapshot.val()
-    functions.logger.log(status, eventStatus);
-
-    // if the current timestamp for this data is newer than the data that triggered this event, we exit this fn
-    if(status.last_changed > eventStatus.last_changed) {
-      return null;
+    functions.logger.log(status, eventStatus)
+    if (status.last_changed > eventStatus.last_changed) {
+      return null
     }
-
-    // otherwise, we convert the last_changed field to a Date
     eventStatus.last_changed = new Date(eventStatus.last_changed)
-    console.log('New Event', eventStatus)
-    // and write it to firestore
     return userStatusFirestoreRef.set(eventStatus)
   }
 )
+
 export const onLobbyStatusChanged = functions.database.ref('/online/{uid}').onUpdate(
   async (change, context) => {
-    // get the data written to rtdb
     const lobbyStatus = change.after.val()
-    // then use other event data to create a ref to the corresponding firestore document
     const lobbyStatusFSRef = firestore.doc(`online/${context.params.uid}`)
-
-    // it is likely that the rtdb that triggered this event has already been overwritten 
-    // by a fast change in the online/offline status, so we'll re-read the current data and compare the timestamps
-
     const lobbyStatusSnapShot = await change.after.ref.once('value')
     const statusSnapShot = lobbyStatusSnapShot.val()
-    functions.logger.log(statusSnapShot, lobbyStatus);
-
-    // if the current timestamp for this data is newer than the data that triggered this event, we exit this fn
-    if(statusSnapShot.last_changed > lobbyStatus.last_changed) {
-      return null;
+    functions.logger.log(statusSnapShot, lobbyStatus)
+    if (statusSnapShot.last_changed > lobbyStatus.last_changed) {
+      return null
     }
-
-    // otherwise, we convert the last_changed field to a Date
     lobbyStatus.last_changed = new Date(lobbyStatus.last_changed)
-    console.log('New Event', lobbyStatus)
-    // and write it to firestore
     return lobbyStatusFSRef.set(lobbyStatus)
   }
 )
-
-
-// // CHECK WIN FUNCTIONS
-// export const checkWinningHand = functions.firestore.document('games/{gameId}/players/{playerId}/tiles/playerHand').onUpdate(
-//   async(change, context)=> {
-//     const playerHandStatus = change.after.val()
-//     const playerCheckedRef = firestore.doc(`games/${context.params.gameId}/players/${context.params.playerId}/tiles/playerChecked`)
-//     const playerCheckedStatus = await getDoc(playerCheckedRef)
-//     // data => playerChecked.data()
-//     // checkwin logic (playerHandStatus, playerCheckedStatus)
-    
-//     const winningCombi = {
-//       winner: `${context.params.playerId}`,
-//       combination: playerHandStatus,
-//       checked: playerCheckedStatus
-//     }
-
-//     const winnerRef = firestore.doc(`games/${context.params.gameId}`) 
-//     return winnerRef.set(winningCombi)
-//   }
-
-
