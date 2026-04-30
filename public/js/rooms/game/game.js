@@ -253,6 +253,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           return true
         }
         // highlight the tiles to be eaten
+        return false
       } else {
         // deconstruct the discarded tile (numbered) to get the name and number
         let hasOutcome = false
