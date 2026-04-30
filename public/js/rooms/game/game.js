@@ -226,7 +226,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         arrayOfTileNames.forEach((tilename,index) => {
           const tiles = document.querySelectorAll(`.${tilename}`)
           const idx = tiles.length > 1 ? index : 0
-          tiles[idx].classList.add(`'${type}'`)
+          tiles[idx].classList.add(type)
           tiles[idx].style.border = '2px solid red'
         })
       }
