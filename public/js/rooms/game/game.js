@@ -596,7 +596,7 @@ window.addEventListener('DOMContentLoaded', async () => {
                   // TODO: eat the tiles based on the combinations
                   const tileCombiToCheck = ev.target.id.split(',')
                   currentPlayer.eatTile(lastDiscardedTile, tileCombiToCheck)
-                  renderPlayerTiles(currentPlayer.playerHand,currentPlayer.playerChecked, currentPlayer.playerDiscarded)=
+                  renderPlayerTiles(currentPlayer.playerHand,currentPlayer.playerChecked, currentPlayer.playerDiscarded)
                   timer.clearAll()
                   updateGameState(gameState,'eattiles')
                 })
