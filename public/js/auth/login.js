@@ -1,12 +1,6 @@
-import firebaseConfig from '../config.js'
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-import { getAuth, signInWithPopup, onAuthStateChanged, createUserWithEmailAndPassword, connectAuthEmulator, GoogleAuthProvider, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
+import { auth } from '../firebase-init.js'
+import { signInWithPopup, onAuthStateChanged, createUserWithEmailAndPassword, GoogleAuthProvider, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
 
-const firebase = initializeApp(firebaseConfig)
-// const db = getDatabase(firebase)
-
-const auth = getAuth()
-connectAuthEmulator(auth, "http://localhost:9099")
 const GoogleProvider = new GoogleAuthProvider();
 const FacebookProvider = new FacebookAuthProvider();
 // const facebookProvider = new firebase.auth.FacebookAuthProvider()
