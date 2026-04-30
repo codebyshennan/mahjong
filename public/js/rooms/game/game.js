@@ -719,7 +719,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         gameState.currentTurnNo++
         // updateGameLog()
         const timerDisplay = document.getElementById('timer')
-        startTimer(10, timerDisplay, currentPlayer.skipTurn)
+        startTimer(10, timerDisplay, () => skipTurn(currentPlayer))
         break;
 
       case 'wingame':
