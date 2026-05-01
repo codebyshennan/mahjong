@@ -464,6 +464,23 @@ window.addEventListener('DOMContentLoaded', async () => {
       renderPlayerTiles(mainPlayerHand, mainPlayerChecked, mainPlayerDiscarded)
       currentPlayer = new Player(metaInfo.id, metaInfo.name, metaInfo.wind, metaInfo.playerNumber, metaInfo.chips, mainPlayerHand, mainPlayerDiscarded, mainPlayerChecked, metaInfo.currentScore)
 
+      // POPULATE SEAT LABELS (own + 3 opponents)
+      document.getElementById('mainSeatLabel').textContent =
+        `${currentPlayer.name} · ${chineseChars[currentPlayer.wind]}`
+
+      const seatLabelIds = ['rightSeatLabel', 'topSeatLabel', 'leftSeatLabel']
+      for(let i = 0; i < 3; i += 1) {
+        const opponentUid = playersDiv[i].id
+        const opponentWindKey = playerWind[i].id
+        const opponentMetaRef = doc(fsdb, 'games', roomId, 'players', opponentUid)
+                                  .withConverter(playerMetaInfoConverter)
+        const opponentMeta = (await getDoc(opponentMetaRef)).data()
+        if (opponentMeta) {
+          document.getElementById(seatLabelIds[i]).textContent =
+            `${opponentMeta.name} · ${chineseChars[opponentWindKey]}`
+        }
+      }
+
       // RENDER OTHER PLAYER TILES
       for(let i=0; i<3;i+=1){
         onSnapshot(checkedRefs[i], (snapshot)=> {
