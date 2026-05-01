@@ -433,16 +433,24 @@ nav ul.right li:hover { color: var(--seal); cursor: pointer; }
 .leftcontrols   .playerWind { transform: rotate(-135deg); }
 
 /* game.js sets `style.backgroundColor = 'tomato'` on the active-wind quadrant.
-   Catch that inline declaration via attribute selectors and translate it
-   into a calm seal-stamp glow that matches the palette. */
+   The quadrant is a rotated square that extends past the etched diamond border,
+   so a solid fill leaks visibly. Translate it into a radial-gradient glow
+   contained near the wind glyph instead. */
 #playerControls > div { background-color: transparent !important; }
 #playerControls > div[style*="tomato"] {
-  background-color: oklch(70% 0.13 38 / 0.16) !important;
-  box-shadow: inset 0 0 0 1px var(--seal-soft);
+  background-color: transparent !important;
+  background-image:
+    radial-gradient(
+      circle at 50% 80%,
+      oklch(70% 0.13 38 / 0.32) 0%,
+      oklch(70% 0.13 38 / 0.12) 28%,
+      transparent 55%
+    ) !important;
 }
 #playerControls > div[style*="tomato"] .playerWind {
   color: var(--seal);
   text-shadow: 0 0 22px oklch(70% 0.13 38 / 0.45);
+  font-weight: 500;
 }
 
 /* Strip any leftover hover-tomato behavior from older rules. */
