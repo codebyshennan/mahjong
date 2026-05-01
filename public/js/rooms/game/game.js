@@ -8,7 +8,7 @@ export { fsdb }
 import { startDBSync } from '../../presence.js'
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
 import { ref, push, set, onChildAdded } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-database.js'
-import { collection, getDocs, doc, getDoc, setDoc, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp, writeBatch} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
+import { collection, getDocs, doc, getDoc, setDoc, updateDoc, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, query, where, serverTimestamp as fsServerTimestamp, writeBatch} from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
 import { playerMetaInfoConverter, playerCheckedConverter, playerHandConverter, playerDiscardedConverter } from './converters.js'
 // import { hostCalling, guestsAnswering } from './gameroom.js'
 
