@@ -250,29 +250,30 @@ Findings ordered by severity within each category.
 - **File:** `lobby.js:266-278` and `lobby.js:285-302` — two separate `onSnapshot` on the same `lobby` collection
 - **Impact:** Second listener only logs to console — pure development leftover.
 
-### T5.7 Functions `package.json` has client-side deps
-- **File:** `functions/package.json` — includes `interactjs`, `toastr`, `socket.io-client`
-- **Impact:** Bloats the Cloud Functions deployment bundle unnecessarily.
+### T5.7 Functions `package.json` has client-side deps ✅ (phase 2)
+- `functions/package.json` now contains only server deps (`cors`, `ejs`, `express`, `firebase-admin`, `firebase-functions`).
 
-### T5.8 Root and functions `package.json` are near-identical
-- **Impact:** Both contain the exact same dependencies. The root one is for the client build (webpack), the functions one is for Cloud Functions. But client JS uses CDN imports, not bundled packages — most root deps are unused.
+### T5.8 Root and functions `package.json` are near-identical ✅ (phase 2)
+- Root `package.json` no longer carries client/build deps. Webpack was dropped; client JS is loaded directly via CDN ES module imports.
 
-### T5.9 `http` package is a security placeholder
-- **Files:** Both `package.json` files — `"http": "^0.0.1-security"` does nothing
-- **Fix:** Remove.
+### T5.9 `http` package is a security placeholder ✅ (phase 2)
+- Removed from both manifests during the package cleanup.
 
-### T5.10 Missing dev dependencies
-- `@babel/preset-env`, `sass-loader`, `webpack-merge` — referenced in webpack config but not in `devDependencies`
+### T5.10 Missing dev dependencies ✅ (phase 2 — moot)
+- Webpack tooling was removed entirely, so `@babel/preset-env`, `sass-loader`, `webpack-merge` are no longer referenced.
 
-### T5.11 Dead code files
+### T5.11 Dead code files ✅ (phase 4)
 | File | Status |
 |------|--------|
-| `splitdeck.js` | Never imported. Also has invalid `export default splitDeck = ...` syntax. |
-| `showHandCombinations.js` | Never imported. References undefined `sortedHand`, `tallyByName`. |
-| `winningCombinations.js` | Never imported. References undefined `sortHand`, `getPlayerTally`. Broken logic. |
-| `interactivity.mjs` | Never loaded (script tag commented out in `game.ejs`). |
-| `diceroll.js` | Imported in `game.js` and `interstitial.js` but never called. |
-| `experimental.css` | Stylesheet link commented out in `game.ejs`. |
+| `splitdeck.js` | Already removed. |
+| `showHandCombinations.js` | Already removed. |
+| `winningCombinations.js` | Already removed. |
+| `diceroll.js` | Already removed. |
+| `gameroom.js` | Removed (phase 4) — was already script-tag-disabled; T1.5 camera issue resolved. |
+| `interactivity.mjs` | Removed (phase 4) — never loaded. |
+| `videostreaming.mjs` | Removed (phase 4) — peer.js never loaded; non-functional. |
+| `experimental.css` | Removed (phase 4) — never linked from any view. |
+| `rooms/firebase/initFirebase.js` | Removed (phase 4) — superseded by `public/js/firebase-init.js`. |
 
 ### T5.12 `highlightTilesToBeMergedWith` adds CSS class with quotes in name
 - **File:** `game.js:238` and `Player.js:33` — `tiles[idx].classList.add(\`'${type}'\`)`
