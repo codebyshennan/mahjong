@@ -208,6 +208,46 @@ nav ul.right li:hover { color: var(--seal); cursor: pointer; }
 .leftplayer   { grid-area: leftplayer;   flex-direction: column; }
 .rightplayer  { grid-area: rightplayer;  flex-direction: column; }
 
+/* Seat labels — small ink stamps showing each opponent's name and wind.
+   Empty by default; populated by client JS when player metadata is available. */
+.seat-label {
+  font-family: var(--hand);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  background: var(--paper);
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid oklch(60% 0.04 162 / 0.30);
+  box-shadow: 0 1px 2px oklch(30% 0.04 162 / 0.12),
+              0 4px 10px oklch(30% 0.04 162 / 0.08);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.seat-label:empty { display: none; }
+.seat-label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink-faint);
+  flex: 0 0 auto;
+}
+.seat-label.is-active::before { background: var(--seal); }
+.seat-label.is-active {
+  background: var(--paper-soft);
+  border-color: var(--seal-soft);
+  color: var(--seal);
+}
+.seat-label--main {
+  align-self: center;
+}
+
 /* Hands — flow direction by seat */
 .topHand,    .topChecked    { display: flex; gap: 2px; flex-direction: row; flex-wrap: nowrap; }
 .leftHand,   .leftChecked   { display: flex; gap: 2px; flex-direction: column; flex-wrap: nowrap; align-items: center; }
