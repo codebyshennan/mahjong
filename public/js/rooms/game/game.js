@@ -522,17 +522,15 @@ window.addEventListener('DOMContentLoaded', async () => {
         })
       }
 
-      // render dummy tiles
+      // render opponent hand backs (face-down jade tiles)
       for(let i=0; i<3;i+=1){
         const playerHands = ['rightPlayer','topPlayer','leftPlayer']
         const destination = document.getElementById(`${playerHands[i]}Hand`)
         for(let j=0; j<14;j+=1){
-          const tileContainer = document.createElement('div')
-          tileContainer.classList.add('tile')
-          const tileImg = document.createElement('img')
-          tileImg.style.backgroundColor = 'limegreen'
-          tileContainer.appendChild(tileImg)
-          destination.appendChild(tileContainer)
+          const tileBack = document.createElement('div')
+          tileBack.classList.add('tile', 'tile--back')
+          tileBack.setAttribute('aria-hidden', 'true')
+          destination.appendChild(tileBack)
         }
       }
 
