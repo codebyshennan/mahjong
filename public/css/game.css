@@ -415,12 +415,21 @@ nav ul.right li:hover { color: var(--seal); cursor: pointer; }
 .topcontrols    .playerWind { transform: rotate(135deg); }
 .leftcontrols   .playerWind { transform: rotate(-135deg); }
 
-/* Override hover-tomato from old stylesheet (it inherits via .square > div:hover). */
-.square > div:hover { background: transparent; }
-.square > div:hover .playerWind {
-  color: var(--seal);
-  text-shadow: 0 0 18px oklch(70% 0.13 38 / 0.30);
+/* game.js sets `style.backgroundColor = 'tomato'` on the active-wind quadrant.
+   Catch that inline declaration via attribute selectors and translate it
+   into a calm seal-stamp glow that matches the palette. */
+#playerControls > div { background-color: transparent !important; }
+#playerControls > div[style*="tomato"] {
+  background-color: oklch(70% 0.13 38 / 0.16) !important;
+  box-shadow: inset 0 0 0 1px var(--seal-soft);
 }
+#playerControls > div[style*="tomato"] .playerWind {
+  color: var(--seal);
+  text-shadow: 0 0 22px oklch(70% 0.13 38 / 0.45);
+}
+
+/* Strip any leftover hover-tomato behavior from older rules. */
+.square > div:hover { background: transparent; }
 
 /* Centre disk — paper plate with thin SVG-ring timer */
 .circle {
