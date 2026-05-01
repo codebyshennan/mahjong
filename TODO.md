@@ -22,11 +22,11 @@ Findings ordered by severity within each category.
 - **File:** `game.js:67-75` — `commitPlayerHandToFS` saves hand/checked/discarded/gameState but NOT the deck
 - **Impact:** Every player reads the same unmodified deck and draws duplicate tiles. Core multiplayer is broken.
 
-### T1.4 Build pipeline is broken — webpack entry point doesn't exist
-- **File:** `webpack_conf/webpack.common.js:6` — entry `./src/index.js` but no `src/` directory exists
-- **File:** `.github/workflows/` — CI runs `npm ci && npm run build` on every push to master
-- **Impact:** Every CI deploy has been failing. `npm run build` and `npm run watch` crash immediately.
-- **Fix:** Either create `src/index.js` or remove webpack (currently only used for SCSS bundling).
+### T1.4 Build pipeline is broken — webpack template doesn't exist
+- **File:** `webpack_conf/webpack.dev.js:32` and `webpack_conf/webpack.prod.js:13` — template `src/main.html` does not exist
+- **File:** `.github/workflows/` — CI runs `pnpm install --frozen-lockfile && pnpm run build` on every push to master
+- **Impact:** Every CI deploy has been failing. `pnpm run build` and `pnpm run watch` crash immediately.
+- **Fix:** Either create `src/main.html` or remove webpack (currently only used for SCSS bundling).
 
 ### T1.5 `gameroom.js` camera permission blocks game loading
 - **File:** `game.ejs:68` — `<script type="module" src="/js/rooms/game/gameroom.js" defer>`
@@ -126,46 +126,38 @@ Findings ordered by severity within each category.
 
 ## T3 — Security
 
-### T3.1 Firestore rules are completely open
-- **File:** `firestore.rules` — `allow read, write` on all documents
-- **Impact:** Any user (even unauthenticated) can read other players' hands, modify game state, impersonate players, or delete rooms.
+### T3.1 Firestore rules are completely open ✅ (phase 3)
+- Rules now scope per collection. Hidden hand: `games/{roomId}/players/{uid}/tiles/playerHand` is readable only by the owner. Presence (`online/{uid}`, `status/{roomId}/players/{uid}`) and readiness (`lobby/{roomId}/readiness/{uid}`) writes are owner-only. Lobby/gameState/deck remain authed read+write — full ownership requires moving game logic into Cloud Functions (out of scope).
 
-### T3.2 RTDB rules expired in 2021
-- **File:** `database.rules.json` — `"now < 1634918400000"` (2021-10-23)
-- **Impact:** Database is locked (Firebase denies all access after rule timestamp expires unless default is open). Presence system may silently fail.
+### T3.2 RTDB rules expired in 2021 ✅ (phase 3)
+- Rules now scope by path. `online/{uid}` and `status/{roomId}/players/{uid}` writes locked to owner. Chat under `interstitial/{roomId}/chats` and `games/{roomId}/chats` is write-once for any authed user (existing messages cannot be edited or deleted). No expiry timestamp.
 
-### T3.3 XSS via innerHTML in chat
-- **Files:** `game.js:745`, `lobby.js:137`, `interstitial.js:223` — `item.innerHTML = \`<strong>${name}</strong> ${message}\``
-- **Impact:** Chat messages from Firestore are inserted as raw HTML. A player can inject `<img onerror="...">` or `<script>` via their display name or message content.
+### T3.3 XSS via innerHTML in chat ✅ (earlier phase)
+- All chat renderers in `game.js`, `lobby.js`, `interstitial.js` now use `textContent` + `createTextNode`.
 
-### T3.4 XSS via innerHTML in lobby room cards
-- **File:** `lobby.js:224-234,246-256` — room cards use `innerHTML` with `room.host.displayName.toUpperCase()` and `room.playerCount` sourced from Firestore (which is wide open per T3.1).
+### T3.4 XSS via innerHTML in lobby room cards ✅ (earlier phase)
+- `lobby.js` `buildRoomCard` builds cards with `createElement` + `textContent` only.
 
-### T3.5 Unescaped EJS template variables
-- **File:** `game.ejs:12` — `const roomId = "<%=roomId%>"` — if room ID contains `"</script>`, it breaks out of the script tag. Use `<%- JSON.stringify(roomId) %>`.
-- **File:** `interstitial.ejs:120` — same issue with `roomKey`.
+### T3.5 Unescaped EJS template variables ✅ (earlier phase)
+- `game.ejs:10` and `interstitial.ejs:120` use `<%- JSON.stringify(...) %>`. Server also rejects non-UUID room/game keys before render (`functions/index.js:38`).
 
-### T3.6 Emulator connections hardcoded in production
-- **Files:** `game.js:22-24`, `lobby.js:12-14`, `interstitial.js:21-23`, `login.js:9`
-- **Impact:** In production, these calls attempt to connect to `localhost` emulators. Depending on Firebase SDK version behavior, this either silently fails (using production) or throws and prevents the app from loading.
-- **Fix:** Gate behind `location.hostname === 'localhost'` check.
+### T3.6 Emulator connections hardcoded in production ✅ (earlier phase)
+- Single gated init in `public/js/firebase-init.js` checks `localhost`/`127.0.0.1`.
 
-### T3.7 Server uses client SDK for auth
-- **File:** `functions/index.js:69-85` — `createUserWithEmailAndPassword(auth, email, password)` uses the client-side Firebase Auth SDK in Cloud Functions
-- **Impact:** Cloud Functions should use the Admin SDK for user management. The client SDK maintains a session state that doesn't work in a stateless Cloud Function environment. Also, `userCredential.updateProfile(...)` at line 71 doesn't exist — `updateProfile` is on `userCredential.user`, not the credential itself.
+### T3.7 Server uses client SDK for auth ✅ (earlier phase)
+- `functions/index.js` uses `admin.auth().createUser(...)` (Admin SDK).
 
-### T3.8 Registration logs password to console
-- **File:** `functions/index.js:65` — `console.log(firstname, lastname, email, password)` — plaintext password in Cloud Functions logs.
+### T3.8 Registration logs password to console ✅ (earlier phase)
+- Password no longer logged; only `error.code`/`error.message` written on failure.
 
-### T3.9 No CSRF protection on POST routes
-- **Files:** `/register`, `/login/form`, `/signout` — standard Express form POSTs with no CSRF token.
+### T3.9 No CSRF protection on POST routes — DEFERRED
+- Adds a session-middleware dependency for a single `POST /register` route. Out of scope for phase 3.
 
-### T3.10 Uncontrolled `photoURL` used as `img.src`
-- **File:** `interstitial.js:246` — `displayImg.src = player.photoURL ? player.photoURL : '...'`
-- **Impact:** `photoURL` comes from Firestore (wide open). A malicious value like `javascript:alert(1)` may not execute in modern browsers on `img.src`, but could be used for SSRF tracking pixels or data exfiltration via a controlled URL.
+### T3.10 Uncontrolled `photoURL` used as `img.src` — DEFERRED
+- `photoURL` is set by the user themselves and now T3.1 prevents others from injecting into another user's profile doc. `img.src` does not execute `javascript:` in modern browsers; risk is limited to self-pointed tracking. Not a phase 3 blocker.
 
-### T3.11 `serviceAccountKey.json` loaded at runtime
-- **File:** `functions/index.js:19` — `readFile('./serviceAccountKey.json')` — while gitignored, this file is deployed with the function bundle. If the function errors and exposes the path, the key could leak.
+### T3.11 `serviceAccountKey.json` loaded at runtime — DEFERRED
+- Replacing with `admin.initializeApp()` (ADC) requires testing the deploy path. Out of scope for phase 3.
 
 ---
 
@@ -396,12 +388,12 @@ Findings ordered by severity within each category.
 - `actions/checkout@v2` → should be `v4`
 - `FirebaseExtended/action-hosting-deploy@v0` → should be latest
 
-### T8.2 CI doesn't install functions dependencies
-- Workflow only runs `npm ci && npm run build` in root
-- `functions/` has its own `package.json` and needs separate `cd functions && npm ci`
+### T8.2 CI installs functions dependencies separately
+- Workflow runs `pnpm install --frozen-lockfile` in root
+- `functions/` has its own `package.json` and needs separate `pnpm --dir functions install --frozen-lockfile`
 
 ### T8.3 No test step in CI
-- `npm test` is a no-op (`echo "Error: no test specified"`)
+- `pnpm test` is a no-op (`echo "Error: no test specified"`)
 - No linting step either
 
 ---
