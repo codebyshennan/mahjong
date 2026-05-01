@@ -374,11 +374,11 @@ nav ul.right li:hover { color: var(--seal); cursor: pointer; }
     inset 0 0 0 1px oklch(95% 0.03 162 / 0.20);
 }
 
-/* The 4 rotated wind quadrants — preserve existing JS hooks */
+/* The 4 rotated wind quadrants — preserve existing JS geometry. */
 .topcontrols, .leftcontrols, .rightcontrols, .bottomcontrols {
   position: absolute;
-  height: 50%;
-  width: 50%;
+  height: calc(100% / 1.414);
+  width: calc(100% / 1.414);
   top: 50%;
   left: 50%;
   transform-origin: 0% 0%;
@@ -387,6 +387,7 @@ nav ul.right li:hover { color: var(--seal); cursor: pointer; }
   justify-content: center;
   pointer-events: none;
   border: none !important;
+  border-radius: 4px;
 }
 .rightcontrols  { transform: rotate(-45deg); }
 .bottomcontrols { transform: rotate(45deg); }
