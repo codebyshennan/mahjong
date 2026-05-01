@@ -619,12 +619,13 @@ window.addEventListener('DOMContentLoaded', async () => {
           return
         } else {
           startTimer(10, timerDisplay, () => skipTurn(currentPlayer))
-          // restart timer
-          // display turn no to everyone
-          // check if turn is own
-          // if not, ignore and start timer
 
-          // if it is, get the deck, draw a tile, and update the deck
+          // If the eater just took from a discard, they don't draw — they discard next.
+          if (currentGameState.awaitingDiscard) {
+            return
+          }
+
+          // Otherwise: fresh turn. Draw a tile from the deck.
           const deckRef = doc(fsdb, 'games', roomId, 'deck','deckInPlay')
           deckInPlay = (await getDoc(deckRef)).data().deckInPlay
           currentPlayer.drawTile()
