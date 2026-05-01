@@ -331,13 +331,11 @@ nav ul.right li:hover { color: var(--seal); cursor: pointer; }
   filter: saturate(0.92);
 }
 
-/* Opponent hands — show as JADE BACKS, not ivory faces.
-   game.js renders dummy <img> with inline `background-color: limegreen`,
-   so we override with !important and paint a bamboo-back over it. */
-#topPlayerHand   .tile > *,
-#leftPlayerHand  .tile > *,
-#rightPlayerHand .tile > * {
-  background-color: var(--jade) !important;
+/* Opponent hands — show as JADE BACKS, not ivory faces. */
+.tile--back {
+  width: 26px;
+  height: 32px;
+  background-color: var(--jade);
   background-image:
     repeating-linear-gradient(
       90deg,
@@ -345,15 +343,13 @@ nav ul.right li:hover { color: var(--seal); cursor: pointer; }
       oklch(56% 0.07 162 / 0.30) 6px 7px,
       transparent 7px 12px
     ),
-    linear-gradient(160deg, var(--jade) 0%, var(--jade-shade) 100%) !important;
-  border: 1px solid var(--jade-line) !important;
-  border-radius: 4px !important;
+    linear-gradient(160deg, var(--jade) 0%, var(--jade-shade) 100%);
+  border: 1px solid var(--jade-line);
+  border-radius: 4px;
   box-shadow:
     inset 0 1px 0 oklch(82% 0.05 162 / 0.6),
     inset 0 -2px 0 oklch(48% 0.07 162 / 0.55),
-    0 1px 2px oklch(30% 0.04 162 / 0.20) !important;
-  width: 26px !important;
-  height: 32px !important;
+    0 1px 2px oklch(30% 0.04 162 / 0.20);
 }
 #topPlayerHand .tile { margin: 0 1px; }
 #leftPlayerHand .tile, #rightPlayerHand .tile { margin: 1px 0; }
