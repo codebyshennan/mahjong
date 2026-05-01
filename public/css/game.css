@@ -1,337 +1,725 @@
+/* ============================================================
+   麻将之王 — game table
+   Aesthetic: clean tea-house meets Viwawa warmth
+   Light theme, OKLCH palette, paper-and-felt material vocabulary.
+   ============================================================ */
+
+:root {
+  /* Surfaces — warm cream / rice paper / celadon felt */
+  --paper:        oklch(96.5% 0.012 82);
+  --paper-soft:   oklch(94%   0.014 82);
+  --paper-edge:   oklch(89%   0.018 82);
+
+  --felt:         oklch(86%   0.030 162);
+  --felt-shade:   oklch(81%   0.034 162);
+  --felt-deep:    oklch(74%   0.040 162);
+
+  /* Tile faces — ivory with cool inner shadow */
+  --ivory:        oklch(97.5% 0.013 82);
+  --ivory-shade:  oklch(93%   0.018 82);
+  --ivory-line:   oklch(80%   0.020 82);
+
+  /* Tile backs — jade panel (Viwawa nostalgia) */
+  --jade:         oklch(70%   0.075 162);
+  --jade-shade:   oklch(60%   0.080 162);
+  --jade-line:    oklch(48%   0.060 162);
+
+  /* Wood frame — aged rosewood, used sparingly */
+  --wood:         oklch(48%   0.045 38);
+  --wood-deep:    oklch(36%   0.045 38);
+
+  /* Ink (text) — warm-tinted near-black, never pure */
+  --ink:          oklch(24%   0.020 82);
+  --ink-soft:     oklch(38%   0.018 82);
+  --ink-mute:     oklch(58%   0.014 82);
+  --ink-faint:    oklch(72%   0.010 82);
+
+  /* Single bold accent — vermillion seal-stamp red. Used at ~5% */
+  --seal:         oklch(60%   0.165 38);
+  --seal-soft:    oklch(70%   0.130 38);
+
+  /* Brass highlight — for soft warm glows */
+  --brass:        oklch(80%   0.095 78);
+
+  /* Spacing scale (4pt) */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+
+  /* Type */
+  --serif: "Spectral", "LXGW WenKai TC", ui-serif, Georgia, serif;
+  --hand:  "LXGW WenKai TC", "Spectral", ui-serif, serif;
+
+  --shadow-rest:  0 1px 2px oklch(30% 0.02 82 / 0.10),
+                  0 4px 12px oklch(30% 0.02 82 / 0.06);
+  --shadow-lift:  0 2px 4px oklch(30% 0.02 82 / 0.12),
+                  0 12px 28px oklch(30% 0.02 82 / 0.10);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-feature-settings: "ss01", "kern";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
 body {
   overflow-y: hidden;
+  /* Subtle paper grain — low-frequency SVG noise. */
+  background-image:
+    radial-gradient(at 12% 8%,  oklch(94% 0.018 82 / 0.6) 0, transparent 55%),
+    radial-gradient(at 88% 92%, oklch(92% 0.020 82 / 0.5) 0, transparent 60%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.20  0 0 0 0 0.18  0 0 0 0 0.14  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: auto, auto, 220px 220px;
+  background-color: var(--paper);
 }
 
-.playerWind {
-  font-size: 5em;
-  font-weight: bold;
-  color: olivedrab;
-  padding: 30px;
+/* ----------------------------------------------------------------
+   Top bar — refined, ink-on-paper, no Materialize chrome
+   ---------------------------------------------------------------- */
+nav {
+  background: linear-gradient(to bottom, var(--paper) 0%, var(--paper-soft) 100%) !important;
+  box-shadow: 0 1px 0 var(--paper-edge), 0 8px 24px oklch(30% 0.02 82 / 0.04) !important;
+  height: 60px !important;
+  line-height: 60px !important;
+}
+nav .nav-wrapper { padding: 0 var(--s-5); }
+
+nav .brand-logo {
+  display: inline-flex !important;
+  align-items: center;
+  gap: var(--s-3);
+  margin-left: 0 !important;
+  font-family: var(--hand) !important;
+  font-size: 26px;
+  letter-spacing: 0.01em;
+  color: var(--ink) !important;
+  position: static !important;
+  transform: none !important;
+  height: 60px;
+}
+nav .brand-logo .material-icons { display: none; }
+nav .brand-logo::before {
+  /* Custom seal/chop mark — a small inked tile */
+  content: "";
+  width: 26px; height: 32px;
+  background: var(--seal);
+  border-radius: 3px 3px 4px 4px;
+  box-shadow:
+    inset 0 -3px 0 oklch(48% 0.140 38),
+    inset 0 1px 0 oklch(75% 0.140 38),
+    0 1px 2px oklch(40% 0.10 38 / 0.30);
+  position: relative;
+}
+nav .brand-logo::after {
+  /* '将' character impression on the seal */
+  content: "将";
+  position: absolute;
+  margin-left: -28px;
+  width: 26px;
+  text-align: center;
+  font-family: var(--hand);
+  color: var(--paper);
+  font-size: 18px;
+  line-height: 32px;
+  font-weight: 400;
+}
+nav .brand-logo span {
+  font-family: var(--hand) !important;
+  color: var(--ink) !important;
 }
 
+nav ul.right li { color: var(--ink-soft); font-family: var(--serif); font-size: 14px; }
+nav ul.right li:hover { color: var(--seal); cursor: pointer; }
+#userName { font-style: italic; color: var(--ink-mute) !important; }
+
+/* ----------------------------------------------------------------
+   Board — rosewood-framed felt + paper messenger
+   ---------------------------------------------------------------- */
 .board {
   display: grid;
-  height: 95vh;
-  grid-auto-flow: row dense;
-  grid-template-columns: 3fr 1fr;
-  grid-template-rows: 1fr;
-  gap: 0px 0px;
-  grid-auto-flow: row;
-  grid-template-areas: ". .";
+  grid-template-columns: minmax(0, 1fr) clamp(280px, 24vw, 360px);
+  gap: var(--s-4);
+  padding: var(--s-4);
+  height: calc(100vh - 60px);
+  align-items: stretch;
 }
 
-.game {
-  /* border-radius: 20px; */
-  padding: 5px;
-  background-color: darkolivegreen;
-  display: grid;
-  /* border: 4px solid black; */
-  height: 95vh;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
-  gap: 0px 0px;
-  grid-auto-flow: row;
+.game.card {
+  position: relative;
+  margin: 0 !important;
+  padding: var(--s-4) !important;
+  background:
+    radial-gradient(ellipse at 50% 50%, var(--felt) 0%, var(--felt-shade) 65%, var(--felt-deep) 100%);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 0 0 1px oklch(60% 0.04 162 / 0.4),
+    inset 0 0 0 8px var(--wood),
+    inset 0 0 0 9px var(--wood-deep),
+    inset 0 0 40px oklch(40% 0.05 162 / 0.18),
+    0 18px 48px oklch(30% 0.04 162 / 0.18);
+  display: grid !important;
+  grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 1.2fr;
+  grid-template-rows: 1.1fr 1fr 1fr 1fr 1fr 1.1fr;
+  gap: 0;
   grid-template-areas:
-    "topplayer topplayer topplayer topplayer topplayer settings"
-    "leftplayer topdiscard topdiscard topdiscard rightdiscard rightplayer"
-    "leftplayer leftdiscard controls controls rightdiscard rightplayer"
-    "leftplayer leftdiscard controls controls rightdiscard rightplayer"
-    "leftplayer leftdiscard maindiscard maindiscard maindiscard rightplayer"
-    "mainplayer mainplayer mainplayer mainplayer mainplayer mainplayer";
+    ".          topplayer   topplayer   topplayer   topplayer   .         "
+    "leftplayer topdiscard  topdiscard  topdiscard  topdiscard  rightplayer"
+    "leftplayer leftdiscard controls    controls    rightdiscard rightplayer"
+    "leftplayer leftdiscard controls    controls    rightdiscard rightplayer"
+    "leftplayer maindiscard maindiscard maindiscard maindiscard rightplayer"
+    ".          mainplayer  mainplayer  mainplayer  mainplayer  .         ";
+  overflow: hidden;
 }
 
-.settings {
+/* Felt-rule cross — subtle ink lines marking the play centre */
+.game.card::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, transparent calc(50% - 0.5px), oklch(50% 0.04 162 / 0.10) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(50% - 0.5px), oklch(50% 0.04 162 / 0.10) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+}
+
+/* ----------------------------------------------------------------
+   Player seats
+   ---------------------------------------------------------------- */
+.players {
   display: flex;
-  justify-content: center;
   align-items: center;
-  grid-area: settings;
-}
-
-.leftplayer {
-  display: flex;
-  grid-area: leftplayer;
   justify-content: center;
-  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3);
+  z-index: 1;
+}
+.topplayer    { grid-area: topplayer;    flex-direction: column; }
+.mainplayer   { grid-area: mainplayer;   flex-direction: column; gap: var(--s-3); }
+.leftplayer   { grid-area: leftplayer;   flex-direction: column; }
+.rightplayer  { grid-area: rightplayer;  flex-direction: column; }
+
+/* Hands — flow direction by seat */
+.topHand,    .topChecked    { display: flex; gap: 2px; flex-direction: row; }
+.leftHand,   .leftChecked   { display: flex; gap: 6px; flex-direction: column; }
+.rightHand,  .rightChecked  { display: flex; gap: 6px; flex-direction: column; }
+.playerHand, .playerChecked { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; align-items: center; padding: var(--s-2); }
+
+/* Your hand sits on a wooden rack */
+.playerHand {
+  background: linear-gradient(to bottom, var(--wood) 0%, var(--wood-deep) 100%);
+  border-radius: 8px 8px 4px 4px;
+  padding: 10px 12px 14px;
+  box-shadow:
+    inset 0 1px 0 oklch(60% 0.05 38 / 0.5),
+    inset 0 -2px 0 oklch(28% 0.04 38),
+    0 6px 14px oklch(30% 0.04 38 / 0.30);
+  min-height: 86px;
+}
+.playerChecked {
+  min-height: 60px;
+  padding: 4px 8px;
 }
 
-.rightplayer {
-  display: flex;
-  grid-area: rightplayer;
+/* ----------------------------------------------------------------
+   TILES — ivory faces with real bevel; opponent backs in jade
+   ---------------------------------------------------------------- */
+.tile {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  align-items: center;
+  position: relative;
+  cursor: default;
+  transition: transform 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.tile > * {
+  background: linear-gradient(180deg, var(--ivory) 0%, var(--ivory-shade) 100%);
+  border: 1px solid var(--ivory-line);
+  border-radius: 5px;
+  box-shadow:
+    inset 0 1px 0 oklch(99% 0.005 82),
+    inset 0 -2px 0 oklch(86% 0.020 82),
+    0 1px 2px oklch(30% 0.04 82 / 0.18),
+    0 3px 6px oklch(30% 0.04 82 / 0.10);
 }
 
-.mainplayer {
-  display: flex;
-  flex-direction: column;
-  grid-area: mainplayer;
-  justify-content: space-evenly;
+/* Main hand: large, clickable, lifts on hover like picking up */
+#playerHand .tile { padding: 0; }
+#playerHand .tile > * {
+  width: 46px;
+  height: 60px;
+  cursor: pointer;
+  transition: transform 160ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              box-shadow 160ms cubic-bezier(0.2, 0.7, 0.2, 1),
+              border-color 160ms ease;
+}
+#playerHand .tile > *:hover {
+  transform: translateY(-6px);
+  border-color: var(--brass);
+  box-shadow:
+    inset 0 1px 0 oklch(99% 0.005 82),
+    inset 0 -2px 0 oklch(86% 0.020 82),
+    0 0 0 2px oklch(80% 0.10 78 / 0.40),
+    0 8px 16px oklch(30% 0.04 82 / 0.20);
 }
 
-.topplayer {
-  grid-area: topplayer;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+#playerChecked .tile > * {
+  width: 38px; height: 50px;
+  filter: saturate(0.92);
 }
 
-.topdiscard {
-  border: 4px dotted olivedrab;
-  border-right: none;
-  grid-area: topdiscard;
+/* Opponent hands — show as JADE BACKS, not the ivory face */
+#topPlayerHand   .tile > *,
+#leftPlayerHand  .tile > *,
+#rightPlayerHand .tile > * {
+  background: linear-gradient(155deg, var(--jade) 0%, var(--jade-shade) 100%);
+  border: 1px solid var(--jade-line);
+  /* Bamboo motif — three subtle vertical strokes */
+  background-image:
+    linear-gradient(155deg, var(--jade) 0%, var(--jade-shade) 100%),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 6px,
+      oklch(60% 0.06 162 / 0.20) 6px 7px,
+      transparent 7px 12px
+    );
+  background-blend-mode: normal, overlay;
+  box-shadow:
+    inset 0 1px 0 oklch(80% 0.06 162 / 0.5),
+    inset 0 -2px 0 oklch(50% 0.07 162 / 0.6),
+    0 1px 2px oklch(30% 0.04 162 / 0.20);
+}
+#topPlayerHand   .tile > * img,
+#leftPlayerHand  .tile > * img,
+#rightPlayerHand .tile > * img { display: none; }
+#topPlayerHand   .tile > *,
+#leftPlayerHand  .tile > *,
+#rightPlayerHand .tile > * {
+  /* Force size for tile-back rectangles */
+  width: 30px; height: 38px;
+}
+#topPlayerHand .tile > *  { width: 26px; height: 34px; }
+#leftPlayerHand .tile > *,
+#rightPlayerHand .tile > * { width: 30px; height: 22px; } /* rotated by orientation */
+
+/* Hide the inner img on the back since it's a back, not a face */
+#topPlayerHand .tile img,
+#leftPlayerHand .tile img,
+#rightPlayerHand .tile img { visibility: hidden; }
+
+/* Opponent revealed (checked) tiles — these ARE faces, smaller */
+#topPlayerChecked   .tile > *,
+#leftPlayerChecked  .tile > *,
+#rightPlayerChecked .tile > * {
+  width: 28px; height: 36px;
+  background: linear-gradient(180deg, var(--ivory) 0%, var(--ivory-shade) 100%);
+}
+#leftPlayerChecked  .tile > * { transform: rotate(90deg);  }
+#rightPlayerChecked .tile > * { transform: rotate(-90deg); }
+
+/* ----------------------------------------------------------------
+   DISCARD ZONES — slightly recessed felt, no dotted borders
+   ---------------------------------------------------------------- */
+.topdiscard, .rightdiscard, .leftdiscard, .maindiscard {
+  background:
+    radial-gradient(ellipse at center, var(--felt-shade) 0%, var(--felt-deep) 100%);
+  border: none;
+  box-shadow:
+    inset 0 0 0 1px oklch(50% 0.04 162 / 0.18),
+    inset 0 2px 4px oklch(40% 0.05 162 / 0.20);
+  border-radius: 6px;
+  margin: 4px;
+  padding: var(--s-2);
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-content: flex-start;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 3px;
+  overflow: hidden;
 }
+.topdiscard    { grid-area: topdiscard;    }
+.rightdiscard  { grid-area: rightdiscard;  flex-direction: column-reverse; }
+.leftdiscard   { grid-area: leftdiscard;   flex-direction: column; }
+.maindiscard   { grid-area: maindiscard;   }
 
-.rightdiscard {
-  border: 4px dotted olivedrab;
-  border-bottom: none;
-  grid-area: rightdiscard;
-  display: flex;
-  flex-direction: column-reverse;
-  justify-content: flex-end;
-  align-items: center;
-  flex-wrap: wrap;
-}
+.topdiscard .tile > *,
+.maindiscard .tile > * { width: 30px; height: 38px; }
+.leftdiscard .tile > *,
+.rightdiscard .tile > * { width: 30px; height: 38px; }
+.rightdiscard .tile > * { transform: rotate(-90deg); }
+.leftdiscard  .tile > * { transform: rotate(90deg);  }
 
-.leftdiscard {
-  border: 4px dotted olivedrab;
-  border-top: none;
-  grid-area: leftdiscard;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.maindiscard {
-  border: 4px dotted olivedrab;
-  border-left: none;
-  grid-area: maindiscard;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
+/* ----------------------------------------------------------------
+   CENTRE COMPASS — 4-wind rose, calligraphic, etched into felt
+   ---------------------------------------------------------------- */
 .controls {
   grid-area: controls;
   display: flex;
-  justify-content: center;
   align-items: center;
-}
-.messenger {
-  display: grid;
-  /* border-radius: 20px; */
-  margin-left: 10px;
-  /* border: 4px solid black; */
-  padding: 10px;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr 2fr;
-  gap: 0px 0px;
-  grid-template-areas:
-    "video"
-    "message";
-}
-.video {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 0px 0px;
-  grid-template-areas:
-    "leftvideo rightvideo"
-    "topvideo mainvideo";
-  grid-area: video;
-}
-#leftvideo {
-  grid-area: leftvideo;
-}
-#rightvideo {
-  grid-area: rightvideo;
-}
-#topvideo {
-  grid-area: topvideo;
-}
-#mainvideo {
-  grid-area: mainvideo;
-}
-.message {
-  grid-area: message;
-}
-
-.topHand,
-.topChecked {
-  display: flex;
-  height: 3em;
-  padding: 5px;
-}
-
-.tile > * {
-  background-color: white;
-}
-
-.topHand .tile > *,
-.topChecked .tile > * {
-  /* W1:H1.26 */
-  width: 2.2em;
-  height: calc(2.2em * 1.4);
-  border: 1px solid black;
-  border-radius: 8px;
-}
-
-.topChecked .tile {
-  margin-left: 10px;
-  margin-right: 10px;
-}
-
-.playerHand,
-.playerChecked {
-  height: 62.5px;
-  display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 5px;
-}
-
-.leftHand,
-.rightHand,
-.leftChecked,
-.rightChecked {
-  display: flex;
-  flex-direction: column;
-  padding: 30px;
-  width: 2em;
-  justify-content: center;
-  align-items: center;
-}
-
-.tile > *,
-#playerChecked .tile > *,
-#playerHand .tile > * {
-  width: 50px;
-  height: 62.5px;
-  border: 1px solid black;
-  border-radius: 8px;
-}
-
-#playerChecked .tile > *,
-#playerHand .tile > *:hover {
-  border: 3px solid gold;
-  border-radius: 8px;
-}
-
-.leftHand .tile > *,
-.rightHand .tile > * {
-  width: calc(2.2em * 1.4);
-  margin-bottom: -4px;
-  justify-content: center;
-  align-items: center;
-  height: 2.2em;
-  border: 1px solid black;
-  border-radius: 8px;
-}
-
-.leftChecked .tile > * {
-  width: 2.2em;
-  height: calc(2.2em * 1.4);
-  border: 1px solid black;
-  border-radius: 8px;
-  transform: rotate(90deg);
-}
-
-.rightChecked .tile > * {
-  width: 2.2em;
-  height: calc(2.2em * 1.4);
-  border: 1px solid black;
-  border-radius: 8px;
-  transform: rotate(-90deg);
-}
-
-.rightdiscard .tile > * {
-  transform: rotate(-90deg);
-}
-
-.leftdiscard .tile > * {
-  transform: rotate(90deg);
-}
-
-.topdiscard .tile,
-.maindiscard .tile {
-  margin-left: 10px;
-  margin-right: 10px;
+  position: relative;
 }
 
 .square {
   position: relative;
-  /* height: 300px; */
-  height: 30vh;
-  width: 30vh;
-  /* width: 300px; */
-  /* border: 2px solid crimson; */
-  overflow: hidden;
-  transition: all 1s;
+  width: clamp(180px, 22vh, 240px);
+  aspect-ratio: 1;
+  overflow: visible;
+  transition: none;
 }
 
-.circle {
+/* Diamond ring — etched into the felt with low contrast */
+.square::before {
+  content: "";
   position: absolute;
-  background-color: white;
-  border-radius: 8px;
-  border: 1px solid olivedrab;
-  z-index: 99;
-  width: 100px;
-  height: 100px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  inset: 8%;
+  transform: rotate(45deg);
+  border: 1px solid oklch(50% 0.05 162 / 0.30);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 0 0 1px oklch(95% 0.03 162 / 0.20);
 }
 
-.topcontrols,
-.leftcontrols,
-.rightcontrols,
-.bottomcontrols {
+/* The 4 rotated wind quadrants — preserve existing JS hooks */
+.topcontrols, .leftcontrols, .rightcontrols, .bottomcontrols {
   position: absolute;
-  height: calc(100% / 1.414);
-  width: calc(100% / 1.414);
+  height: 50%;
+  width: 50%;
   top: 50%;
   left: 50%;
-  border: 1px solid olivedrab;
   transform-origin: 0% 0%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  border: none !important;
 }
-.rightcontrols {
-  transform: rotate(-45deg);
+.rightcontrols  { transform: rotate(-45deg); }
+.bottomcontrols { transform: rotate(45deg); }
+.topcontrols    { transform: rotate(-135deg); }
+.leftcontrols   { transform: rotate(135deg); }
+
+.playerWind {
+  font-family: var(--hand);
+  font-size: clamp(32px, 4.6vh, 52px);
+  font-weight: 400;
+  color: oklch(35% 0.04 162 / 0.55);
+  padding: 0 0 6px 0;
+  text-align: center;
+  letter-spacing: 0;
+  line-height: 1;
+  transform: rotate(180deg); /* re-orient so top of glyph faces outward */
+  transition: color 240ms ease, text-shadow 240ms ease;
 }
-.bottomcontrols {
-  transform: rotate(45deg);
-}
-.topcontrols {
-  transform: rotate(-135deg);
-}
-.leftcontrols {
-  transform: rotate(135deg);
+.bottomcontrols .playerWind { transform: rotate(-45deg); }
+.rightcontrols  .playerWind { transform: rotate(45deg); }
+.topcontrols    .playerWind { transform: rotate(135deg); }
+.leftcontrols   .playerWind { transform: rotate(-135deg); }
+
+/* Override hover-tomato from old stylesheet (it inherits via .square > div:hover). */
+.square > div:hover { background: transparent; }
+.square > div:hover .playerWind {
+  color: var(--seal);
+  text-shadow: 0 0 18px oklch(70% 0.13 38 / 0.30);
 }
 
-.square > div:hover {
-  background: tomato;
+/* Centre disk — paper plate with thin SVG-ring timer */
+.circle {
+  position: absolute !important;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 96px !important;
+  height: 96px !important;
+  background:
+    radial-gradient(circle at 50% 38%, var(--paper) 0%, var(--paper-soft) 70%, var(--paper-edge) 100%) !important;
+  border-radius: 50% !important;
+  border: 1px solid oklch(60% 0.04 162 / 0.45) !important;
+  box-shadow:
+    inset 0 1px 0 oklch(99% 0.005 82),
+    inset 0 -2px 0 oklch(85% 0.02 82),
+    0 4px 10px oklch(30% 0.04 162 / 0.18) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 5;
+}
+#timer {
+  font-family: var(--serif);
+  font-variant-numeric: tabular-nums;
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.01em;
 }
 
-.content {
-  transform: rotate(-45deg);
+/* Turn banner — sits below the compass, ink-on-paper plate */
+#turnBanner {
+  position: absolute !important;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--hand) !important;
+  font-size: 13px !important;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  font-weight: 400 !important;
+  padding: 5px 14px !important;
+  border-radius: 999px !important;
+  background: var(--paper) !important;
+  color: var(--ink-soft) !important;
+  border: 1px solid oklch(60% 0.04 162 / 0.30);
+  box-shadow: 0 2px 6px oklch(30% 0.04 162 / 0.18);
+  white-space: nowrap;
+}
+#turnBanner.turn-banner--active {
+  background: var(--seal) !important;
+  color: var(--paper) !important;
+  border-color: oklch(48% 0.16 38);
+  animation: seal-pulse 2.4s ease-in-out infinite;
+  box-shadow: 0 0 0 4px oklch(70% 0.13 38 / 0.18), 0 4px 10px oklch(45% 0.14 38 / 0.30);
+}
+@keyframes seal-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px oklch(70% 0.13 38 / 0.18), 0 4px 10px oklch(45% 0.14 38 / 0.30); }
+  50%      { box-shadow: 0 0 0 8px oklch(70% 0.13 38 / 0.06), 0 4px 10px oklch(45% 0.14 38 / 0.30); }
 }
 
-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 10px;
+/* Eat options — small ink-stamp pills */
+#eatOptions {
+  position: absolute;
+  bottom: -90px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  justify-content: center;
+}
+#eatOptions .btn-small,
+#eatOptions button {
+  font-family: var(--serif) !important;
+  font-size: 12px !important;
+  letter-spacing: 0.04em;
+  text-transform: none !important;
+  background: var(--paper) !important;
+  color: var(--ink) !important;
+  padding: 6px 12px !important;
+  height: auto !important;
+  line-height: 1.4 !important;
+  border: 1px solid var(--brass);
+  border-radius: 4px !important;
+  box-shadow: 0 1px 0 oklch(70% 0.08 78 / 0.5),
+              0 4px 10px oklch(40% 0.10 78 / 0.18) !important;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+#eatOptions .btn-small:hover,
+#eatOptions button:hover {
+  transform: translateY(-1px);
+  background: var(--seal) !important;
+  color: var(--paper) !important;
+  border-color: oklch(48% 0.16 38);
 }
 
-.pids-wrapper {
-  width: 100%;
+/* Game log — small whisper text in a corner of the felt */
+#gameLog {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 4;
+  font-family: var(--serif);
+  font-size: 11px;
+  font-style: italic;
+  color: oklch(35% 0.04 162 / 0.65);
+  max-width: 240px;
+  line-height: 1.5;
 }
-.pid {
-  width: calc(10% - 10px);
-  height: 10px;
-  display: inline-block;
-  margin: 5px;
+
+/* ----------------------------------------------------------------
+   MESSENGER — chat as a paper scroll
+   ---------------------------------------------------------------- */
+.messenger.card {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: var(--paper) !important;
+  border-radius: 14px !important;
+  border: 1px solid var(--paper-edge);
+  box-shadow:
+    inset 0 1px 0 oklch(99% 0.005 82),
+    0 6px 18px oklch(30% 0.02 82 / 0.06) !important;
+  display: grid !important;
+  grid-template-rows: auto 1fr auto auto !important;
+  grid-template-columns: 1fr !important;
+  grid-template-areas:
+    "header"
+    "messages"
+    "input"
+    "send" !important;
+  overflow: hidden;
+}
+.messenger.card::before {
+  content: "茶";
+  grid-area: header;
+  font-family: var(--hand);
+  font-size: 14px;
+  color: var(--ink-mute);
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid var(--paper-edge);
+  letter-spacing: 0.4em;
+  text-align: center;
+  background: var(--paper-soft);
+}
+
+#chat {
+  display: contents !important;
+}
+
+#chat-messages {
+  grid-area: messages;
+  height: auto !important;
+  border: none !important;
+  padding: var(--s-4) var(--s-4) var(--s-2) !important;
+  overflow-y: auto;
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+#chat-messages ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+#chat-messages li {
+  margin: 0 !important;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--paper-soft);
+  font-family: var(--serif);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.5;
+  position: relative;
+}
+#chat-messages li:hover {
+  color: var(--ink) !important;
+  cursor: default !important;
+  background: oklch(92% 0.018 82);
+}
+#chat-messages li strong,
+#chat-messages li b {
+  display: block;
+  font-family: var(--hand);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-mute);
+  font-weight: 400;
+  margin-bottom: 2px;
+}
+#chat-messages > strong {
+  display: block;
+  font-family: var(--hand);
+  font-size: 12px;
+  color: var(--ink-mute);
+  margin-bottom: 8px;
+  letter-spacing: 0.08em;
+}
+
+.chat-input {
+  grid-area: input;
+  padding: var(--s-3) var(--s-4) 0;
+  position: relative;
+}
+.chat-input label {
+  display: none;
+}
+#chat-message {
+  width: 100% !important;
+  resize: none !important;
+  border: 1px solid var(--paper-edge) !important;
+  border-radius: 6px !important;
+  padding: 10px 12px !important;
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--ink);
+  background: oklch(98% 0.008 82);
+  height: 76px !important;
+  box-shadow: inset 0 1px 2px oklch(30% 0.02 82 / 0.06);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+  outline: none;
+  box-sizing: border-box !important;
+}
+#chat-message:focus {
+  border-color: var(--seal-soft) !important;
+  box-shadow: inset 0 1px 2px oklch(30% 0.02 82 / 0.06),
+              0 0 0 3px oklch(70% 0.13 38 / 0.14) !important;
+}
+
+#send-chat {
+  grid-area: send;
+  margin: var(--s-3) var(--s-4) var(--s-4) !important;
+  padding: 9px 14px !important;
+  font-family: var(--serif) !important;
+  font-size: 13px !important;
+  letter-spacing: 0.04em;
+  text-transform: none !important;
+  color: var(--paper);
+  background: var(--ink) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  cursor: pointer;
+  transition: background 160ms ease, transform 80ms ease;
+  float: none !important;
+  align-self: end;
+  justify-self: end;
+}
+#send-chat:hover  { background: var(--seal) !important; }
+#send-chat:active { transform: translateY(1px); }
+
+/* ----------------------------------------------------------------
+   Toastr / alertify overrides — keep them on-brand
+   ---------------------------------------------------------------- */
+#toast-container > div {
+  font-family: var(--serif) !important;
+  background-color: var(--ink) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 8px 24px oklch(20% 0.02 82 / 0.25) !important;
+  opacity: 0.96 !important;
+}
+#toast-container > .toast-success { background-color: var(--jade-shade) !important; }
+#toast-container > .toast-error   { background-color: var(--seal) !important; }
+#toast-container > .toast-info    { background-color: var(--ink) !important; }
+
+.alertify .ajs-dialog {
+  font-family: var(--serif) !important;
+  border-radius: 12px !important;
+  background: var(--paper) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 24px 60px oklch(20% 0.02 82 / 0.30) !important;
+  border: 1px solid var(--paper-edge);
+}
+.alertify .ajs-header { font-family: var(--hand) !important; color: var(--ink) !important; }
+.alertify .ajs-button { font-family: var(--serif) !important; text-transform: none !important; }
+
+/* ----------------------------------------------------------------
+   Responsive — narrower viewports tighten the table
+   ---------------------------------------------------------------- */
+@media (max-width: 1100px) {
+  .board { grid-template-columns: 1fr; height: auto; }
+  body   { overflow-y: auto; }
+  .messenger.card { max-height: 320px; }
+  .game.card { height: 78vh; }
 }
