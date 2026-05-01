@@ -110,29 +110,24 @@ nav .brand-logo {
 }
 nav .brand-logo .material-icons { display: none; }
 nav .brand-logo::before {
-  /* Custom seal/chop mark — a small inked tile */
-  content: "";
-  width: 26px; height: 32px;
+  /* Inked seal/chop block beside the title — small, calm, vermillion. */
+  content: "印";
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: var(--seal);
-  border-radius: 3px 3px 4px 4px;
-  box-shadow:
-    inset 0 -3px 0 oklch(48% 0.140 38),
-    inset 0 1px 0 oklch(75% 0.140 38),
-    0 1px 2px oklch(40% 0.10 38 / 0.30);
-  position: relative;
-}
-nav .brand-logo::after {
-  /* '将' character impression on the seal */
-  content: "将";
-  position: absolute;
-  margin-left: -28px;
-  width: 26px;
-  text-align: center;
-  font-family: var(--hand);
   color: var(--paper);
-  font-size: 18px;
-  line-height: 32px;
-  font-weight: 400;
+  font-family: var(--hand);
+  font-size: 16px;
+  line-height: 1;
+  border-radius: 3px;
+  box-shadow:
+    inset 0 -2px 0 oklch(48% 0.140 38),
+    inset 0 1px 0 oklch(75% 0.140 38 / 0.6),
+    0 1px 2px oklch(40% 0.10 38 / 0.30);
 }
 nav .brand-logo span {
   font-family: var(--hand) !important;
