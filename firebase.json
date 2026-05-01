@@ -27,7 +27,6 @@
     }
   },
   "functions": {
-    "predeploy": ["pnpm --dir \"$RESOURCE_DIR\" run build"],
     "source": "functions"
   },
   "hosting": {
