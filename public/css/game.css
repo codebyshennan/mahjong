@@ -165,7 +165,7 @@ nav ul.right li:hover { color: var(--seal); cursor: pointer; }
     0 18px 48px oklch(30% 0.04 162 / 0.18);
   display: grid !important;
   grid-template-columns: 0.7fr 1fr 1fr 1fr 1fr 0.7fr;
-  grid-template-rows: 0.9fr 1fr 1fr 1fr 1fr 1.1fr;
+  grid-template-rows: auto 1fr 1fr 1fr 1fr auto;
   gap: 0;
   grid-template-areas:
     ".          topplayer   topplayer   topplayer   topplayer   .         "
