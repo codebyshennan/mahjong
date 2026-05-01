@@ -341,6 +341,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             timer.clearAll()
             updateGameState(gameState,'discardtiles')
             updateGameState(gameState,'nextround')
+            gameState.awaitingDiscard = false
             renderPlayerTiles(currentPlayer.playerHand,currentPlayer.playerChecked, currentPlayer.playerDiscarded)
             commitPlayerHandToFS(currentPlayer, gameState)
             
