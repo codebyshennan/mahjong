@@ -423,7 +423,6 @@ window.addEventListener('DOMContentLoaded', async () => {
           discardRefs[windCount] = doc(fsdb,'games', roomId, 'players', gameState.players[windCount].playerId,'tiles', 'playerDiscarded').withConverter(playerDiscardedConverter)
         }
       } else {
-        // guestsAnswering()
         const mainPlayer = gameState.players.filter(player => player.playerId == user.uid)
         playersDiv[3].id = mainPlayer[0].playerId;
         playerWind[3].innerText = chineseChars[mainPlayer[0].playerWind]
