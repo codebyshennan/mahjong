@@ -522,11 +522,37 @@ window.addEventListener('DOMContentLoaded', async () => {
                 for(const tileName of combo) {
                   eatBtn.textContent += refDeck()[tileName]
                 }
-                eatBtn.addEventListener('click', () => {
+                eatBtn.addEventListener('click', async () => {
                   currentPlayer.eatTile(lastDiscardedTile, combo)
                   renderPlayerTiles(currentPlayer.playerHand, currentPlayer.playerChecked, currentPlayer.playerDiscarded)
                   timer.clearAll()
                   updateGameState(gameState, 'eattiles')
+
+                  // Eater becomes current player; awaitingDiscard tells the snapshot
+                  // handler to skip the auto-draw — eater took from discard, just discards next.
+                  gameState.currentPlayer = currentPlayer.playerNumber
+                  gameState.awaitingDiscard = true
+
+                  // Atomic: splice eaten tile from discarder's pile + write eater's
+                  // state + write game state. Prevents tile-in-two-places bug.
+                  try {
+                    await runTransaction(fsdb, async (tx) => {
+                      const discardSnap = await tx.get(discardRefs[i])
+                      const pile = discardSnap.data() || []
+                      if (pile.length > 0 && pile[pile.length - 1].index === lastDiscardedTile.index) {
+                        pile.pop()
+                      }
+                      tx.set(discardRefs[i], { playerDiscarded: pile })
+                      tx.set(mainPlayerMetaRef, currentPlayer)
+                      tx.set(mainPlayerHandRef, currentPlayer)
+                      tx.set(mainPlayerCheckedRef, currentPlayer)
+                      tx.set(mainPlayerDiscardRef, currentPlayer)
+                      tx.set(gameStateRef, gameState)
+                    })
+                  } catch (err) {
+                    console.error('Eat-tile transaction failed:', err)
+                  }
+
                   eatOptionsDiv.innerHTML = ''
                   lastCheckedTileIndex = null
                   const { win } = checkWin(currentPlayer.playerHand, currentPlayer.playerChecked)
