@@ -51,16 +51,11 @@ service cloud.firestore {
         allow read: if signedIn();
         allow write: if signedIn();
 
-        // Hidden hand: only the owner can read.
+        // Hidden hand stays secret; revealed melds and discards visible to everyone.
         // Writes stay open so the host can deal initial tiles in the interstitial.
-        match /tiles/playerHand {
-          allow read: if isSelf(uid);
-          allow write: if signedIn();
-        }
-
-        // Revealed melds and discards: visible to all players in the room.
         match /tiles/{tileDoc} {
-          allow read, write: if signedIn();
+          allow read: if signedIn() && (tileDoc != 'playerHand' || request.auth.uid == uid);
+          allow write: if signedIn();
         }
       }
     }
