@@ -231,13 +231,11 @@ Findings ordered by severity within each category.
 
 ## T5 — Architecture & Code Quality
 
-### T5.1 Firebase initialized 4 times
-- **Files:** `login.js`, `lobby.js`, `interstitial.js`, `game.js` — each calls `initializeApp(firebaseConfig)` + emulator setup
-- **Fix:** Create a shared `firebase-init.js` module.
+### T5.1 Firebase initialized 4 times ✅ (phase 4)
+- All four entry files (`login.js`, `lobby.js`, `interstitial.js`, `game.js`) import `auth/rtdb/fsdb` from `public/js/firebase-init.js`. Emulator gating is centralized there. Orphan `public/js/rooms/firebase/initFirebase.js` removed.
 
-### T5.2 `startDBSync` copy-pasted 3 times (~80 lines each)
-- **Files:** `lobby.js:29-115`, `interstitial.js:106-192`, `game.js:317-403`
-- **Fix:** Extract to a shared module.
+### T5.2 `startDBSync` copy-pasted 3 times (~80 lines each) ✅ (phase 2)
+- Extracted to `public/js/presence.js` — `startDBSync(loggedInUser, statusBasePath)`. Used by lobby (`'online'`) and interstitial/game (`status/<roomId>/players`).
 
 ### T5.3 Duplicate `onValue('.info/connected')` listeners in each `startDBSync`
 - **Impact:** Each call registers 2 listeners on the same path (one for RTDB, one for Firestore). These accumulate if `startDBSync` is called multiple times.
