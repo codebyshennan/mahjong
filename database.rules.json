@@ -1,6 +1,44 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null"
+    "online": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "status": {
+      ".read": "auth != null",
+      "$roomId": {
+        "players": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        }
+      }
+    },
+    "interstitial": {
+      "$roomId": {
+        "chats": {
+          ".read": "auth != null",
+          "$msgId": {
+            ".write": "auth != null && (!data.exists() || data.child('uid').val() === auth.uid)",
+            ".validate": "newData.hasChildren(['name', 'message'])"
+          }
+        }
+      }
+    },
+    "games": {
+      "$roomId": {
+        "chats": {
+          ".read": "auth != null",
+          "$msgId": {
+            ".write": "auth != null && (!data.exists() || data.child('uid').val() === auth.uid)",
+            ".validate": "newData.hasChildren(['name', 'message'])"
+          }
+        }
+      }
+    },
+    ".read": false,
+    ".write": false
   }
 }
