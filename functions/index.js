@@ -4,14 +4,10 @@ import { initializeApp } from 'firebase/app'
 import { getDatabase, connectDatabaseEmulator } from 'firebase/database'
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
 import firebaseConfig from './firebaseConfig.js'
-import {
-  getAuth,
-  signOut,
-  signInWithEmailAndPassword,
-  connectAuthEmulator } from 'firebase/auth'
+import { getAuth, connectAuthEmulator } from 'firebase/auth'
 import admin from 'firebase-admin'
 import * as functions from 'firebase-functions/v1'
-import { readFile } from 'fs/promises'
+import { readFileSync } from 'fs'
 
 const { PROJECT_ID, DATABASE_URL } = process.env
 
@@ -28,7 +24,7 @@ if (isEmulator) {
     databaseURL: DATABASE_URL
   })
 } else {
-  const serviceAccount = JSON.parse(await readFile(new URL('./serviceAccountKey.json', import.meta.url)))
+  const serviceAccount = JSON.parse(readFileSync(new URL('./serviceAccountKey.json', import.meta.url), 'utf8'))
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: DATABASE_URL
@@ -90,6 +86,21 @@ app.post('/register', (req, res) => {
 app.get('/login', (req, res) => {
   res.set('Cache-Control', 'public, max-age=300, s-maxage=600')
   res.render('login')
+})
+
+app.get('/demo/lobby', (req, res) => {
+  res.set('Cache-Control', 'no-store')
+  res.render('lobby', { demoMode: true })
+})
+
+app.get('/demo/interstitial', (req, res) => {
+  res.set('Cache-Control', 'no-store')
+  res.render('interstitial', { roomKey: 'demo-room', demoMode: true })
+})
+
+app.get('/demo/game', (req, res) => {
+  res.set('Cache-Control', 'no-store')
+  res.render('game', { roomId: 'demo-room', demoMode: true })
 })
 
 app.post('/login/form', (req, res) => {
