@@ -1,8 +1,73 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Presence: anyone signed in can see who's online; only owner writes own status.
+    match /online/{uid} {
+      allow read: if signedIn();
+      allow write: if isSelf(uid);
+    }
+
+    // Per-room presence mirror (also written by onUserStatusChanged via Admin SDK, which bypasses rules).
+    match /status/{roomId}/players/{uid} {
+      allow read: if signedIn();
+      allow write: if isSelf(uid);
+    }
+
+    // Lobby rooms: open game state, mutated freely by clients today.
+    // Tightening to host-only mutation requires moving lobby/readiness logic into Cloud Functions.
+    match /lobby/{roomId} {
+      allow read, write: if signedIn();
+
+      // Readiness flag is per-player; only the player toggles their own.
+      match /readiness/{uid} {
+        allow read: if signedIn();
+        allow write: if isSelf(uid);
+      }
+    }
+
+    // Game state and deck: shared, mutated by all players.
+    // Proper ownership requires server-authoritative game logic (out of scope here).
+    match /games/{roomId} {
+      allow read: if signedIn();
+
+      match /gameState/{stateId} {
+        allow read, write: if signedIn();
+      }
+
+      match /deck/{deckId} {
+        allow read, write: if signedIn();
+      }
+
+      match /players/{uid} {
+        allow read: if signedIn();
+        allow write: if signedIn();
+
+        // Hidden hand: only the owner can read.
+        // Writes stay open so the host can deal initial tiles in the interstitial.
+        match /tiles/playerHand {
+          allow read: if isSelf(uid);
+          allow write: if signedIn();
+        }
+
+        // Revealed melds and discards: visible to all players in the room.
+        match /tiles/{tileDoc} {
+          allow read, write: if signedIn();
+        }
+      }
+    }
+
+    // Default deny anything not matched above.
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
     }
   }
 }
