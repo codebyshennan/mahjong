@@ -398,14 +398,14 @@ nav ul.right li:hover { color: var(--seal); cursor: pointer; }
 
 .playerWind {
   font-family: var(--hand);
-  font-size: clamp(32px, 4.6vh, 52px);
+  font-size: clamp(20px, 2.8vh, 30px);
   font-weight: 400;
-  color: oklch(35% 0.04 162 / 0.55);
+  color: oklch(38% 0.04 162 / 0.55);
   padding: 0 0 6px 0;
   text-align: center;
   letter-spacing: 0;
   line-height: 1;
-  transform: rotate(180deg); /* re-orient so top of glyph faces outward */
+  transform: rotate(180deg);
   transition: color 240ms ease, text-shadow 240ms ease;
 }
 .bottomcontrols .playerWind { transform: rotate(-45deg); }
