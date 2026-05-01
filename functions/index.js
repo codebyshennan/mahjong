@@ -103,28 +103,6 @@ app.get('/demo/game', (req, res) => {
   res.render('game', { roomId: 'demo-room', demoMode: true })
 })
 
-app.post('/login/form', (req, res) => {
-  const { email, password } = req.body
-  signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      console.log('Signed in:', userCredential.user.uid)
-      res.redirect('/lobby')
-    }).catch((error) => {
-      console.error('Login error:', error.code, error.message)
-      res.redirect('/login?error=' + encodeURIComponent(error.code))
-    })
-})
-
-app.post('/signout', (req, res) => {
-  signOut(auth).then(() => {
-    console.log('Signed out')
-    res.redirect('/login')
-  }).catch((error) => {
-    console.error(error)
-    res.redirect('/login')
-  })
-})
-
 app.get('/lobby', (req, res) => {
   res.render('lobby')
 })
