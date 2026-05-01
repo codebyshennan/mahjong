@@ -206,9 +206,9 @@ nav ul.right li:hover { color: var(--seal); cursor: pointer; }
 .rightplayer  { grid-area: rightplayer;  flex-direction: column; }
 
 /* Hands — flow direction by seat */
-.topHand,    .topChecked    { display: flex; gap: 2px; flex-direction: row; }
-.leftHand,   .leftChecked   { display: flex; gap: 6px; flex-direction: column; }
-.rightHand,  .rightChecked  { display: flex; gap: 6px; flex-direction: column; }
+.topHand,    .topChecked    { display: flex; gap: 2px; flex-direction: row; flex-wrap: nowrap; }
+.leftHand,   .leftChecked   { display: flex; gap: 2px; flex-direction: column; flex-wrap: nowrap; align-items: center; }
+.rightHand,  .rightChecked  { display: flex; gap: 2px; flex-direction: column; flex-wrap: nowrap; align-items: center; }
 .playerHand, .playerChecked { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; align-items: center; padding: var(--s-2); }
 
 /* Your hand sits on a wooden rack — clearly visible woodgrain shelf. */
