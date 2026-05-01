@@ -18,10 +18,8 @@
     "cors": "^2.8.6",
     "ejs": "^5.0.2",
     "express": "^5.2.1",
-    "firebase": "^12.12.1",
     "firebase-admin": "^13.8.0",
-    "firebase-functions": "^7.2.5",
-    "uuid": "^14.0.0"
+    "firebase-functions": "^7.2.5"
   },
   "devDependencies": {
     "firebase-functions-test": "^3.4.1"
