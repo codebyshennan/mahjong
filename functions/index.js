@@ -1,10 +1,5 @@
 import express from 'express'
 import cors from 'cors'
-import { initializeApp } from 'firebase/app'
-import { getDatabase, connectDatabaseEmulator } from 'firebase/database'
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
-import firebaseConfig from './firebaseConfig.js'
-import { getAuth, connectAuthEmulator } from 'firebase/auth'
 import admin from 'firebase-admin'
 import * as functions from 'firebase-functions/v1'
 import { readFileSync } from 'fs'
@@ -12,9 +7,6 @@ import { readFileSync } from 'fs'
 const { PROJECT_ID, DATABASE_URL } = process.env
 
 const app = express()
-
-const firebase = initializeApp(firebaseConfig)
-const auth = getAuth()
 
 const isEmulator = process.env.FUNCTIONS_EMULATOR === 'true'
 
@@ -29,15 +21,6 @@ if (isEmulator) {
     credential: admin.credential.cert(serviceAccount),
     databaseURL: DATABASE_URL
   })
-}
-
-const rtdb = getDatabase(firebase)
-const fsdb = getFirestore(firebase)
-
-if (isEmulator) {
-  connectAuthEmulator(auth, 'http://localhost:12088')
-  connectDatabaseEmulator(rtdb, 'localhost', 15047)
-  connectFirestoreEmulator(fsdb, 'localhost', 14701)
 }
 
 const firestore = admin.firestore()
