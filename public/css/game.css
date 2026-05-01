@@ -315,15 +315,17 @@ nav ul.right li:hover { color: var(--seal); cursor: pointer; }
 #topPlayerHand .tile { margin: 0 1px; }
 #leftPlayerHand .tile, #rightPlayerHand .tile { margin: 1px 0; }
 
-/* Opponent revealed (checked) tiles — these ARE faces, smaller */
+/* Opponent revealed (checked) tiles — small ivory faces. */
 #topPlayerChecked   .tile > *,
 #leftPlayerChecked  .tile > *,
 #rightPlayerChecked .tile > * {
-  width: 28px; height: 36px;
+  width: 24px; height: 30px;
   background: linear-gradient(180deg, var(--ivory) 0%, var(--ivory-shade) 100%);
 }
-#leftPlayerChecked  .tile > * { transform: rotate(90deg);  }
-#rightPlayerChecked .tile > * { transform: rotate(-90deg); }
+#leftPlayerChecked  .tile > * { transform: rotate(90deg);  width: 30px; height: 24px; }
+#rightPlayerChecked .tile > * { transform: rotate(-90deg); width: 30px; height: 24px; }
+#leftPlayerChecked  { padding: 2px 0; }
+#rightPlayerChecked { padding: 2px 0; }
 
 /* ----------------------------------------------------------------
    DISCARD ZONES — slightly recessed felt, no dotted borders
