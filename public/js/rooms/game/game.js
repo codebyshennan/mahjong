@@ -407,8 +407,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         startDBSync(loggedInUser, `status/${roomId}/players`)
         
       if(gameState.host == user.uid) {
-        // starts the call-answer process
-        // hostCalling()
         playersDiv[3].id = gameState.host
         playerWind[3].innerText = chineseChars[gameState.currentWind]
         playerWind[3].id = gameState.currentWind
