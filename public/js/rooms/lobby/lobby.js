@@ -1,7 +1,7 @@
 import { auth, fsdb } from '../../firebase-init.js'
 import { startDBSync } from '../../presence.js'
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
-import { increment, collection, getDocs, doc, getDoc, setDoc, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, where, serverTimestamp as fsServerTimestamp } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
+import { increment, collection, getDocs, doc, getDoc, setDoc, onSnapshot, addDoc, arrayUnion, arrayRemove, deleteDoc, collectionGroup, runTransaction, query, where, serverTimestamp as fsServerTimestamp } from 'https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js'
 
 window.addEventListener('DOMContentLoaded', async ()=> {
   document.getElementById('logout').addEventListener('click', (ev)=> {
