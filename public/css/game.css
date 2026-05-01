@@ -177,15 +177,16 @@ nav ul.right li:hover { color: var(--seal); cursor: pointer; }
   overflow: hidden;
 }
 
-/* Felt-rule cross — subtle ink lines marking the play centre */
+/* Felt-rule cross — very subtle ink lines marking the play centre.
+   (Hidden on small viewports; the discard rectangles already imply the cross.) */
 .game.card::before {
   content: "";
   position: absolute;
   inset: 9px;
   pointer-events: none;
   background:
-    linear-gradient(to right, transparent calc(50% - 0.5px), oklch(50% 0.04 162 / 0.10) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
-    linear-gradient(to bottom, transparent calc(50% - 0.5px), oklch(50% 0.04 162 / 0.10) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+    linear-gradient(to right, transparent calc(50% - 0.5px), oklch(50% 0.04 162 / 0.06) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(50% - 0.5px), oklch(50% 0.04 162 / 0.06) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px));
 }
 
 /* ----------------------------------------------------------------
