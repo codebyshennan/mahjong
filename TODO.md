@@ -240,10 +240,8 @@ Findings ordered by severity within each category.
 ### T5.3 Duplicate `onValue('.info/connected')` listeners in each `startDBSync`
 - **Impact:** Each call registers 2 listeners on the same path (one for RTDB, one for Firestore). These accumulate if `startDBSync` is called multiple times.
 
-### T5.4 Player class is duplicated and diverges
-- **File:** `game.js:82-287` — inline class with closure access to `deckInPlay`, `gameState`, `updateGameState`, `renderPlayerTiles`
-- **File:** `Player.js:1-220` — standalone class referencing `deckInPlay`, `updateGameState`, `possibleMergeCombinations`, `timer`, `commitPlayerHand`, `renderBoard`, `sortHand` as globals that DON'T EXIST in its scope
-- **Impact:** `Player.js` is imported only by `interstitial.js` for the deal phase. If any method besides `drawTile` were called from interstitial context, it would throw on the missing globals.
+### T5.4 Player class is duplicated and diverges ✅ (phase 4)
+- `Player.js` slimmed to only what `interstitial.js` actually uses: constructor + `drawTile(noOfTiles, deck, updateGameState)`. All broken methods that referenced undefined globals (`timer`, `commitPlayerHand`, `renderBoard`, `possibleMergeCombinations`) are deleted. The full game-time class remains inline in `game.js` where the closure-captured state lives.
 
 ### T5.5 No Firestore listener cleanup
 - **Impact:** `onSnapshot` calls return unsubscribe functions that are never stored or called. When navigating between pages (lobby→interstitial→game), listeners from previous pages are abandoned. Since each page is a full navigation (not SPA), the JS context is destroyed, but in-flight callbacks could fire during teardown causing errors.
