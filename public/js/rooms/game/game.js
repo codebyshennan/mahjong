@@ -330,6 +330,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         tileContainer.classList.add('tile', playerTile.name)
         tileContainer.id = playerTile.index
         tileContainer.addEventListener('click', (ev)=> {
+          if (gameState.roundEnd || gameState.winner) return
           // immediately disable the clicking of other tiles
           if(gameState.currentPlayer == currentPlayer.playerNumber) {
             // discardTile(ev.target)
