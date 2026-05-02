@@ -134,7 +134,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         // Auto-check flowers/animals and draw replacements iteratively (no recursion)
         while(ANIMAL_TILES.includes(newTile.name) || FLOWER_TILES.includes(newTile.name)) {
+          const meldKind = ANIMAL_TILES.includes(newTile.name) ? 'animal' : 'flower'
           this.playerChecked.push(newTile)
+          this.playerMelds.push({ kind: meldKind, tiles: [newTile] })
           updateGameState(gameState, 'drawtiles')
           newTile = deckInPlay.pop()
           if (!newTile) {
