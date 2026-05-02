@@ -293,7 +293,9 @@ window.addEventListener('DOMContentLoaded', async ()=> {
         timeStarted: new Date(),
         tilesInDiscard: 0,
         tilesInHands: 0,
-        tilesToPlay: 148
+        tilesToPlay: 148,
+        roundNumber: 1,
+        dealerSeat: 0,
       }
 
     /**
