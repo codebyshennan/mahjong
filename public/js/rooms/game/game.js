@@ -182,7 +182,7 @@ window.addEventListener('DOMContentLoaded', async () => {
      */
     eatTile = (tile, withThisCombi) => {
       console.log(`Adding ${tile.name} to checked`)
-    
+
       let checkedGroup = []
       checkedGroup.push(tile)
 
@@ -193,7 +193,12 @@ window.addEventListener('DOMContentLoaded', async () => {
         checkedGroup.push(tileToBeChecked)
       })
 
-      sortHand(checkedGroup).forEach(t => this.playerChecked.push(t))
+      const sortedMeldTiles = sortHand(checkedGroup)
+      sortedMeldTiles.forEach(t => this.playerChecked.push(t))
+
+      const allSameName = sortedMeldTiles.every(t => t.name === sortedMeldTiles[0].name)
+      const meldKind = allSameName ? 'pong' : 'chow'
+      this.playerMelds.push({ kind: meldKind, tiles: sortedMeldTiles })
     }
 
     /**
