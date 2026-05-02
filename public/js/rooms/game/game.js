@@ -577,7 +577,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
 
       // DETERMINE NEXT COURSE OF ACTION FROM GAME STATE CHANGES
-      let lastSeenRoundNumber = currentGameState_initialRoundNumber()
+      let lastSeenRoundNumber = gameState.roundNumber || 1
 
       onSnapshot(gameStateRef, async (snapshot)=> {
         let currentGameState = snapshot.data()
