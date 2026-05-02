@@ -80,9 +80,9 @@ window.addEventListener('DOMContentLoaded', async () => {
      * @param {*} playerNumber
      * @memberof Player
      */
-    constructor(uid, name, wind, playerNumber, chips = 1000, playerHand = [], playerDiscarded = [], playerChecked = [], currentScore = 0){
+    constructor(uid, name, wind, playerNumber, chips = 1000, playerHand = [], playerDiscarded = [], playerChecked = [], currentScore = 0, playerMelds = []){
       this.id = uid
-      this.name = name 
+      this.name = name
       this.wind = wind
       this.chips = chips
       this.playerNumber = playerNumber
@@ -90,6 +90,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       this.playerChecked = playerChecked
       this.playerDiscarded = playerDiscarded
       this.currentScore = currentScore
+      this.playerMelds = playerMelds
       }
 
     /**
