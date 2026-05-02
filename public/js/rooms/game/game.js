@@ -577,8 +577,31 @@ window.addEventListener('DOMContentLoaded', async () => {
       }
 
       // DETERMINE NEXT COURSE OF ACTION FROM GAME STATE CHANGES
+      let lastSeenRoundNumber = currentGameState_initialRoundNumber()
+
       onSnapshot(gameStateRef, async (snapshot)=> {
         let currentGameState = snapshot.data()
+
+        const incomingRound = currentGameState.roundNumber || 1
+        if (incomingRound !== lastSeenRoundNumber) {
+          lastSeenRoundNumber = incomingRound
+          gameState = { ...currentGameState }
+          const overlay = document.getElementById('winOverlay')
+          if (overlay) overlay.remove()
+          timer.clearAll()
+
+          const refreshedHand = (await getDoc(mainPlayerHandRef)).data() || []
+          const refreshedChecked = (await getDoc(mainPlayerCheckedRef)).data() || []
+          const refreshedDiscarded = (await getDoc(mainPlayerDiscardRef)).data() || []
+          const refreshedMeta = (await getDoc(mainPlayerMetaRef)).data()
+          if (refreshedMeta) {
+            currentPlayer = new Player(
+              refreshedMeta.id, refreshedMeta.name, refreshedMeta.wind, refreshedMeta.playerNumber,
+              refreshedMeta.chips, refreshedHand, refreshedDiscarded, refreshedChecked, refreshedMeta.currentScore
+            )
+          }
+          renderPlayerTiles(currentPlayer.playerHand, currentPlayer.playerChecked, currentPlayer.playerDiscarded)
+        }
 
         if (currentGameState.roundEnd) {
           timer.clearAll()
