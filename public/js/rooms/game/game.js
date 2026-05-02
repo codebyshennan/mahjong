@@ -614,6 +614,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         if (currentGameState.winner) {
           timer.clearAll()
+          gameState.winner = currentGameState.winner
           if (!document.getElementById('winOverlay')) {
             showLossScreen(currentGameState.winner)
           }
