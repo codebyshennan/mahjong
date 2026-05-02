@@ -126,7 +126,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         let newTile = type === 'special' ? deckInPlay.pop() : deckInPlay.shift()
 
         if (!newTile) {
-          console.warn('Deck exhausted — draw game')
+          endRoundAsDraw()
           return
         }
 
@@ -136,7 +136,7 @@ window.addEventListener('DOMContentLoaded', async () => {
           updateGameState(gameState, 'drawtiles')
           newTile = deckInPlay.pop()
           if (!newTile) {
-            console.warn('Deck exhausted during flower replacement')
+            endRoundAsDraw()
             return
           }
         }
