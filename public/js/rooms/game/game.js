@@ -759,6 +759,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     subEl.textContent = 'Deck exhausted. No winner this round.'
     overlay.appendChild(msgEl)
     overlay.appendChild(subEl)
+    addNextRoundCta(overlay)
     document.body.appendChild(overlay)
   }
 
