@@ -763,10 +763,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     playerEl.textContent = `Winner: ${currentPlayer.name}`
     overlay.appendChild(msgEl)
     overlay.appendChild(playerEl)
+    const winnerInfo = { uid: currentPlayer.id, name: currentPlayer.name, type }
+    gameState.winner = winnerInfo
     addNextRoundCta(overlay)
     document.body.appendChild(overlay)
     updateGameState(gameState, 'wingame')
-    setDoc(gameStateRef, { winner: { uid: currentPlayer.id, name: currentPlayer.name, type } }, { merge: true })
+    setDoc(gameStateRef, { winner: winnerInfo }, { merge: true })
     commitPlayerHandToFS(currentPlayer, gameState)
   }
 
