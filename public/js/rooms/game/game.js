@@ -907,15 +907,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     if (currentRound >= MATCH_LENGTH) {
       const note = document.createElement('div')
-      note.textContent = isHost() ? 'Match complete — finalising standings…' : 'Waiting for host to finalise match…'
+      note.textContent = 'Final round — calculating standings…'
       wrapper.appendChild(note)
-      if (isHost()) {
-        const btn = document.createElement('button')
-        btn.textContent = 'Show Final Standings'
-        btn.style.cssText = 'padding:0.6rem 1.2rem;font-size:1rem;cursor:pointer;'
-        btn.addEventListener('click', showMatchCompleteScreen)
-        wrapper.appendChild(btn)
-      }
+      setTimeout(showMatchCompleteScreen, 1500)
     } else if (isHost()) {
       const btn = document.createElement('button')
       btn.textContent = 'Next Round →'
