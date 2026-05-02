@@ -44,7 +44,8 @@ const playerDiscardedConverter = {
 const playerCheckedConverter = {
   toFirestore: (player)=> {
     return {
-      playerChecked: player.playerChecked
+      playerChecked: player.playerChecked,
+      playerMelds: player.playerMelds || []
     }
   },
   fromFirestore: (snapshot,options) => {
@@ -53,4 +54,14 @@ const playerCheckedConverter = {
   }
 }
 
-export { playerMetaInfoConverter, playerCheckedConverter, playerHandConverter, playerDiscardedConverter }
+const playerMeldsConverter = {
+  toFirestore: (player) => {
+    return { playerMelds: player.playerMelds || [] }
+  },
+  fromFirestore: (snapshot, options) => {
+    const data = snapshot.data(options)
+    return data.playerMelds || []
+  }
+}
+
+export { playerMetaInfoConverter, playerCheckedConverter, playerMeldsConverter, playerHandConverter, playerDiscardedConverter }
