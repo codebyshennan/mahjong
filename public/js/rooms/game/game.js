@@ -930,6 +930,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     winnerEl.textContent = `${winner.name} wins by ${winType}`
     overlay.appendChild(msgEl)
     overlay.appendChild(winnerEl)
+    addNextRoundCta(overlay)
     document.body.appendChild(overlay)
   }
 
