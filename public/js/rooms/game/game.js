@@ -735,6 +735,25 @@ window.addEventListener('DOMContentLoaded', async () => {
     commitPlayerHandToFS(currentPlayer, gameState)
   }
 
+  const showDrawScreen = () => {
+    if (document.getElementById('winOverlay')) return
+    const overlay = document.createElement('div')
+    overlay.id = 'winOverlay'
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:white;font-size:2rem;gap:1rem;'
+    const msgEl = document.createElement('div')
+    msgEl.textContent = '🀫 流局 — Draw'
+    const subEl = document.createElement('div')
+    subEl.style.fontSize = '1rem'
+    subEl.textContent = 'Deck exhausted. No winner this round.'
+    overlay.appendChild(msgEl)
+    overlay.appendChild(subEl)
+    document.body.appendChild(overlay)
+  }
+
+  const endRoundAsDraw = () => {
+    setDoc(gameStateRef, { roundEnd: { type: 'draw', endedAt: fsServerTimestamp() } }, { merge: true })
+  }
+
   const showLossScreen = (winner) => {
     const overlay = document.createElement('div')
     overlay.id = 'winOverlay'
