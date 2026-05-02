@@ -765,6 +765,157 @@ window.addEventListener('DOMContentLoaded', async () => {
     setDoc(gameStateRef, { roundEnd: { type: 'draw', endedAt: fsServerTimestamp() } }, { merge: true })
   }
 
+  const MATCH_LENGTH = 4
+
+  const seatToUid = (seat) =>
+    seat === 0 ? gameState.host : gameState.players[seat - 1].playerId
+
+  const isHost = () => loggedInUser.uid === gameState.host
+
+  const buildNextRound = async () => {
+    if (!isHost()) return
+
+    const currentRound = gameState.roundNumber || 1
+    const dealerSeat = gameState.dealerSeat ?? 0
+    const winnerUid = gameState.winner && gameState.winner.uid
+    const winnerWasDealer = winnerUid && winnerUid === seatToUid(dealerSeat)
+    const newDealerSeat = winnerWasDealer ? dealerSeat : (dealerSeat + 1) % 4
+    const newRoundNumber = currentRound + 1
+
+    const newDeck = buildDeck()
+    const allUids = [gameState.host, gameState.players[0].playerId, gameState.players[1].playerId, gameState.players[2].playerId]
+
+    const batch = writeBatch(fsdb)
+
+    for (let pn = 0; pn < 4; pn += 1) {
+      const uid = allUids[pn]
+      const metaRef = doc(fsdb, 'games', roomId, 'players', uid).withConverter(playerMetaInfoConverter)
+      const existingMeta = (await getDoc(metaRef)).data()
+
+      const freshPlayer = new DealPlayer(
+        uid,
+        existingMeta.name,
+        existingMeta.wind,
+        existingMeta.playerNumber,
+        existingMeta.chips,
+        [], [], [],
+        existingMeta.currentScore
+      )
+      freshPlayer.drawTile(13, newDeck)
+
+      batch.set(metaRef, freshPlayer)
+      batch.set(doc(fsdb, 'games', roomId, 'players', uid, 'tiles', 'playerHand').withConverter(playerHandConverter), freshPlayer)
+      batch.set(doc(fsdb, 'games', roomId, 'players', uid, 'tiles', 'playerChecked').withConverter(playerCheckedConverter), freshPlayer)
+      batch.set(doc(fsdb, 'games', roomId, 'players', uid, 'tiles', 'playerDiscarded').withConverter(playerDiscardedConverter), freshPlayer)
+    }
+
+    batch.set(doc(fsdb, 'games', roomId, 'deck', 'deckInPlay'), { deckInPlay: newDeck })
+
+    const freshGameState = {
+      roomId: gameState.roomId,
+      host: gameState.host,
+      players: gameState.players,
+      windCount: 0,
+      currentWind: gameState.currentWind,
+      currentPlayer: newDealerSeat,
+      currentTurnNo: 0,
+      currentHouse: gameState.currentHouse,
+      diceRolled: 0,
+      timeStarted: gameState.timeStarted,
+      tilesInDiscard: 0,
+      tilesInHands: 0,
+      tilesToPlay: 148,
+      roundNumber: newRoundNumber,
+      dealerSeat: newDealerSeat,
+      roundStartedAt: fsServerTimestamp(),
+    }
+    batch.set(gameStateRef, freshGameState)
+
+    await batch.commit()
+  }
+
+  const showMatchCompleteScreen = async () => {
+    const existing = document.getElementById('winOverlay')
+    if (existing) existing.remove()
+
+    const overlay = document.createElement('div')
+    overlay.id = 'winOverlay'
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:white;font-size:2rem;gap:1rem;'
+
+    const titleEl = document.createElement('div')
+    titleEl.textContent = '🏁 Match Complete'
+    overlay.appendChild(titleEl)
+
+    const allUids = [gameState.host, gameState.players[0].playerId, gameState.players[1].playerId, gameState.players[2].playerId]
+    const standings = []
+    for (const uid of allUids) {
+      const metaRef = doc(fsdb, 'games', roomId, 'players', uid).withConverter(playerMetaInfoConverter)
+      const meta = (await getDoc(metaRef)).data()
+      if (meta) standings.push({ name: meta.name, chips: meta.chips })
+    }
+    standings.sort((a, b) => b.chips - a.chips)
+
+    const list = document.createElement('div')
+    list.style.fontSize = '1rem'
+    list.innerHTML = standings.map((s, i) => `${i + 1}. ${s.name} — ${s.chips} chips`).join('<br>')
+    overlay.appendChild(list)
+
+    const btn = document.createElement('button')
+    btn.textContent = 'Return to Lobby'
+    btn.style.cssText = 'padding:0.6rem 1.2rem;font-size:1rem;cursor:pointer;'
+    btn.addEventListener('click', () => { window.location.pathname = '/lobby' })
+    overlay.appendChild(btn)
+
+    document.body.appendChild(overlay)
+  }
+
+  const addNextRoundCta = (overlay) => {
+    if (overlay.querySelector('.nextRoundCta')) return
+    const currentRound = gameState.roundNumber || 1
+    const wrapper = document.createElement('div')
+    wrapper.className = 'nextRoundCta'
+    wrapper.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:0.5rem;font-size:1rem;'
+
+    const roundLabel = document.createElement('div')
+    roundLabel.textContent = `Round ${currentRound} / ${MATCH_LENGTH}`
+    wrapper.appendChild(roundLabel)
+
+    if (currentRound >= MATCH_LENGTH) {
+      const note = document.createElement('div')
+      note.textContent = isHost() ? 'Match complete — finalising standings…' : 'Waiting for host to finalise match…'
+      wrapper.appendChild(note)
+      if (isHost()) {
+        const btn = document.createElement('button')
+        btn.textContent = 'Show Final Standings'
+        btn.style.cssText = 'padding:0.6rem 1.2rem;font-size:1rem;cursor:pointer;'
+        btn.addEventListener('click', showMatchCompleteScreen)
+        wrapper.appendChild(btn)
+      }
+    } else if (isHost()) {
+      const btn = document.createElement('button')
+      btn.textContent = 'Next Round →'
+      btn.style.cssText = 'padding:0.6rem 1.2rem;font-size:1rem;cursor:pointer;'
+      btn.addEventListener('click', async () => {
+        btn.disabled = true
+        btn.textContent = 'Dealing…'
+        try {
+          await buildNextRound()
+        } catch (err) {
+          console.error('Next round failed:', err)
+          btn.disabled = false
+          btn.textContent = 'Next Round →'
+        }
+      })
+      wrapper.appendChild(btn)
+    } else {
+      const note = document.createElement('div')
+      note.textContent = 'Waiting for host to start next round…'
+      wrapper.appendChild(note)
+    }
+
+    overlay.appendChild(wrapper)
+  }
+
   const showLossScreen = (winner) => {
     const overlay = document.createElement('div')
     overlay.id = 'winOverlay'
