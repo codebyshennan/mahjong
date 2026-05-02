@@ -578,6 +578,15 @@ window.addEventListener('DOMContentLoaded', async () => {
       onSnapshot(gameStateRef, async (snapshot)=> {
         let currentGameState = snapshot.data()
 
+        if (currentGameState.roundEnd) {
+          timer.clearAll()
+          gameState.roundEnd = currentGameState.roundEnd
+          showDrawScreen()
+          const eatOptionsDiv = document.getElementById('eatOptions')
+          if (eatOptionsDiv) eatOptionsDiv.innerHTML = ''
+          return
+        }
+
         if (currentGameState.winner) {
           timer.clearAll()
           if (!document.getElementById('winOverlay')) {
