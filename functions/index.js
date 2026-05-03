@@ -90,6 +90,11 @@ app.get('/lobby', (req, res) => {
   res.render('lobby')
 })
 
+app.get('/practice', (req, res) => {
+  res.set('Cache-Control', 'no-store')
+  res.render('game', { roomId: 'practice', practiceMode: true })
+})
+
 app.get('/interstitial/:key', (req, res) => {
   if (!UUID_REGEX.test(req.params.key)) {
     return res.redirect('/lobby')
