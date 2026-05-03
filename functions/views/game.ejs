@@ -76,7 +76,7 @@
         </a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
           <li id="userName"></li>
-          <li id="logout"><%= locals.demoMode ? 'Preview' : 'Logout' %></li>
+          <li id="logout"><%= locals.practiceMode ? 'Exit' : (locals.demoMode ? 'Preview' : 'Logout') %></li>
         </ul>
       </div>
     </nav>
