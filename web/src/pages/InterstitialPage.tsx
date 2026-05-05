@@ -19,6 +19,7 @@ import { useCollection } from '../lib/firestore-hooks'
 import { useChat } from '../lib/rtdb-hooks'
 import { WIND_EMOJI, WIND_ORDER } from '../lib/types'
 import type { OnlinePresence, Room, RoomPlayer, Wind } from '../lib/types'
+import { initGame } from '../game/initGame'
 
 const DEFAULT_AVATAR =
   'https://pbs.twimg.com/profile_images/740272510420258817/sd2e6kJy_400x400.jpg'
