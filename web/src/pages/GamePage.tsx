@@ -194,7 +194,11 @@ function GameBody({
                 </span>
               ) : (
                 <span className="text-xs px-2 py-1 rounded bg-slate-700 text-slate-300">
-                  Waiting for {players[gameState.currentPlayer]?.name ?? 'next player'}…
+                  Waiting for{' '}
+                  {players.length === 4
+                    ? (players[gameState.currentPlayer]?.name ?? 'next player')
+                    : 'players to load'}
+                  …
                 </span>
               )}
               <button
