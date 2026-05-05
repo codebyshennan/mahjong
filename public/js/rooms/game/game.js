@@ -689,6 +689,17 @@ window.addEventListener('DOMContentLoaded', async () => {
                 })
                 eatOptionsDiv.appendChild(eatBtn)
               })
+
+              // T6.2 exposed kong (明杠): if hand has 3 of the discarded tile,
+              // surface a Kong button alongside pong/chow. Available to any
+              // opponent (not just the player right of the discarder).
+              if (currentPlayer.tallyByName()[lastDiscardedTile.name] >= 3) {
+                const kongBtn = document.createElement('button')
+                kongBtn.className = 'waves-effect waves-light btn-small'
+                kongBtn.textContent = `Kong: ${refDeck()[lastDiscardedTile.name] || lastDiscardedTile.name}`
+                kongBtn.addEventListener('click', () => claimExposedKong(lastDiscardedTile, i))
+                eatOptionsDiv.appendChild(kongBtn)
+              }
             }
           }
         })
