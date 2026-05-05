@@ -1235,9 +1235,25 @@ window.addEventListener('DOMContentLoaded', async () => {
     const winnerEl = document.createElement('div')
     winnerEl.style.fontSize = '1rem'
     const winType = winner.type === 'self-draw' ? '自摸 (Self Draw)' : '胡 (Discard Win)'
-    winnerEl.textContent = `${winner.name} wins by ${winType}`
+    const taiText = typeof winner.tai === 'number' ? ` — ${winner.tai} tai` : ''
+    winnerEl.textContent = `${winner.name} wins by ${winType}${taiText}`
     overlay.appendChild(msgEl)
     overlay.appendChild(winnerEl)
+
+    if (Array.isArray(winner.breakdown) && winner.breakdown.length > 0) {
+      overlay.appendChild(renderBreakdownList(winner.breakdown))
+    }
+
+    if (typeof winner.chipsTransfer === 'number') {
+      // Loser's chip change: -chipsTransfer if discarder (or anyone on self-draw),
+      // 0 if not the discarder on a discard-win.
+      const isPayer = winner.type === 'self-draw' || winner.discarderUid === currentPlayer.id
+      const chipsEl = document.createElement('div')
+      chipsEl.style.fontSize = '1rem'
+      chipsEl.textContent = isPayer ? `-${winner.chipsTransfer} chips` : '0 chips (you didn\'t feed)'
+      overlay.appendChild(chipsEl)
+    }
+
     addNextRoundCta(overlay)
     document.body.appendChild(overlay)
   }
