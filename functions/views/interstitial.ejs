@@ -124,13 +124,13 @@
   <body>
     <nav>
       <div class="nav-wrapper">
-        <a href="/lobby" class="brand-logo">
+        <a href="<%= locals.demoMode ? '/demo/lobby' : '/lobby' %>" class="brand-logo">
           <i class="material-icons">sports_esports</i>
           <span> 麻将之王 </span></a
         >
         <ul id="nav-mobile" class="right hide-on-med-and-down">
           <li id="userName"></li>
-          <li id="logout">Logout</li>
+          <li id="logout"><%= locals.demoMode ? 'Preview' : 'Logout' %></li>
         </ul>
       </div>
     </nav>
@@ -159,6 +159,10 @@
         </div>
       </div>
     </div>
-  <script type="module" src="/js/rooms/interstitial/interstitial.js" defer></script>
+  <% if (locals.demoMode) { %>
+    <script type="module" src="/js/demo/layoutPreview.js" defer></script>
+  <% } else { %>
+    <script type="module" src="/js/rooms/interstitial/interstitial.js" defer></script>
+  <% } %>
   </body>
 </html>
