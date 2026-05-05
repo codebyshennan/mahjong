@@ -161,26 +161,20 @@ function InterstitialBody({
     navigate('/lobby', { replace: true })
   }
 
-  // Host-only stub start: write a minimal gameState doc to trigger redirects.
-  // Full deck/hand setup moves to P5 where the Player + tileset modules land.
   const onStartGame = async () => {
-    await setDoc(doc(fsdb, 'games', roomId, 'gameState', roomId), {
+    if (room.players.length !== 3) {
+      console.warn('Cannot start: need exactly 3 non-host players')
+      return
+    }
+    await initGame(
+      fsdb,
       roomId,
-      host: user.uid,
-      windCount: 0,
-      currentWind: 'east',
-      currentPlayer: 0,
-      currentTurnNo: 0,
-      currentHouse: 'east',
-      diceRolled: 0,
-      timeStarted: new Date(),
-      tilesInDiscard: 0,
-      tilesInHands: 0,
-      tilesToPlay: 148,
-      roundNumber: 1,
-      dealerSeat: 0,
-      _stub: true, // remove in P5 once real init lands
-    })
+      { uid: user.uid, displayName: user.displayName ?? 'Host' },
+      room.players.map((p) => ({
+        uid: p.uid,
+        displayName: p.displayName ?? 'Player',
+      })),
+    )
   }
 
   return (
