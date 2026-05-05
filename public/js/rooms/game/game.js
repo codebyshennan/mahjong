@@ -337,7 +337,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const { win } = checkWin(currentPlayer.playerHand, currentPlayer.playerChecked)
     if (win) {
       timer.clearAll()
-      showWinScreen('self-draw')
+      await showWinScreen('self-draw')
       return
     }
 
@@ -378,7 +378,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const { win } = checkWin(currentPlayer.playerHand, currentPlayer.playerChecked)
     if (win) {
       timer.clearAll()
-      showWinScreen('self-draw')
+      await showWinScreen('self-draw')
       return
     }
 
@@ -470,7 +470,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const { win } = checkWin(currentPlayer.playerHand, currentPlayer.playerChecked)
     if (win) {
       timer.clearAll()
-      showWinScreen('self-draw')
+      await showWinScreen('self-draw')
       return
     }
 
