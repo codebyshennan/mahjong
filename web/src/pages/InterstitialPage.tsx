@@ -139,6 +139,7 @@ function InterstitialBody({
   const isHost = room.host.uid === user.uid
   const seats = buildSeats(room)
   const allReady = readyUids.size === 4 && room.playerCount === 4
+  const __DEV_ALLOW_START__ = import.meta.env.DEV && readyUids.size >= 1
 
   const onToggleReady = async () => {
     const ref = doc(fsdb, 'lobby', roomId, 'readiness', user.uid)
