@@ -47,6 +47,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signOut = async () => {
+    if (user) {
+      await clearPresence(user.uid, 'online', {
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+      })
+    }
     await fbSignOut(auth)
   }
 
