@@ -346,6 +346,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const renderConcealedKongOptions = () => {
     const eatOptionsDiv = document.getElementById('eatOptions')
     if (!eatOptionsDiv) return
+    eatOptionsDiv.innerHTML = ''
     if (gameState.roundEnd || gameState.winner) return
     if (gameState.currentPlayer !== currentPlayer.playerNumber) return
 
