@@ -85,6 +85,10 @@ export async function initGame(
     }),
   )
 
+  // Every seat is dealt 13. Dealer starts with `turnPhase: 'draw'` and so
+  // pulls their 14th tile via the same draw flow as everyone else, rather
+  // than getting an extra tile here. Don't change this without updating
+  // the turn loop in turnActions.ts.
   for (const p of players) drawTile(p, 13, deck, onDraw)
 
   gameState.players = players.slice(1).map((p) => ({
