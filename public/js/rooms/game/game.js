@@ -319,8 +319,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     currentPlayer.playerMelds.push({ kind: 'kong-concealed', tiles: moved })
     moved.forEach(t => currentPlayer.playerChecked.push(t))
 
+    const handSizeBeforeReplacement = currentPlayer.playerHand.length
     currentPlayer.drawTile(1, 'special')
-    if (gameState.roundEnd) return
+    if (currentPlayer.playerHand.length === handSizeBeforeReplacement) {
+      // Deck exhausted during replacement draw — drawTile already fired endRoundAsDraw.
+      // Don't commit player state: commitPlayerHandToFS would clobber roundEnd.
+      return
+    }
 
     const deckRef = doc(fsdb, 'games', roomId, 'deck', 'deckInPlay')
     await setDoc(deckRef, { deckInPlay: deckInPlay })
