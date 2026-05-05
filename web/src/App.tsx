@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import LobbyPage from './pages/LobbyPage'
 import InterstitialPage from './pages/InterstitialPage'
+import GamePage from './pages/GamePage'
 
 export default function App() {
   return (
