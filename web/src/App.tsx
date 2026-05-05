@@ -1,10 +1,29 @@
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { AuthProvider } from './auth/AuthContext'
+import { RequireAuth } from './auth/RequireAuth'
+import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
+import LobbyPage from './pages/LobbyPage'
+
 export default function App() {
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center">
-      <div className="text-center space-y-3">
-        <h1 className="text-3xl font-semibold tracking-tight">麻将之王</h1>
-        <p className="text-slate-400">Web Mahjong — migrating to React + Vite + Tailwind</p>
-      </div>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/lobby"
+            element={
+              <RequireAuth>
+                <LobbyPage />
+              </RequireAuth>
+            }
+          />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
