@@ -1,10 +1,22 @@
-# WEBPACK
+# Build output
 dist
 
-# NODE
+# Dependencies
 node_modules
 
-# API KEY FOR FIREBASE ADMIN
+# Secrets
 serviceAccountKey.json
-
 .env
+.env.local
+.env.*.local
+
+# Firebase emulator debug logs
+*.log
+.firebase/
+
+# Editor / tooling
+.impeccable.md
+.playwright-mcp/
+.vscode/
+.idea/
+.DS_Store
