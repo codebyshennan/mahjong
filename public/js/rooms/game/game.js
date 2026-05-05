@@ -3,6 +3,7 @@ import { refDeck, buildDeck } from '../../utils/makeDeck.js'
 import {timer, startTimer} from '../../utils/timer.js'
 import { WIND_TILES, ANIMAL_TILES, FLOWER_TILES} from './tileset.js'
 import { checkWin } from '../../utils/winCheck.js'
+import { calculateTai, taiToChips } from './scoring.js'
 import DealPlayer from '../Player.js'
 import { auth, rtdb, fsdb } from '../../firebase-init.js'
 export { fsdb }
