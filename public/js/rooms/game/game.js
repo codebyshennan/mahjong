@@ -343,22 +343,76 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderConcealedKongOptions()
   }
 
-  const renderConcealedKongOptions = () => {
+  // Promoted kong (加杠): hand tile matches an existing pong meld; promote to a 4-tile kong.
+  const findPromotedKongCandidates = (player) =>
+    player.playerMelds
+      .filter(m => m.kind === 'pong')
+      .filter(m => player.playerHand.some(t => t.name === m.tiles[0].name))
+      .map(m => m.tiles[0].name)
+
+  const promoteKong = async (tileName) => {
+    const handIdx = currentPlayer.playerHand.findIndex(t => t.name === tileName)
+    if (handIdx < 0) return
+    const promotionTile = currentPlayer.playerHand.splice(handIdx, 1)[0]
+
+    const meld = currentPlayer.playerMelds.find(m => m.kind === 'pong' && m.tiles[0].name === tileName)
+    if (!meld) return
+    meld.tiles.push(promotionTile)
+    meld.kind = 'kong-promoted'
+    currentPlayer.playerChecked.push(promotionTile)
+
+    const handSizeBeforeReplacement = currentPlayer.playerHand.length
+    currentPlayer.drawTile(1, 'special')
+    if (currentPlayer.playerHand.length === handSizeBeforeReplacement) {
+      // Deck exhausted on replacement — drawTile fired endRoundAsDraw.
+      return
+    }
+
+    const deckRef = doc(fsdb, 'games', roomId, 'deck', 'deckInPlay')
+    await setDoc(deckRef, { deckInPlay: deckInPlay })
+
+    renderPlayerTiles(currentPlayer.playerHand, currentPlayer.playerChecked, currentPlayer.playerDiscarded)
+    await commitPlayerHandToFS(currentPlayer, gameState)
+
+    const { win } = checkWin(currentPlayer.playerHand, currentPlayer.playerChecked)
+    if (win) {
+      timer.clearAll()
+      showWinScreen('self-draw')
+      return
+    }
+
+    renderOwnTurnKongOptions()
+  }
+
+  // Renders both concealed-kong and promoted-kong buttons on the player's own
+  // turn. Idempotent: clears #eatOptions before rendering so the recursive
+  // (kong-on-kong) and snapshot-driven call sites don't double-render.
+  const renderOwnTurnKongOptions = () => {
     const eatOptionsDiv = document.getElementById('eatOptions')
     if (!eatOptionsDiv) return
     eatOptionsDiv.innerHTML = ''
     if (gameState.roundEnd || gameState.winner) return
     if (gameState.currentPlayer !== currentPlayer.playerNumber) return
 
-    const candidates = findConcealedKongCandidates(currentPlayer)
-    candidates.forEach(name => {
+    findConcealedKongCandidates(currentPlayer).forEach(name => {
       const btn = document.createElement('button')
       btn.className = 'waves-effect waves-light btn-small'
       btn.textContent = `Declare Kong: ${refDeck()[name] || name}`
       btn.addEventListener('click', () => declareConcealedKong(name))
       eatOptionsDiv.appendChild(btn)
     })
+
+    findPromotedKongCandidates(currentPlayer).forEach(name => {
+      const btn = document.createElement('button')
+      btn.className = 'waves-effect waves-light btn-small'
+      btn.textContent = `Promote Kong: ${refDeck()[name] || name}`
+      btn.addEventListener('click', () => promoteKong(name))
+      eatOptionsDiv.appendChild(btn)
+    })
   }
+
+  // Back-compat alias — internal callers use the unified renderer.
+  const renderConcealedKongOptions = renderOwnTurnKongOptions
 
   // Exposed kong (明杠): claim an opponent's discard when holding 3 of the
   // same tile. Same seating rule as pong (any opponent can claim, not just
