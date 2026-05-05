@@ -206,7 +206,7 @@ function InterstitialBody({
             {isHost ? (
               <button
                 onClick={onStartGame}
-                disabled={!allReady && !__DEV_ALLOW_START__}
+                disabled={!allReady}
                 className="rounded-md bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-900 px-4 py-2 text-sm font-medium"
               >
                 Start game
