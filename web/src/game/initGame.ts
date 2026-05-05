@@ -66,8 +66,9 @@ export async function initGame(
     tilesInDiscard: 0,
     tilesInHands: 0,
     tilesToPlay: 148,
-  roundNumber: 1,
+    roundNumber: 1,
     dealerSeat: 0,
+    turnPhase: 'draw',
   }
 
   const onDraw = () => {
