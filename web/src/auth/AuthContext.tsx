@@ -9,6 +9,7 @@ import {
 } from 'firebase/auth'
 import type { User } from 'firebase/auth'
 import { auth } from '../lib/firebase'
+import { clearPresence } from '../lib/presence'
 
 interface AuthContextValue {
   user: User | null
