@@ -949,7 +949,96 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 
   
-  const showWinScreen = (type) => {
+  const renderBreakdownList = (breakdown) => {
+    const list = document.createElement('ul')
+    list.style.cssText = 'list-style:none;padding:0;margin:0;font-size:0.9rem;text-align:center;'
+    breakdown.forEach(b => {
+      const li = document.createElement('li')
+      li.textContent = `${b.name}: +${b.tai} tai`
+      list.appendChild(li)
+    })
+    return list
+  }
+
+  const showWinScreen = async (type, discarderUid = null) => {
+    if (document.getElementById('winOverlay')) return
+
+    const { tai, breakdown, raw } = calculateTai(currentPlayer, gameState, type)
+
+    if (tai < 1) {
+      // Q2: Singapore mahjong requires minimum 1 tai. A structurally winning
+      // hand with 0 tai (e.g. all chow + non-honour pair, no flowers, discard win)
+      // is a "false hu" — the player cannot declare it. Bail without writing.
+      console.warn('Win blocked: hand has 0 tai (Q2 minimum = 1).')
+      return
+    }
+
+    const chipsTransfer = taiToChips(tai)
+    const allUids = [gameState.host, gameState.players[0].playerId, gameState.players[1].playerId, gameState.players[2].playerId]
+    const winnerUid = currentPlayer.id
+
+    const chipDeltas = {}
+    for (const uid of allUids) chipDeltas[uid] = 0
+    if (type === 'self-draw') {
+      chipDeltas[winnerUid] = chipsTransfer * 3
+      for (const uid of allUids) {
+        if (uid !== winnerUid) chipDeltas[uid] = -chipsTransfer
+      }
+    } else {
+      // discard-win: only the discarder pays, full amount
+      chipDeltas[winnerUid] = chipsTransfer
+      if (discarderUid) chipDeltas[discarderUid] = -chipsTransfer
+    }
+
+    const winnerInfo = {
+      uid: winnerUid,
+      name: currentPlayer.name,
+      type,
+      tai,
+      breakdown,
+      chipsTransfer,
+      discarderUid: discarderUid || null,
+    }
+
+    try {
+      await runTransaction(fsdb, async (tx) => {
+        const stateSnap = await tx.get(gameStateRef)
+        const state = stateSnap.data() || gameState
+
+        // Read all 4 player metas (collect new chip values)
+        const newMetas = {}
+        for (const uid of allUids) {
+          const ref = doc(fsdb, 'games', roomId, 'players', uid).withConverter(playerMetaInfoConverter)
+          const snap = await tx.get(ref)
+          const meta = snap.data()
+          if (!meta) continue
+          newMetas[uid] = { ...meta, chips: meta.chips + (chipDeltas[uid] || 0) }
+        }
+
+        // Mirror winner's new chip total locally so addNextRoundCta sees it
+        if (newMetas[winnerUid]) currentPlayer.chips = newMetas[winnerUid].chips
+
+        // Writes
+        for (const uid of allUids) {
+          if (!newMetas[uid]) continue
+          const ref = doc(fsdb, 'games', roomId, 'players', uid).withConverter(playerMetaInfoConverter)
+          tx.set(ref, newMetas[uid])
+        }
+        // Winner's hand/checked/discarded (idempotent for discard-win since
+        // the eat tx already wrote them; required for self-draw).
+        tx.set(mainPlayerHandRef, currentPlayer)
+        tx.set(mainPlayerCheckedRef, currentPlayer)
+        tx.set(mainPlayerDiscardRef, currentPlayer)
+        tx.set(gameStateRef, { ...state, winner: winnerInfo })
+      })
+    } catch (err) {
+      console.error('Win transaction failed:', err)
+      return
+    }
+
+    gameState.winner = winnerInfo
+    updateGameState(gameState, 'wingame')
+
     const overlay = document.createElement('div')
     overlay.id = 'winOverlay'
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:white;font-size:2rem;gap:1rem;'
@@ -958,16 +1047,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     msgEl.textContent = msg
     const playerEl = document.createElement('div')
     playerEl.style.fontSize = '1rem'
-    playerEl.textContent = `Winner: ${currentPlayer.name}`
+    playerEl.textContent = `${currentPlayer.name} — ${tai} tai${raw > tai ? ` (capped from ${raw})` : ''}`
+    const chipsEl = document.createElement('div')
+    chipsEl.style.fontSize = '1rem'
+    chipsEl.textContent = type === 'self-draw'
+      ? `+${chipsTransfer * 3} chips (${chipsTransfer} from each loser)`
+      : `+${chipsTransfer} chips`
     overlay.appendChild(msgEl)
     overlay.appendChild(playerEl)
-    const winnerInfo = { uid: currentPlayer.id, name: currentPlayer.name, type }
-    gameState.winner = winnerInfo
+    overlay.appendChild(renderBreakdownList(breakdown))
+    overlay.appendChild(chipsEl)
     addNextRoundCta(overlay)
     document.body.appendChild(overlay)
-    updateGameState(gameState, 'wingame')
-    setDoc(gameStateRef, { winner: winnerInfo }, { merge: true })
-    commitPlayerHandToFS(currentPlayer, gameState)
   }
 
   const showDrawScreen = () => {
