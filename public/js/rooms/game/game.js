@@ -294,13 +294,65 @@ window.addEventListener('DOMContentLoaded', async () => {
       const randomIndex = Math.floor(currentPlayerHand.length * Math.random())
       const randomTile = currentPlayerHand[randomIndex]
       player.discardTile(randomTile)
-      
+
       timer.clearAll()
       updateGameState(gameState,'discardtiles')
       updateGameState(gameState,'nextround')
       renderPlayerTiles(player.playerHand,player.playerChecked, player.playerDiscarded)
       commitPlayerHandToFS(player, gameState)
     }
+
+  // Concealed kong (暗杠): 4 of the same tile in own hand, declared on own turn.
+  // Player still must discard after; kong replacement may itself be a winning tile.
+  const findConcealedKongCandidates = (player) => {
+    const tally = player.tallyByName()
+    return Object.keys(tally).filter(name => tally[name] >= 4)
+  }
+
+  const declareConcealedKong = async (tileName) => {
+    const moved = []
+    for (let i = 0; i < 4; i += 1) {
+      const idx = currentPlayer.playerHand.findIndex(t => t.name === tileName)
+      if (idx < 0) break
+      moved.push(currentPlayer.playerHand.splice(idx, 1)[0])
+    }
+    currentPlayer.playerMelds.push({ kind: 'kong-concealed', tiles: moved })
+    moved.forEach(t => currentPlayer.playerChecked.push(t))
+
+    currentPlayer.drawTile(1, 'special')
+    if (gameState.roundEnd) return
+
+    const deckRef = doc(fsdb, 'games', roomId, 'deck', 'deckInPlay')
+    await setDoc(deckRef, { deckInPlay: deckInPlay })
+
+    renderPlayerTiles(currentPlayer.playerHand, currentPlayer.playerChecked, currentPlayer.playerDiscarded)
+    await commitPlayerHandToFS(currentPlayer, gameState)
+
+    const { win } = checkWin(currentPlayer.playerHand, currentPlayer.playerChecked)
+    if (win) {
+      timer.clearAll()
+      showWinScreen('self-draw')
+      return
+    }
+
+    renderConcealedKongOptions()
+  }
+
+  const renderConcealedKongOptions = () => {
+    const eatOptionsDiv = document.getElementById('eatOptions')
+    if (!eatOptionsDiv) return
+    if (gameState.roundEnd || gameState.winner) return
+    if (gameState.currentPlayer !== currentPlayer.playerNumber) return
+
+    const candidates = findConcealedKongCandidates(currentPlayer)
+    candidates.forEach(name => {
+      const btn = document.createElement('button')
+      btn.className = 'waves-effect waves-light btn-small'
+      btn.textContent = `Declare Kong: ${refDeck()[name] || name}`
+      btn.addEventListener('click', () => declareConcealedKong(name))
+      eatOptionsDiv.appendChild(btn)
+    })
+  }
 
   // TODO: push this back to the browser
   document.getElementById('logout').addEventListener('click', (ev)=> {
