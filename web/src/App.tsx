@@ -4,6 +4,7 @@ import { RequireAuth } from './auth/RequireAuth'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import LobbyPage from './pages/LobbyPage'
+import InterstitialPage from './pages/InterstitialPage'
 
 export default function App() {
   return (
