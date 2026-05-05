@@ -39,7 +39,7 @@ function GameBody({
 
   const [gameState, setGameState] = useState<GameStateDoc | null>(null)
   const [players, setPlayers] = useState<PlayerMeta[]>([])
-  const [hands, setHands] = useState<Record<string, Tile[]>>({})
+  const [myHand, setMyHand] = useState<Tile[]>([])
   const [checked, setChecked] = useState<Record<string, Tile[]>>({})
   const [discarded, setDiscarded] = useState<Record<string, Tile[]>>({})
   const [busy, setBusy] = useState(false)
