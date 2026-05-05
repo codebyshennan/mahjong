@@ -713,6 +713,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
           // If the eater just took from a discard, they don't draw — they discard next.
           if (currentGameState.awaitingDiscard) {
+            renderConcealedKongOptions()
             return
           }
 
@@ -726,7 +727,9 @@ window.addEventListener('DOMContentLoaded', async () => {
           if (win) {
             timer.clearAll()
             showWinScreen('self-draw')
+            return
           }
+          renderConcealedKongOptions()
         }
 
       })
