@@ -340,7 +340,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       return
     }
 
-    renderConcealedKongOptions()
+    renderOwnTurnKongOptions()
   }
 
   // Promoted kong (加杠): hand tile matches an existing pong meld; promote to a 4-tile kong.
@@ -475,7 +475,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       return
     }
 
-    renderConcealedKongOptions()
+    renderOwnTurnKongOptions()
   }
 
   // TODO: push this back to the browser
@@ -848,7 +848,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
           // If the eater just took from a discard, they don't draw — they discard next.
           if (currentGameState.awaitingDiscard) {
-            renderConcealedKongOptions()
+            renderOwnTurnKongOptions()
             return
           }
 
@@ -864,7 +864,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             showWinScreen('self-draw')
             return
           }
-          renderConcealedKongOptions()
+          renderOwnTurnKongOptions()
         }
 
       })
