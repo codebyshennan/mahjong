@@ -360,6 +360,70 @@ window.addEventListener('DOMContentLoaded', async () => {
     })
   }
 
+  // Exposed kong (明杠): claim an opponent's discard when holding 3 of the
+  // same tile. Same seating rule as pong (any opponent can claim, not just
+  // the player to the right). Atomic Firestore write so the eaten tile leaves
+  // the discarder's pile in the same step the kong-er's meld lands.
+  const claimExposedKong = async (discardedTile, fromOpponentIndex) => {
+    const sameName = discardedTile.name
+    const moved = []
+    for (let i = 0; i < 3; i += 1) {
+      const idx = currentPlayer.playerHand.findIndex(t => t.name === sameName)
+      if (idx < 0) break
+      moved.push(currentPlayer.playerHand.splice(idx, 1)[0])
+    }
+    const fourTiles = [...moved, discardedTile]
+    fourTiles.forEach(t => currentPlayer.playerChecked.push(t))
+    currentPlayer.playerMelds.push({ kind: 'kong-exposed', tiles: fourTiles })
+
+    timer.clearAll()
+    updateGameState(gameState, 'eattiles')
+    gameState.currentPlayer = currentPlayer.playerNumber
+    gameState.awaitingDiscard = true
+
+    const handSizeBeforeReplacement = currentPlayer.playerHand.length
+    currentPlayer.drawTile(1, 'special')
+    const replacementOK = currentPlayer.playerHand.length > handSizeBeforeReplacement
+
+    try {
+      await runTransaction(fsdb, async (tx) => {
+        const discardSnap = await tx.get(discardRefs[fromOpponentIndex])
+        const pile = discardSnap.data() || []
+        if (pile.length > 0 && pile[pile.length - 1].index === discardedTile.index) {
+          pile.pop()
+        }
+        tx.set(discardRefs[fromOpponentIndex], { playerDiscarded: pile })
+        tx.set(mainPlayerMetaRef, currentPlayer)
+        tx.set(mainPlayerHandRef, currentPlayer)
+        tx.set(mainPlayerCheckedRef, currentPlayer)
+        tx.set(mainPlayerDiscardRef, currentPlayer)
+        if (replacementOK) {
+          tx.set(gameStateRef, gameState)
+          tx.set(doc(fsdb, 'games', roomId, 'deck', 'deckInPlay'), { deckInPlay })
+        }
+      })
+    } catch (err) {
+      console.error('Exposed kong transaction failed:', err)
+      return
+    }
+
+    renderPlayerTiles(currentPlayer.playerHand, currentPlayer.playerChecked, currentPlayer.playerDiscarded)
+    const eatOptionsDiv = document.getElementById('eatOptions')
+    if (eatOptionsDiv) eatOptionsDiv.innerHTML = ''
+    lastCheckedTileIndex = null
+
+    if (!replacementOK) return
+
+    const { win } = checkWin(currentPlayer.playerHand, currentPlayer.playerChecked)
+    if (win) {
+      timer.clearAll()
+      showWinScreen('self-draw')
+      return
+    }
+
+    renderConcealedKongOptions()
+  }
+
   // TODO: push this back to the browser
   document.getElementById('logout').addEventListener('click', (ev)=> {
     ev.preventDefault()
