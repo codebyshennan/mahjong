@@ -10,6 +10,8 @@ export interface SeatInput {
   displayName: string
 }
 
+export type TurnPhase = 'draw' | 'discard'
+
 export interface GameStateDoc {
   roomId: string
   host: string
@@ -26,6 +28,7 @@ export interface GameStateDoc {
   tilesToPlay: number
   roundNumber: number
   dealerSeat: number
+  turnPhase: TurnPhase
 }
 
 /**
