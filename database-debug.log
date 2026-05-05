@@ -1,7 +1,0 @@
-18:28:02.029 [NamespaceSystem-akka.actor.default-dispatcher-5] INFO akka.event.slf4j.Slf4jLogger - Slf4jLogger started
-18:28:02.212 [main] INFO com.firebase.server.forge.App$ - Listening at 127.0.0.1:9000
-23:25:42.642 [Thread-1] INFO com.firebase.server.forge.App$ - Attempting graceful shutdown.
-23:25:42.981 [NamespaceSystem-akka.actor.default-dispatcher-27] INFO com.firebase.core.namespace.Terminator$Terminator - 1 actors left to terminate: mahjong-7d9ae-default-rtdb
-23:25:43.021 [NamespaceSystem-akka.actor.default-dispatcher-30] INFO com.firebase.core.namespace.NamespaceActor - Stopping namespace actor for mahjong-7d9ae-default-rtdb
-23:25:43.033 [NamespaceSystem-akka.actor.default-dispatcher-30] INFO com.firebase.core.namespace.NamespaceActor - Gauges removed for mahjong-7d9ae-default-rtdb
-23:25:43.054 [Thread-1] INFO com.firebase.server.forge.App$ - Graceful shutdown complete.

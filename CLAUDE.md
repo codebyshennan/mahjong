@@ -11,17 +11,17 @@ Web Mahjong — a 4-player online multiplayer mahjong game client using Singapor
 ```bash
 # Development (requires Firebase emulators)
 firebase emulators:start                  # Start all emulators (auth:9099, firestore:8080, rtdb:9000, functions:5001, hosting:5000)
-npm run watch                             # Webpack dev build with watch mode
-cd functions && npm run serve             # Start functions emulator only
+pnpm run watch                            # Webpack dev build with watch mode
+cd functions && pnpm run serve            # Start functions emulator only
 
 # Build & Deploy
-npm run build                             # Production webpack build
+pnpm run build                            # Production webpack build
 firebase deploy                           # Deploy everything
-cd functions && npm run deploy            # Deploy functions only
+cd functions && pnpm run deploy           # Deploy functions only
 
 # Install dependencies (two separate package.json files)
-npm install                               # Root dependencies
-cd functions && npm install               # Cloud Functions dependencies
+pnpm install                              # Root dependencies
+cd functions && pnpm install              # Cloud Functions dependencies
 ```
 
 ## Architecture
@@ -80,9 +80,9 @@ RTDB is used as the presence source of truth (via `.info/connected` + `onDisconn
 
 ## Development Notes
 
-- All client JS uses bare ES module imports from Firebase CDN (`https://www.gstatic.com/firebasejs/9.1.1/...`), not npm packages. The root `package.json` dependencies are for the Cloud Functions server side.
+- All client JS uses bare ES module imports from Firebase CDN (`https://www.gstatic.com/firebasejs/9.1.1/...`), not package-manager-installed modules. The root `package.json` dependencies are for the Cloud Functions server side.
 - Firebase config is imported from `public/js/config.js` (client) and `functions/firebaseConfig.js` (server) — both gitignored.
 - Emulator connections are hardcoded in every client JS file (`connectAuthEmulator`, `connectDatabaseEmulator`, `connectFirestoreEmulator`).
 - The `roomId` variable in game and interstitial pages is injected by EJS templates from Express route params.
-- No test suite exists (`npm test` is a no-op).
+- No test suite exists (`pnpm test` is a no-op).
 - CI: GitHub Actions auto-deploys to Firebase Hosting on push to `master`.
