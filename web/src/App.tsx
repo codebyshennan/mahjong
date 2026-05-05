@@ -22,6 +22,14 @@ export default function App() {
               </RequireAuth>
             }
           />
+          <Route
+            path="/interstitial/:roomId"
+            element={
+              <RequireAuth>
+                <InterstitialPage />
+              </RequireAuth>
+            }
+          />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
