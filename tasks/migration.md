@@ -16,14 +16,17 @@ Hard cutover from Express+EJS+vanilla-JS-via-CDN to Vite + React + TypeScript + 
 ## Pure modules to lift verbatim (TS-converted)
 
 These are framework-agnostic and just need typing:
-- `public/js/rooms/game/tileset.js` → `web/src/game/tileset.ts`
-- `public/js/utils/makeDeck.js` → `web/src/game/deck.ts`
-- `public/js/rooms/game/winCheck.js` → `web/src/game/winCheck.ts`
-- `public/js/rooms/game/scoring.js` → `web/src/game/scoring.ts`
-- `public/js/demo/AIPlayer.js` → `web/src/demo/aiPlayer.ts`
-- `public/js/demo/LocalGameState.js` → `web/src/demo/localGameState.ts`
+- ✅ `public/js/rooms/game/tileset.js` → `web/src/game/tileset.ts` (also exports `Tile`, `Meld`, `Wind` types + `isSpecialName` / `isNumberedName` / `isDragonName` / `isWindName` helpers)
+- ✅ `public/js/utils/makeDeck.js` → `web/src/game/deck.ts` (file renamed from makeDeck for clarity)
+- ✅ `public/js/utils/winCheck.js` → `web/src/game/winCheck.ts` (NB: original lives under `utils/`, not `rooms/game/`)
+- ✅ `public/js/rooms/game/scoring.js` → `web/src/game/scoring.ts`
+- ✅ `public/js/utils/sorthand.js` → `web/src/game/sortHand.ts`
+- ⏸ `public/js/rooms/Player.js` — degenerate subset of game.js's inline `Player`. Defer; consolidate to one `web/src/game/player.ts` once 5b/5c reads identify the methods to fold in.
+- ⏸ `public/js/utils/timer.js` — drop entirely. Replace with `useEffect` + `setInterval` inside `TurnTimer.tsx`.
+- ⏸ `public/js/demo/AIPlayer.js` → `web/src/demo/aiPlayer.ts` (slice 5d)
+- ⏸ `public/js/demo/LocalGameState.js` → `web/src/demo/localGameState.ts` (slice 5d)
 
-Tile shape: `{ name: string; index: number }`. Meld shape: discriminated union on `kind` (`'pong' | 'chow' | 'kong-exposed' | 'kong-concealed' | 'kong-promoted' | 'flower' | 'animal'`).
+Tile shape: `{ name: string; index: number; suit: string; url: string; copy?: number; count?: number }`. Meld shape: discriminated union on `kind` (`'pong' | 'chow' | 'kong-exposed' | 'kong-concealed' | 'kong-promoted' | 'flower' | 'animal'`).
 
 ## Phases
 
