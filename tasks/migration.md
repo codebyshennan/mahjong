@@ -62,15 +62,22 @@ Create `web/` with Vite + React 18 + TS + Tailwind v3. Wire emulator connections
 
 ### P5 — Game (the big one)
 
-- Lift pure modules (tileset/deck/winCheck/scoring/aiPlayer) into `web/src/game/`, convert to TS with proper types for Tile, Meld, Player, GameState, Winner.
-- `GamePage` wires it together:
-  - Snapshot listener for `gameState`.
-  - Per-player listeners for opponents' `playerChecked` / `playerDiscarded`.
-  - Local `playerHand` + `playerMelds` state with optimistic mutations and Firestore writes inside transactions where Phase 5 already used them (chip-transfer, kong replacement, eat).
-  - Components: `OwnHand`, `OpponentHand`, `DiscardPile`, `MeldRow`, `TurnTimer`, `EatButtons`, `KongButtons`, `WinModal`, `LossModal`, `DrawModal`, `MatchEndModal`.
-- Demo mode: `/demo` runs entirely against `LocalGameState` + `AIPlayer`, no Firestore writes.
+Sliced for risk and verifiability. Each slice ends with a runnable checkpoint.
+
+- **5a — pure module lift** ✅. tileset/deck/winCheck/scoring/sortHand to TS. Typecheck passes. Player + timer deferred.
+- **5b — replace start-game stub.** Read the rest of `game.js` (lines 75-end) to identify the `Player` API surface used post-deal. Lift to `web/src/game/player.ts`. Replace InterstitialPage's stub `setDoc(gameState)` with the full init: deal 13 to each, write 4 player docs (meta + hand + checked + discarded), write deck doc, write gameState. End-state: clicking Start in 4-player room creates valid Firestore state (verifiable via emulator UI).
+- **5c-skeleton — vertical slice.** Smallest possible 4-tab loop: render own hand from Firestore + render opponents' checked + click own tile to discard + opponent renders the new discard. No eat / kong / win / scoring. End-state: 4-tab manual session round-trips a single discard. **This is the architectural gate — if React state flow is wrong, fix here, not deeper.**
+- **5c-features.** Layered on top of skeleton, in order of risk:
+  1. Turn rotation + timer + auto-discard on timeout.
+  2. Eat (pong/chow) claim flow.
+  3. Kong (concealed / exposed / promoted) — Phase 5 logic preserved.
+  4. Win check + tai calc + chip transfer transaction. Modals (win/loss/draw).
+  5. Round transition (連莊, dealer rotation) + match end (4 rounds, ranking).
+- **5d — demo mode.** Lift `LocalGameState` + `AIPlayer` to TS. `/demo` route runs against the local state, no Firestore.
 
 **End-state**: Full match playable end-to-end across 4 tabs. Chip transfer correct on discard-win (only discarder pays) and self-draw (all 3 pay). Kong on kong, 流局, match end with chip ranking all work.
+
+**Verification gate**: 4-tab manual session. Playwright single-context can't cover this. Plan a clean test pass at end of 5c-skeleton + at end of 5c-features.
 
 ### P6 — Cleanup
 
