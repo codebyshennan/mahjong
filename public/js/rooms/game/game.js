@@ -411,8 +411,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     })
   }
 
-  // Back-compat alias — internal callers use the unified renderer.
-  const renderConcealedKongOptions = renderOwnTurnKongOptions
 
   // Exposed kong (明杠): claim an opponent's discard when holding 3 of the
   // same tile. Same seating rule as pong (any opponent can claim, not just
