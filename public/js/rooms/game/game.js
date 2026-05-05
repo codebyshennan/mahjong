@@ -1007,6 +1007,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       await runTransaction(fsdb, async (tx) => {
         const stateSnap = await tx.get(gameStateRef)
         const state = stateSnap.data() || gameState
+        if (state.winner) {
+          // Another player already declared a win this round (e.g. simultaneous
+          // discard-win race). Abort without writing — the existing winner stands.
+          throw new Error('Winner already declared')
+        }
 
         // Read all 4 player metas (collect new chip values)
         const newMetas = {}
