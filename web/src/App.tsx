@@ -31,6 +31,14 @@ export default function App() {
               </RequireAuth>
             }
           />
+          <Route
+            path="/game/:roomId"
+            element={
+              <RequireAuth>
+                <GamePage />
+              </RequireAuth>
+            }
+          />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
