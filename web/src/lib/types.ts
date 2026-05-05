@@ -35,3 +35,35 @@ export interface OnlinePresence {
   state: 'online' | 'offline'
   last_changed: unknown // Firestore Timestamp; we don't introspect it
 }
+
+export interface ChatMessage {
+  name: string
+  message: string
+}
+
+export interface GameStateDoc {
+  roomId: string
+  host: string
+  windCount: number
+  currentWind: Wind
+  currentPlayer: number
+  currentTurnNo: number
+  currentHouse: Wind
+  diceRolled: number
+  timeStarted: unknown
+  tilesInDiscard: number
+  tilesInHands: number
+  tilesToPlay: number
+  roundNumber: number
+  dealerSeat: number
+  // P5 will type this fully (players, winner, roundEnd, etc.)
+  [key: string]: unknown
+}
+
+export const WIND_ORDER: readonly Wind[] = ['east', 'south', 'west', 'north']
+export const WIND_EMOJI: Record<Wind, string> = {
+  east: '🀀',
+  south: '🀁',
+  west: '🀂',
+  north: '🀃',
+}
