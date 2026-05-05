@@ -738,7 +738,10 @@ window.addEventListener('DOMContentLoaded', async () => {
                   eatOptionsDiv.innerHTML = ''
                   lastCheckedTileIndex = null
                   const { win } = checkWin(currentPlayer.playerHand, currentPlayer.playerChecked)
-                  if (win) showWinScreen('discard-win')
+                  if (win) {
+                    const discarderUid = playersDiv[i] && playersDiv[i].id
+                    await showWinScreen('discard-win', discarderUid)
+                  }
                 })
                 eatOptionsDiv.appendChild(eatBtn)
               })
