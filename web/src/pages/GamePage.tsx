@@ -65,18 +65,18 @@ function GameBody({
     })
   }, [roomId])
 
-  // Per-player tile subscriptions, keyed by uid.
+  // Subscribe only to *my own* hand — opponents' hands stay hidden.
+  useEffect(() => {
+    const ref = doc(fsdb, 'games', roomId, 'players', user.uid, 'tiles', 'playerHand')
+    return onSnapshot(ref, (snap) =>
+      setMyHand((snap.data()?.playerHand as Tile[] | undefined) ?? []),
+    )
+  }, [roomId, user.uid])
+
+  // Public per-player checked + discarded subscriptions, keyed by uid.
   useEffect(() => {
     if (players.length === 0) return
     const unsubs = players.flatMap((p) => [
-      onSnapshot(
-        doc(fsdb, 'games', roomId, 'players', p.id, 'tiles', 'playerHand'),
-        (snap) =>
-          setHands((prev) => ({
-            ...prev,
-            [p.id]: (snap.data()?.playerHand as Tile[] | undefined) ?? [],
-          })),
-      ),
       onSnapshot(
         doc(fsdb, 'games', roomId, 'players', p.id, 'tiles', 'playerChecked'),
         (snap) =>
@@ -98,7 +98,6 @@ function GameBody({
   }, [players, roomId])
 
   const me = useMemo(() => players.find((p) => p.id === user.uid) ?? null, [players, user.uid])
-  const myHand = me ? (hands[me.id] ?? []) : []
   const isMyTurn = !!gameState && !!me && gameState.currentPlayer === me.playerNumber
   const phase = gameState?.turnPhase ?? 'draw'
 
