@@ -67,6 +67,9 @@ function GameBody({
   const [shakeNonce, setShakeNonce] = useState(0)
   const prevHandIdsRef = useRef<Set<string>>(new Set())
 
+  const { messages: chatMessages, send: sendChat } = useChat(`game/${roomId}/chats/`)
+  const bubbles = useSeatBubbles(chatMessages, 5500)
+
   useEffect(() => {
     const ref = doc(fsdb, 'games', roomId, 'gameState', roomId)
     return onSnapshot(ref, (snap) => {
