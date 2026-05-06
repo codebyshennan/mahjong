@@ -11,6 +11,11 @@ import { WIND_EMOJI } from '../lib/types'
 import { HandBacks, TileFace } from '../solo/Tile'
 import { TableSurface } from '../solo/TableSurface'
 import { isMuted, playSfx, toggleMuted } from '../solo/sounds'
+import { useChat } from '../lib/rtdb-hooks'
+import { useSeatBubbles, type Bubble } from '../lib/useSeatBubbles'
+import { ChatDrawer } from '../solo/effects/ChatDrawer'
+import { SpeechBubble } from '../solo/effects/SpeechBubble'
+import { AnimatePresence as AP } from 'framer-motion'
 
 interface PlayerMeta {
   id: string
