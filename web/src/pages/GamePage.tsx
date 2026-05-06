@@ -388,12 +388,14 @@ function OpponentSeat({
   discarded,
   isCurrent,
   pos,
+  bubble,
 }: {
   player: PlayerMeta
   checked: Tile[]
   discarded: Tile[]
   isCurrent: boolean
   pos: Exclude<SeatPos, 'bottom'>
+  bubble?: Bubble
 }) {
   const isVertical = pos === 'left' || pos === 'right'
   return (
@@ -405,6 +407,10 @@ function OpponentSeat({
           : 'ring-stone-800/60 bg-emerald-950/20',
       ].join(' ')}
     >
+      {/* Floating chat / reaction bubble above the seat header */}
+      <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-3 z-20">
+        <AnimatePresence>{bubble && <SpeechBubble bubble={bubble} />}</AnimatePresence>
+      </div>
       <div className="flex items-center gap-2">
         <span className="text-xl">{WIND_EMOJI[player.wind]}</span>
         <div className="flex-1 min-w-0">
