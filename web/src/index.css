@@ -1,3 +1,58 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  /* Soft amber halo — used to mark a freshly-drawn / freshly-revealed tile. */
+  @keyframes pulseGlow {
+    0%,
+    100% {
+      box-shadow:
+        0 2px 0 0 rgba(0, 0, 0, 0.35),
+        0 4px 10px -2px rgba(0, 0, 0, 0.5),
+        0 0 0 2px rgba(252, 211, 77, 0.55),
+        0 0 22px 2px rgba(252, 211, 77, 0.35);
+    }
+    50% {
+      box-shadow:
+        0 2px 0 0 rgba(0, 0, 0, 0.35),
+        0 4px 10px -2px rgba(0, 0, 0, 0.5),
+        0 0 0 3px rgba(252, 211, 77, 0.85),
+        0 0 30px 6px rgba(252, 211, 77, 0.55);
+    }
+  }
+  .animate-pulse-glow {
+    animation: pulseGlow 1.6s ease-in-out infinite;
+  }
+
+  /* Brief shake — used on illegal action to give haptic-like feedback. */
+  @keyframes shakeHorizontal {
+    0%, 100% { transform: translateX(0); }
+    15% { transform: translateX(-6px); }
+    30% { transform: translateX(6px); }
+    45% { transform: translateX(-4px); }
+    60% { transform: translateX(4px); }
+    75% { transform: translateX(-2px); }
+    90% { transform: translateX(2px); }
+  }
+  .animate-shake {
+    animation: shakeHorizontal 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+
+  /* Slow wood-grain drift behind the table felt. */
+  @keyframes feltDrift {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+  }
+  .animate-felt-drift {
+    animation: feltDrift 60s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-pulse-glow,
+    .animate-shake,
+    .animate-felt-drift {
+      animation: none !important;
+    }
+  }
+}
