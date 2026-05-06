@@ -254,7 +254,13 @@ function GameBody({
               {gameState.tilesToPlay}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-sm flex-wrap">
+            <ChatDrawer
+              messages={chatMessages}
+              send={sendChat}
+              selfName={me?.name ?? user.displayName ?? user.email ?? 'anon'}
+              selfUid={user.uid}
+            />
             <button
               onClick={onToggleMute}
               className="rounded-md bg-stone-800 hover:bg-stone-700 text-stone-200 px-2.5 py-1 text-xs"
