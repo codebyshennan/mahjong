@@ -48,6 +48,23 @@
     animation: feltDrift 60s linear infinite;
   }
 
+  /* Active-seat breathing aura — used on the seat whose turn it is. */
+  @keyframes seatBreathe {
+    0%, 100% {
+      box-shadow:
+        0 0 0 2px rgba(252, 211, 77, 0.30),
+        0 0 24px rgba(252, 211, 77, 0.28);
+    }
+    50% {
+      box-shadow:
+        0 0 0 3px rgba(252, 211, 77, 0.55),
+        0 0 40px rgba(252, 211, 77, 0.50);
+    }
+  }
+  .animate-seat-glow {
+    animation: seatBreathe 2.6s ease-in-out infinite;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .animate-pulse-glow,
     .animate-shake,
