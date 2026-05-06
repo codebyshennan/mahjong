@@ -39,6 +39,10 @@ export interface OnlinePresence {
 export interface ChatMessage {
   name: string
   message: string
+  /** Optional sender uid — lets in-game UIs route messages/reactions to the right seat reliably. */
+  uid?: string
+  /** Optional kind discriminator. Treated as 'text' if absent. 'reaction' messages carry an emoji in `message`. */
+  kind?: 'text' | 'reaction'
 }
 
 export interface GameStateDoc {
