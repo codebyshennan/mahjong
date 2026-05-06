@@ -534,6 +534,7 @@ function MeSeat({
   justDrawnKey,
   shakeNonce,
   onTileTap,
+  bubble,
 }: {
   me: PlayerMeta | null
   hand: Tile[]
@@ -545,6 +546,7 @@ function MeSeat({
   justDrawnKey: string | null
   shakeNonce: number
   onTileTap: (i: number) => void
+  bubble?: Bubble
 }) {
   const canDiscard = isMyTurn && phase === 'discard'
   const active = isMyTurn
@@ -552,12 +554,16 @@ function MeSeat({
   return (
     <div
       className={[
-        'rounded-xl p-3 sm:p-4 ring-1 transition-shadow',
+        'relative rounded-xl p-3 sm:p-4 ring-1 transition-shadow',
         active
           ? 'ring-amber-300/80 animate-seat-glow bg-emerald-900/30'
           : 'ring-stone-800/60 bg-emerald-950/20',
       ].join(' ')}
     >
+      {/* My bubble — appears top-left so it doesn't obscure the hand */}
+      <div className="pointer-events-none absolute left-4 -top-3 z-20">
+        <AnimatePresence>{bubble && <SpeechBubble bubble={bubble} />}</AnimatePresence>
+      </div>
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <span className="text-xl">{me ? WIND_EMOJI[me.wind] : '?'}</span>
