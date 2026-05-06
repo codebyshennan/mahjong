@@ -299,6 +299,7 @@ function GameBody({
                       discarded={discarded[p.id] ?? []}
                       isCurrent={gameState.currentPlayer === p.playerNumber}
                       pos="top"
+                      bubble={bubbles[p.id] ?? bubbles[p.name]}
                     />
                   </div>
                 ))}
@@ -312,6 +313,7 @@ function GameBody({
                       discarded={discarded[p.id] ?? []}
                       isCurrent={gameState.currentPlayer === p.playerNumber}
                       pos="left"
+                      bubble={bubbles[p.id] ?? bubbles[p.name]}
                     />
                   </div>
                 ))}
@@ -328,6 +330,7 @@ function GameBody({
                       discarded={discarded[p.id] ?? []}
                       isCurrent={gameState.currentPlayer === p.playerNumber}
                       pos="right"
+                      bubble={bubbles[p.id] ?? bubbles[p.name]}
                     />
                   </div>
                 ))}
