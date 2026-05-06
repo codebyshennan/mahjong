@@ -333,7 +333,7 @@ function GameBody({
                 />
               </div>
             </div>
-          </div>
+          </TableSurface>
 
           <div className="mt-4 flex items-center justify-center gap-3 flex-wrap min-h-[44px]">
             {isMyTurn && phase === 'draw' && (
