@@ -346,6 +346,7 @@ function GameBody({
                   justDrawnKey={justDrawnKey}
                   shakeNonce={shakeNonce}
                   onTileTap={onTileTap}
+                  bubble={me ? bubbles[me.id] : undefined}
                 />
               </div>
             </div>
