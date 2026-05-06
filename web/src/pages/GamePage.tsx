@@ -384,7 +384,7 @@ function OpponentSeat({
       className={[
         'relative h-full rounded-xl p-2.5 ring-1 transition-shadow',
         isCurrent
-          ? 'ring-amber-300/80 shadow-[0_0_0_2px_rgba(252,211,77,0.35),0_0_30px_rgba(252,211,77,0.35)] bg-emerald-900/30'
+          ? 'ring-amber-300/80 animate-seat-glow bg-emerald-900/30'
           : 'ring-stone-800/60 bg-emerald-950/20',
       ].join(' ')}
     >
@@ -531,7 +531,7 @@ function MeSeat({
       className={[
         'rounded-xl p-3 sm:p-4 ring-1 transition-shadow',
         active
-          ? 'ring-amber-300/80 shadow-[0_0_0_2px_rgba(252,211,77,0.35),0_0_30px_rgba(252,211,77,0.35)] bg-emerald-900/30'
+          ? 'ring-amber-300/80 animate-seat-glow bg-emerald-900/30'
           : 'ring-stone-800/60 bg-emerald-950/20',
       ].join(' ')}
     >
