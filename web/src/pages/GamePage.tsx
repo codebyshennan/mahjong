@@ -268,15 +268,7 @@ function GameBody({
         </header>
 
         <main className="relative mx-auto max-w-[1200px] p-4">
-          <div
-            className="relative rounded-[28px] p-4 sm:p-6"
-            style={{
-              background:
-                'radial-gradient(ellipse at center, #166e4d 0%, #0f4f37 55%, #0a3927 100%)',
-              boxShadow:
-                'inset 0 0 0 8px #3b2515, inset 0 0 0 14px #5a3a23, inset 0 0 80px rgba(0,0,0,0.45), 0 24px 60px -20px rgba(0,0,0,0.7)',
-            }}
-          >
+          <TableSurface>
             <div
               className="grid gap-3 sm:gap-4"
               style={{
