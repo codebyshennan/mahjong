@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage'
 import LobbyPage from './pages/LobbyPage'
 import InterstitialPage from './pages/InterstitialPage'
 import GamePage from './pages/GamePage'
+import PracticePage from './pages/PracticePage'
 
 export default function App() {
   return (
