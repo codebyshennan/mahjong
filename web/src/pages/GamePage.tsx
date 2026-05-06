@@ -310,7 +310,7 @@ function GameBody({
                   </div>
                 ))}
               <div className="col-start-2 row-start-2 flex items-center justify-center">
-                <CenterPool entry={lastDiscardEntry} prevailing={gameState.prevailingWind} />
+                <CenterPool entry={lastDiscardEntry} prevailing={gameState.currentWind} />
               </div>
               {opponents
                 .filter((p) => seatFor(p.playerNumber) === 'right')
