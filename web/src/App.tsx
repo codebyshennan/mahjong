@@ -40,6 +40,7 @@ export default function App() {
               </RequireAuth>
             }
           />
+          <Route path="/practice" element={<PracticePage />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
