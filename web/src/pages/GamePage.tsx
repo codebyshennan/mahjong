@@ -15,7 +15,6 @@ import { useChat } from '../lib/rtdb-hooks'
 import { useSeatBubbles, type Bubble } from '../lib/useSeatBubbles'
 import { ChatDrawer } from '../solo/effects/ChatDrawer'
 import { SpeechBubble } from '../solo/effects/SpeechBubble'
-import { AnimatePresence as AP } from 'framer-motion'
 
 interface PlayerMeta {
   id: string
