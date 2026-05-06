@@ -9,6 +9,7 @@ import type { GameStateDoc } from '../game/initGame'
 import type { Tile, Wind } from '../game/tileset'
 import { WIND_EMOJI } from '../lib/types'
 import { HandBacks, TileFace } from '../solo/Tile'
+import { TableSurface } from '../solo/TableSurface'
 import { isMuted, playSfx, toggleMuted } from '../solo/sounds'
 
 interface PlayerMeta {
