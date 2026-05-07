@@ -246,7 +246,7 @@ function GameBody({
   return (
     <MotionConfig reducedMotion="user">
       <div className="min-h-screen bg-stone-950 text-stone-100">
-        <header className="flex items-center justify-between gap-3 px-6 py-3 border-b border-stone-800/80 bg-stone-950/90 backdrop-blur flex-wrap">
+        <header className="flex items-center justify-between gap-3 px-3 sm:px-6 py-3 border-b border-stone-800/80 bg-stone-950/90 backdrop-blur flex-wrap">
           <div className="flex items-center gap-3">
             <h1 className="text-lg font-semibold tracking-wide">🀨 麻将之王</h1>
             <span className="text-xs text-stone-500">
