@@ -6,6 +6,8 @@ import { useAuth } from '../auth/AuthContext'
 import { usePageTransition } from '../lib/PageTransition'
 import type { Tile } from '../game/tileset'
 
+const FIREBASE_ENABLED = import.meta.env.VITE_FIREBASE_DISABLED !== 'true'
+
 // ─── Hero tile data ────────────────────────────────────────────────────────
 const HERO_TILES: Tile[] = [
   { name: 'b1',          url: '/assets/svgtiles/b1.svg',           suit: '🀐', index: 0 },
