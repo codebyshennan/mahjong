@@ -29,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [, bump] = useState({})
 
   useEffect(() => {
+    if (!auth) { setLoading(false); return }
     const unsubscribe = onAuthStateChanged(auth, (next) => {
       setUser(next)
       setLoading(false)
@@ -37,16 +38,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
+    if (!auth) return
     await signInWithEmailAndPassword(auth, email, password)
   }
 
   const signUp: AuthContextValue['signUp'] = async ({ email, password, firstName, lastName }) => {
+    if (!auth) return
     const cred = await createUserWithEmailAndPassword(auth, email, password)
     await updateProfile(cred.user, { displayName: `${firstName} ${lastName}` })
     bump({})
   }
 
   const signOut = async () => {
+    if (!auth) return
     if (user) {
       await clearPresence(user.uid, 'online', {
         displayName: user.displayName,
