@@ -6,7 +6,11 @@ import type { Auth } from 'firebase/auth'
 import type { Firestore } from 'firebase/firestore'
 import type { Database } from 'firebase/database'
 
-const FIREBASE_DISABLED = import.meta.env.VITE_FIREBASE_DISABLED === 'true'
+// Disabled when explicitly flagged OR when no real API key is present.
+// Real Firebase API keys always start with "AIza"; "emulator"/undefined mean no real backend.
+const apiKey: string = import.meta.env.VITE_FIREBASE_API_KEY ?? ''
+const FIREBASE_DISABLED =
+  import.meta.env.VITE_FIREBASE_DISABLED === 'true' || !apiKey.startsWith('AIza')
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
