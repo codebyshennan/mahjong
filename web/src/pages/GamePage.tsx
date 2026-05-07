@@ -285,8 +285,8 @@ function GameBody({
             <div
               className="grid gap-3 sm:gap-4"
               style={{
-                gridTemplateColumns: 'minmax(140px, 1fr) minmax(0, 2.4fr) minmax(140px, 1fr)',
-                gridTemplateRows: 'minmax(140px, auto) minmax(160px, 1fr) auto',
+                gridTemplateColumns: 'minmax(85px, 1fr) minmax(0, 2.4fr) minmax(85px, 1fr)',
+                gridTemplateRows: 'minmax(90px, auto) minmax(100px, 1fr) auto',
               }}
             >
               {opponents
