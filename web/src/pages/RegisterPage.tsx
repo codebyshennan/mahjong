@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
+  const { transitionTo } = usePageTransition()
   if (user) return <Navigate to="/lobby" replace />
 
   const onSubmit = async (e: FormEvent) => {
