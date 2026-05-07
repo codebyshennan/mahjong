@@ -4,6 +4,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { FirebaseError } from 'firebase/app'
 import { useAuth } from '../auth/AuthContext'
 import { AuthShell } from './LoginPage'
+import { usePageTransition } from '../lib/PageTransition'
 
 export default function RegisterPage() {
   const { user, signUp } = useAuth()
