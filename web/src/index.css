@@ -115,10 +115,20 @@
     animation: seatBreathe 2.6s ease-in-out infinite;
   }
 
+  /* Landing page tile rise */
+  @keyframes tileRise {
+    from { opacity: 0; transform: translateY(18px) rotate(var(--tile-rot, 0deg)); }
+    to   { opacity: 1; transform: translateY(0)    rotate(var(--tile-rot, 0deg)); }
+  }
+  .animate-tile-rise {
+    animation: tileRise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .animate-pulse-glow,
     .animate-shake,
-    .animate-felt-drift {
+    .animate-felt-drift,
+    .animate-tile-rise {
       animation: none !important;
     }
   }
