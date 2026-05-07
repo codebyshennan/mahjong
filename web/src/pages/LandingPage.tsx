@@ -242,6 +242,7 @@ export default function LandingPage() {
             Create Account
           </Link>
         </div>
+        )}
       </main>
 
       {/* Thin wood accent at bottom */}
