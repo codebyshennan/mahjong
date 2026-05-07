@@ -8,6 +8,7 @@ import { usePageTransition } from '../lib/PageTransition'
 export default function LoginPage() {
   const { user, signIn } = useAuth()
   const navigate = useNavigate()
+  const { transitionTo } = usePageTransition()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
