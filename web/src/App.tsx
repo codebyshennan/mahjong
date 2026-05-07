@@ -54,7 +54,7 @@ export default function App() {
               }
             />
             <Route path="/practice" element={<PracticePage />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </BrowserRouter>
