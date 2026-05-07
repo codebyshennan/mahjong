@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './auth/AuthContext'
 import { RequireAuth } from './auth/RequireAuth'
+import { PageTransitionProvider } from './lib/PageTransition'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -20,43 +21,52 @@ function PageLoader() {
   )
 }
 
+// Separated so PageTransitionProvider (which uses useNavigate) lives inside <BrowserRouter>.
+function AppRoutes() {
+  return (
+    <PageTransitionProvider>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/lobby"
+            element={
+              <RequireAuth>
+                <LobbyPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/interstitial/:roomId"
+            element={
+              <RequireAuth>
+                <InterstitialPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/game/:roomId"
+            element={
+              <RequireAuth>
+                <GamePage />
+              </RequireAuth>
+            }
+          />
+          <Route path="/practice" element={<PracticePage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+    </PageTransitionProvider>
+  )
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route
-              path="/lobby"
-              element={
-                <RequireAuth>
-                  <LobbyPage />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/interstitial/:roomId"
-              element={
-                <RequireAuth>
-                  <InterstitialPage />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/game/:roomId"
-              element={
-                <RequireAuth>
-                  <GamePage />
-                </RequireAuth>
-              }
-            />
-            <Route path="/practice" element={<PracticePage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
+        <AppRoutes />
       </BrowserRouter>
     </AuthProvider>
   )
