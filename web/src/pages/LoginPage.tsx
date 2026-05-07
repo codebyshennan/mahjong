@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { FirebaseError } from 'firebase/app'
 import { useAuth } from '../auth/AuthContext'
+import { usePageTransition } from '../lib/PageTransition'
 
 export default function LoginPage() {
   const { user, signIn } = useAuth()
