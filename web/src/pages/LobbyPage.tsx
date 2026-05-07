@@ -117,7 +117,7 @@ export default function LobbyPage() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-6 space-y-8">
+      <main className="max-w-5xl mx-auto p-4 sm:p-6 space-y-8">
         {actionError && (
           <div className="rounded-md bg-rose-950/60 ring-1 ring-rose-800 px-4 py-2 text-sm text-rose-300">
             {actionError}
