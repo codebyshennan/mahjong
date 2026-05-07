@@ -18,23 +18,28 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
-let auth: Auth | null = null
-let fsdb: Firestore | null = null
-let rtdb: Database | null = null
+// When FIREBASE_DISABLED=true, these are null at runtime but typed as non-null
+// because multiplayer pages (which use them) are all behind RequireAuth and
+// never render when there is no authenticated user.
+let _auth: Auth | null = null
+let _fsdb: Firestore | null = null
+let _rtdb: Database | null = null
 
 if (!FIREBASE_DISABLED) {
   const firebaseApp = initializeApp(firebaseConfig)
-  auth = getAuth(firebaseApp)
-  fsdb = getFirestore(firebaseApp)
-  rtdb = getDatabase(firebaseApp)
+  _auth = getAuth(firebaseApp)
+  _fsdb = getFirestore(firebaseApp)
+  _rtdb = getDatabase(firebaseApp)
 
   // Match the emulator ports defined in firebase.json (auth 12088, firestore
   // 14701, rtdb 15047). Only connect on localhost / 127.0.0.1.
   if (typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname)) {
-    connectAuthEmulator(auth, 'http://localhost:12088', { disableWarnings: true })
-    connectFirestoreEmulator(fsdb, 'localhost', 14701)
-    connectDatabaseEmulator(rtdb, 'localhost', 15047)
+    connectAuthEmulator(_auth, 'http://localhost:12088', { disableWarnings: true })
+    connectFirestoreEmulator(_fsdb, 'localhost', 14701)
+    connectDatabaseEmulator(_rtdb, 'localhost', 15047)
   }
 }
 
-export { auth, fsdb, rtdb }
+export const auth = _auth as Auth
+export const fsdb = _fsdb as Firestore
+export const rtdb = _rtdb as Database
