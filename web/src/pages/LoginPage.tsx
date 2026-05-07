@@ -88,13 +88,14 @@ export default function LoginPage() {
           </Link>
         </p>
         <div className="w-full h-px" style={{ background: 'var(--paper-edge)' }} />
-        <Link
-          to="/practice"
-          className="text-sm hover:underline"
+        <button
+          type="button"
+          onClick={() => transitionTo('/practice')}
+          className="text-sm hover:underline cursor-pointer bg-transparent border-none p-0"
           style={{ color: 'var(--ink-faint)', fontFamily: 'var(--serif)' }}
         >
           Play Solo — No account needed →
-        </Link>
+        </button>
       </div>
     </AuthShell>
   )
