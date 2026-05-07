@@ -115,13 +115,36 @@
     animation: seatBreathe 2.6s ease-in-out infinite;
   }
 
-  /* Landing page tile rise */
-  @keyframes tileRise {
-    from { opacity: 0; transform: translateY(18px) rotate(var(--tile-rot, 0deg)); }
-    to   { opacity: 1; transform: translateY(0)    rotate(var(--tile-rot, 0deg)); }
+  /* Landing page — hero tile float */
+  @keyframes heroFloat {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(calc(-1 * var(--float-amp, 8px))); }
   }
-  .animate-tile-rise {
-    animation: tileRise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  /* Landing page — title shimmer */
+  @keyframes titleGlow {
+    0%, 100% { filter: drop-shadow(0 0 0px oklch(60% 0.165 38 / 0)); }
+    50%       { filter: drop-shadow(0 0 10px oklch(60% 0.165 38 / 0.28)); }
+  }
+  .animate-title-glow {
+    animation: titleGlow 4s ease-in-out infinite;
+  }
+
+  /* Landing page — CTA button ambient pulse */
+  @keyframes ctaGlow {
+    0%, 100% { box-shadow: 0 2px 0 var(--wood-deep), 0 8px 24px oklch(60% 0.165 38 / 0.20); }
+    50%       { box-shadow: 0 2px 0 var(--wood-deep), 0 8px 36px oklch(60% 0.165 38 / 0.42), 0 0 0 3px oklch(60% 0.165 38 / 0.08); }
+  }
+  .animate-cta-glow {
+    animation: ctaGlow 3s ease-in-out infinite;
+  }
+
+  /* Landing page — ambient background particles */
+  @keyframes ambientDrift {
+    0%   { transform: translateY(0)    rotate(0deg)   scale(1);    }
+    33%  { transform: translateY(-18px) rotate(120deg) scale(1.05); }
+    66%  { transform: translateY(10px)  rotate(240deg) scale(0.96); }
+    100% { transform: translateY(0)    rotate(360deg) scale(1);    }
   }
 
   @media (prefers-reduced-motion: reduce) {
