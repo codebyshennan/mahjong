@@ -189,7 +189,7 @@ function InterstitialBody({
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto p-6 space-y-6">
+      <main className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-medium">Waiting room</h2>
