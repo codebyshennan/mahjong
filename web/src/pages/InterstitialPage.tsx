@@ -179,7 +179,7 @@ function InterstitialBody({
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100">
-      <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+      <header className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-800">
         <h1 className="text-xl font-semibold">🀨 麻将之王</h1>
         <div className="flex items-center gap-4 text-sm">
           <span className="text-slate-400">{user.displayName ?? user.email}</span>
