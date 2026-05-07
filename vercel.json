@@ -1,0 +1,7 @@
+{
+  "buildCommand": "pnpm --filter web run build",
+  "outputDirectory": "web/dist",
+  "installCommand": "pnpm install",
+  "framework": null,
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
