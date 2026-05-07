@@ -185,6 +185,7 @@ export default function LandingPage() {
           </button>
         </div>
 
+        {FIREBASE_ENABLED && (
         <div className="flex items-center gap-4 w-full max-w-md">
           <div className="flex-1 h-px" style={{ background: 'var(--paper-edge)' }} />
           <span
@@ -195,7 +196,9 @@ export default function LandingPage() {
           </span>
           <div className="flex-1 h-px" style={{ background: 'var(--paper-edge)' }} />
         </div>
+        )}
 
+        {FIREBASE_ENABLED && (
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-md">
           <Link
             to="/login"
